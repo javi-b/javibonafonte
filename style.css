@@ -1,0 +1,143 @@
+/* style.css */
+
+/*
+ * Variables
+ */
+
+:root {
+    /* light colors */
+    --col-bg: White;
+    --col-main: Black;
+    --col-off: Grey;
+    --col-so-off: #ddd;
+    --col-light: SteelBlue;
+    --col-light2: SteelBlue;
+    /* dark colors */
+    --col-dark-bg: SlateGrey;
+    --col-dark-main: Snow;
+    /* general */
+    --border-radius: 2px;
+}
+
+/*
+ * General
+ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--col-bg);
+    font-family: 'Georgia', 'backup', serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--col-main);
+    text-align: justify;
+}
+
+h2 {
+    font-size: 21px;
+}
+
+a {
+    color: var(--col-light);
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+}
+
+hr {
+    margin: 100px 0;
+    color: var(--col-so-off);
+    border-top: 1px solid var(--col-so-off);
+    border-bottom: none;
+}
+
+.small-text { font-size: 90%; }
+
+.right { text-align: right; }
+
+.center { text-align: center; }
+
+.no-top-m { margin-top: 0; }
+
+.no-bottom-m { margin-bottom: 0; }
+
+.off { color: var(--col-off); }
+
+.border {
+    border: 1px solid black;
+    border-radius: var(--border-radius);
+}
+
+.shadow { box-shadow: 10px 10px 3px 0px rgba(0,0,0,0.5); }
+
+.indent { text-indent: 3em; }
+
+.row {
+    display: flex;
+}
+
+.column-l {
+    flex: 50%;
+    margin-right: 25px;
+}
+
+.column-r {
+    flex: 50%;
+    margin-left: 25px;
+}
+
+.big-break { margin: 100px 0; }
+
+.popup-link {
+    color: var(--col-light2);
+    cursor: pointer;
+}
+
+.popup {
+    display: none;
+    position: absolute;
+    max-width: 250px;
+    text-align: left;
+    word-wrap: break-word;
+    background-color: var(--col-dark-bg);
+    color: var(--col-dark-main);
+    border: 1px solid var(--col-dark-main);
+    border-radius: var(--border-radius);
+    box-shadow: 10px 10px 3px 0px rgba(0,0,0,0.5);
+}
+
+.popup p, .popup h2, .popup h3 {
+    margin: 4px;
+}
+
+/*
+ * Specific
+ */
+
+#site {
+    margin: 0 auto;
+    width: 900px;
+}
+
+#book {
+    margin: 0 auto;
+    width: 700px;
+    font-size: 120%;
+}
+
+#header {
+    margin: 100px 0;
+}
+
+#header h1, #header p {
+    margin: 0;
+}
+
+#footer {
+    margin: 100px 0;
+}
