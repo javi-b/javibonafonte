@@ -21,6 +21,24 @@ function HidePopup(pp_id) {
 }
 
 /**
+ * Loops Go text.
+ */
+function LoopGoText(i) {
+
+    const go_texts = ["Go", "围棋", "囲碁", "바둑"];
+    
+    if (i < go_texts.length) {
+        setTimeout(function() {
+            $("#loop-go-text").html(go_texts[i]);
+            LoopGoText(++i);
+        }, 2000); // 1 second
+    } else {
+        LoopGoText(0);
+    }
+
+}
+
+/**
  * Main function.
  */
 function Main() {
@@ -35,6 +53,9 @@ function Main() {
         let pp_id = "#pp-" + this.id.split("-")[1];
         HidePopup(pp_id);
     });
+
+    // starts looping the go text
+    LoopGoText(0);
 }
 
 $(document).ready(Main);
