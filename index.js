@@ -1,3 +1,25 @@
+$(document).ready(Main);
+
+/**
+ * Main function.
+ */
+function Main() {
+
+    // when hovering any element of class .popup-link and id #ppl-<...>,
+    // it will interact with the element of class .popup and id #pp-<...>
+    $(".popup-link").hover(function() {
+        let ppl_id = "#" + this.id;
+        let pp_id = "#pp-" + this.id.split("-")[1];
+        ShowPopup(ppl_id, pp_id);
+    }, function() {
+        let pp_id = "#pp-" + this.id.split("-")[1];
+        HidePopup(pp_id);
+    });
+
+    // starts looping the go text
+    LoopGoText(0);
+}
+
 /**
  * Shows popup with specific id.
  */
@@ -35,27 +57,4 @@ function LoopGoText(i) {
     } else {
         LoopGoText(0);
     }
-
 }
-
-/**
- * Main function.
- */
-function Main() {
-
-    // when hovering any element of class .popup-link and id #ppl-<...>,
-    // it will interact with the element of class .popup and id #pp-<...>
-    $(".popup-link").hover(function() {
-        let ppl_id = "#" + this.id;
-        let pp_id = "#pp-" + this.id.split("-")[1];
-        ShowPopup(ppl_id, pp_id);
-    }, function() {
-        let pp_id = "#pp-" + this.id.split("-")[1];
-        HidePopup(pp_id);
-    });
-
-    // starts looping the go text
-    LoopGoText(0);
-}
-
-$(document).ready(Main);

@@ -56,11 +56,43 @@ hr {
     border-bottom: none;
 }
 
+form {
+    width: 100%;
+}
+
+input {
+    display: block;
+    width: 50%;
+    border: none;
+    border-bottom: 1px solid var(--col-so-off);
+    font-size: 100%;
+    text-align: center;
+}
+
+input:focus {
+    border-bottom: 1px solid var(--col-main);
+}
+
+textarea {
+    display: block;
+}
+
+textarea:focus, input:focus{
+    outline: none;
+}
+
+.invisible { display: none; }
+
 .small-text { font-size: 90%; }
+
+.mono-font { font-family: monospace; }
 
 .right { text-align: right; }
 
-.center { text-align: center; }
+.center {
+    text-align: center;
+    margin: 0 auto;
+}
 
 .no-top-m { margin-top: 0; }
 
@@ -77,9 +109,7 @@ hr {
 
 .indent { text-indent: 3em; }
 
-.row {
-    display: flex;
-}
+.row { display: flex; }
 
 .column-l {
     flex: 50%;
@@ -98,7 +128,7 @@ hr {
 
 .big-break { margin: 100px 0; }
 
-.popup-link {
+.custom-link, .popup-link {
     color: var(--col-light2);
     cursor: pointer;
 }
