@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset=UTF-8>
+    <title>汉语</title>
+    <link rel="icon" type="image/ico" href="../imgs/favicon.ico"/>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+    <script src=../jquery-3.6.0.min.js></script>
+    <script src=../jquery.csv.min.js></script>
+    <script src=index.js></script>
+</head>
+
+<body>
+<div id=site>
+
+    <div id=header>
+        <h1>汉语</h1>
+        <p>by Javi Bonafonte</p>
+    </div>
+
+    <div class=center>
+        <button id=start disabled>开始</button>
+        <p id=english></p>
+        <form autocomplete=off onsubmit="OnSubmitAnswer(); return false;">
+            <input class=invisible id=input type=text>
+        </form>
+        <div class=invisible id=good-answer>
+            <p class="no-bottom-m" id=hanyu></p>
+            <p class="small-text off no-top-m mono-font" id=pinyin></p>
+        </div>
+        <button class=invisible id=next type="button">下一个</button>
+    </div>
+
+</div>
+</body>
+
+</html>
+
