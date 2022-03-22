@@ -20,17 +20,41 @@
         <p>by Javi Bonafonte</p>
     </div>
 
-    <div class=center>
+    <div class=center id=app>
         <button id=start disabled>开始</button>
         <p id=english></p>
+        <div id=correctness-div><p id=correctness></p></div>
         <form autocomplete=off onsubmit="OnSubmitAnswer(); return false;">
-            <input class=invisible id=input type=text>
+            <input id=input type=text>
         </form>
         <div class=invisible id=good-answer>
             <p class="no-bottom-m" id=hanyu></p>
             <p class="small-text off no-top-m mono-font" id=pinyin></p>
         </div>
         <button class=invisible id=next type="button">下一个</button>
+    </div>
+
+    <hr>
+
+    <div class=row>
+        <div class=column-l>
+            <h2>欢迎你…</h2>
+            <p>to 汉语. The purpose of this page is to help memorizing Chinese vocabulary. Select at least one group of words to practice and start writing 汉语.</p>
+        </div>
+        <div class="column-r center">
+            <p>
+                <b>hsk 1</b>
+                <progress max=1 value=0.1></progress>
+            </p>
+            <p>
+                <b>hsk 2</b>
+                <progress max=1 value=0.27></progress>
+            </p>
+            <p>
+                <b>hsk 3</b>
+                <progress max=1 value=0.0></progress>
+            </p>
+        </div>
     </div>
 
 </div>

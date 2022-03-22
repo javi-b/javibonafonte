@@ -4,6 +4,34 @@
  * Specific
  */
 
+#app {
+    height: 250px;
+}
+
 #english, #good-answer {
     margin: 2em;
+}
+
+#correctness-div {
+    position: relative;
+    margin: 0 auto;
+    top: -2em;
+    left: 20%;
+    width: 0;
+    height: 0;
+}
+
+#correctness {
+    display: none;
+    position: absolute;
+    width: 4em;
+    font-weight: bold;
+}
+
+#input {
+    display: none;
+    width: 50%;
+    margin: 0 auto;
+    font-size: 100%;
+    text-align: center;
 }

@@ -36,7 +36,7 @@ function LoadVocabFiles() {
 function OnStart() {
 
     $("#english").text(hsk1[i].english);
-    $("#input").css("display", "initial");
+    $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
 }
@@ -52,9 +52,12 @@ function OnSubmitAnswer() {
     if (answer.length == 0)
         return;
 
-    $("#input").prop("disabled", true);
-
     let correct = answer == hsk1[i].hanyu;
+
+    $("#correctness").css("color", (correct) ? "initial" : "DarkRed");
+    $("#correctness").text((correct) ? "正确！" : "不正确");
+    $("#correctness").css("display", "initial");
+    $("#input").prop("disabled", true);
 
     $("#good-answer").css("display", "block");
     $("#hanyu").text(hsk1[i].hanyu);
@@ -73,6 +76,7 @@ function OnNext() {
 
     $("#english").text(hsk1[i].english);
 
+    $("#correctness").css("display", "none");
     $("#input").val("");
     $("#input").prop("disabled", false);
     $("#input").focus();

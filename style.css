@@ -61,12 +61,8 @@ form {
 }
 
 input {
-    display: block;
-    width: 50%;
     border: none;
     border-bottom: 1px solid var(--col-so-off);
-    font-size: 100%;
-    text-align: center;
 }
 
 input:focus {
@@ -79,6 +75,31 @@ textarea {
 
 textarea:focus, input:focus{
     outline: none;
+}
+
+progress {
+    margin: 0 1em;
+}
+
+button {
+    cursor: pointer;
+    background-color: var(--col-dark-bg);
+    color: var(--col-dark-main);
+    border: 1px solid var(--col-dark-main);
+    border-radius: var(--border-radius);
+    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+    outline-color: var(--col-light);
+}
+
+button:hover, button:focus {
+    background-color: var(--col-light);
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
+}
+
+button:disabled, button:disabled:hover {
+    cursor: default;
+    background-color: var(--col-off);
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
 }
 
 .invisible { display: none; }
