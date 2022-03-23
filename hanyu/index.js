@@ -60,7 +60,7 @@ function OnSubmitAnswer() {
     let correct = answer == hsk1[i].hanyu;
 
     $("#correctness").css("color", (correct) ? "initial" : "DarkRed");
-    $("#correctness").text((correct) ? "正确！" : "不正确");
+    $("#correctness").text((correct) ? "正确！" : "错误");
     $("#correctness").css("display", "initial");
     $("#input").prop("disabled", true);
 
