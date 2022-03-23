@@ -29,7 +29,7 @@ html {
 
 body {
     background-color: var(--col-bg);
-    font-family: 'Georgia', 'backup', serif;
+    font-family: Georgia, Times, Times New Roman, serif;
     font-size: 16px;
     line-height: 1.4;
     color: var(--col-main);
@@ -88,12 +88,15 @@ button {
     border: 1px solid var(--col-dark-main);
     border-radius: var(--border-radius);
     box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
-    outline-color: var(--col-light);
 }
 
 button:hover, button:focus {
     background-color: var(--col-light);
     box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
+}
+
+button:focus {
+    outline: none;
 }
 
 button:disabled, button:disabled:hover {
@@ -105,8 +108,6 @@ button:disabled, button:disabled:hover {
 .invisible { display: none; }
 
 .small-text { font-size: 90%; }
-
-.mono-font { font-family: monospace; }
 
 .right { text-align: right; }
 
