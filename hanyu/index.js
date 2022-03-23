@@ -3,6 +3,7 @@ $(document).ready(Main);
 let hsk1;
 
 let i = 0;
+let progress = 0;
 
 /**
  * Main function.
@@ -12,6 +13,7 @@ function Main() {
     LoadVocabFiles();
     $("#start").click(OnStart);
     $("#next").click(OnNext);
+    //$(".prgr-title").click(SelectVocabGroup);
 }
 
 /**
@@ -52,6 +54,9 @@ function OnSubmitAnswer() {
     if (answer.length == 0)
         return;
 
+    progress++;
+    SetVocabGroupProgress("hsk1", progress / hsk1.length);
+
     let correct = answer == hsk1[i].hanyu;
 
     $("#correctness").css("color", (correct) ? "initial" : "DarkRed");
@@ -85,3 +90,33 @@ function OnNext() {
     $("#next").css("display", "none");
 }
 
+/**
+ * Sets vocab group progress value. Value is a number between 0 an 1.
+ */
+function SetVocabGroupProgress(group_name, value) {
+
+    // only keeps going if its a valid value between 0 and 1
+    if (value < 0 || value > 1)
+        return;
+
+    let pct = value * 100;
+
+    // sets vocab group progress bar value
+    let prgr_val = $(".prgr-val." + group_name)[0];
+    let width = 100 - pct;
+    $(prgr_val).css("width", width + "%");
+
+    // sets vocab group progress bar label
+    let prgr_label = $(".prgr-label." + group_name)[0];
+    $(prgr_label).text(pct + "%");
+}
+
+/**
+ * Selects vocab group.
+ */
+function SelectVocabGroup() {
+
+    let classes = $(this).attr("class").split(/\s+/);
+    let vocab_name = classes[1];
+    console.log(vocab_name);
+}

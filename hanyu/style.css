@@ -35,3 +35,30 @@
     font-size: 100%;
     text-align: center;
 }
+
+.prgr-title {
+    cursor: pointer;
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.prgr {
+    display: inline-flex;
+    justify-content: flex-end;
+    margin: 0 0.5em;
+    height: 1em;
+    width: 200px;
+    background-image:
+        linear-gradient(to right, var(--col-light), GreenYellow);
+    border: 1px solid var(--col-dark-main);
+    border-radius: var(--border-radius);
+    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+}
+
+.prgr-val {
+    height: 100%;
+    width: 100%;
+    background: var(--col-so-off);
+}
