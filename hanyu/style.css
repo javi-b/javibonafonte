@@ -8,6 +8,23 @@
     height: 250px;
 }
 
+#groups-list-div {
+    position: relative;
+    margin: 0 auto;
+    top: -2.5em;
+    left: 1em;
+    width: 0;
+    height: 0;
+}
+
+#groups-list {
+    position: absolute;
+    width: 200px;
+    text-align: left;
+    font-size: 90%;
+    color: var(--col-off);
+}
+
 #english, #good-answer {
     margin: 2em;
 }
@@ -22,8 +39,8 @@
 }
 
 #correctness {
-    display: none;
     position: absolute;
+    display: none;
     width: 4em;
     font-weight: bold;
 }
@@ -36,7 +53,7 @@
     text-align: center;
 }
 
-.prgr-title {
+.group-title {
     cursor: pointer;
     display: inline-block;
     width: 100px;

@@ -88,13 +88,13 @@ button {
     box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
 }
 
-button:hover, button:focus {
+button:hover {
     background-color: var(--col-light);
     box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
 }
 
 button:focus {
-    outline: none;
+    outline: 1px solid var(--col-off);
 }
 
 button:disabled, button:disabled:hover {

@@ -1,19 +1,57 @@
 $(document).ready(Main);
 
-let hsk1;
+// global constants and variables
 
-let i = 0;
-let progress = 0;
+const vocab_names = ["hsk1", "hsk2"];
+
+let vocab_groups = []; // list of vocab groups
+let vocab_groups_progress; // number of correct answers for each group
+let enabled_vocab_groups = new Set(); // set of indexes of enabled groups
+
+let vocab_pool = []; // list of currently available vocab units
+let vocab_i = 0; // index of current vocab unit in the vocab pool
+
+let session_started = false;
+let session_finished = false;
 
 /**
  * Main function.
  */
 function Main() {
 
+    LoadVocabHTML();
     LoadVocabFiles();
+
+    vocab_groups_progress = new Array(vocab_names.length);
+    vocab_groups_progress.fill(0);
+
     $("#start").click(OnStart);
     $("#next").click(OnNext);
-    //$(".prgr-title").click(SelectVocabGroup);
+    $(".group-title").click(SelectVocabGroup);
+}
+
+/**
+ * Loads HTML elements related to every vocab group.
+ */
+function LoadVocabHTML() {
+
+    let div = $("#vocab-controls");
+
+    for (const name of vocab_names) {
+
+        const p = $("<p></p>");
+        const prgr_title = $('<span class="group-title ' + name + '">'
+                + name + '</span>');
+        const prgr = $('<span class=prgr><span class="prgr-val ' + name
+                + '"></span></span>');
+        const prgr_label = $('<span class="prgr-label ' + name
+                + '">0%</span>');
+
+        p.append(prgr_title);
+        p.append(prgr);
+        p.append(prgr_label)
+        div.append(p);
+    }
 }
 
 /**
@@ -21,31 +59,33 @@ function Main() {
  */
 function LoadVocabFiles() {
 
-    $.ajax({
-        type: "GET",  
-        url: "vocab/hsk1.csv",
-        dataType: "text",       
-        success: function(csv) {
-            hsk1 = $.csv.toObjects(csv);
-            hsk1.forEach(AddAccentPinyin);
-            $("#start").prop("disabled", false);
-        }
-    });
+    for (let i = 0; i < vocab_names.length; i++) {
+        $.ajax({
+            type: "GET",
+            url: "vocab/" + vocab_names[i] + ".csv",
+            dataType: "text",
+            success: function(csv) {
+                vocab_group = $.csv.toObjects(csv);
+                vocab_group.forEach(AddAccentPinyin);
+                vocab_groups.push(vocab_group);
+            }
+        });
+    }
 }
 
 /**
  * Adds accent pinyin string to vocab unit.
  */
-function AddAccentPinyin(vocab_item) {
+function AddAccentPinyin(vocab_unit) {
 
-    let pinyin_words = vocab_item.pinyin.split(" ");
-    vocab_item.accent_pinyin = "";
+    let pinyin_words = vocab_unit.pinyin.split(" ");
+    vocab_unit.accent_pinyin = "";
 
     for (let i = 0; i < pinyin_words.length; i++) {
         accent_pinyin = GetAccentPinyin(pinyin_words[i]);
         if (i > 0)
-            vocab_item.accent_pinyin = vocab_item.accent_pinyin + " ";
-        vocab_item.accent_pinyin = vocab_item.accent_pinyin + accent_pinyin;
+            vocab_unit.accent_pinyin = vocab_unit.accent_pinyin + " ";
+        vocab_unit.accent_pinyin = vocab_unit.accent_pinyin + accent_pinyin;
     }
 }
 
@@ -90,10 +130,33 @@ function GetAccentPinyin(pinyin_word) {
  */
 function OnStart() {
 
-    $("#english").text(hsk1[i].english);
+    // sets up the vocab pool
+    for (let i = 0; i < vocab_names.length; i++) {
+        if (!enabled_vocab_groups.has(i))
+            continue;
+        vocab_groups[i].forEach(function(vocab_unit) {
+            vocab_unit.group_i = i;
+        });
+        vocab_pool.push.apply(vocab_pool, vocab_groups[i]);
+    }
+
+    // sets first vocab unit index
+    vocab_i = Math.floor(Math.random() * vocab_pool.length);
+
+    // sets html
+
+    $("#english").text(vocab_pool[vocab_i].english);
     $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
+
+    let group_titles = $(".group-title");
+    for (let group_title of group_titles) {
+        $(group_title).css("cursor", "default");
+        $(group_title).css("text-decoration", "none");
+    }
+
+    session_started = true; // session_started flag
 }
 
 /**
@@ -101,16 +164,18 @@ function OnStart() {
  */
 function OnSubmitAnswer() {
 
-    let answer = $("#input").val();
+    const answer = $("#input").val();
+    const correct = answer == vocab_pool[vocab_i].hanyu;
+    const group_i = vocab_pool[vocab_i].group_i;
 
-    // if the answer is empty, does nothing
-    if (answer.length == 0)
-        return;
+    // if answer correct and session hasn't finished,
+    // updates vocab group's progress
+    if (correct && !session_finished) {
+        vocab_groups_progress[group_i]++;
+        SetVocabGroupProgress(group_i, vocab_groups_progress[group_i]);
+    }
 
-    progress++;
-    SetVocabGroupProgress("hsk1", progress / hsk1.length);
-
-    let correct = answer == hsk1[i].hanyu;
+    // updates html
 
     $("#correctness").css("color", (correct) ? "initial" : "DarkRed");
     $("#correctness").text((correct) ? "正确！" : "错误");
@@ -118,11 +183,15 @@ function OnSubmitAnswer() {
     $("#input").prop("disabled", true);
 
     $("#good-answer").css("display", "block");
-    $("#hanyu").text(hsk1[i].hanyu);
-    $("#pinyin").text(hsk1[i].accent_pinyin);
+    $("#hanyu").text(vocab_pool[vocab_i].hanyu);
+    $("#pinyin").text(vocab_pool[vocab_i].accent_pinyin);
 
     $("#next").css("display", "initial");
     $("#next").focus();
+
+    // if the answer was correct and the session hasn't been finished yet..
+    if (correct && !session_finished)
+        vocab_pool.splice(vocab_i, 1); // removes vocab unit from pool
 }
 
 /**
@@ -130,9 +199,22 @@ function OnSubmitAnswer() {
  */
 function OnNext() {
 
-    i = (i + 1) % (hsk1.length);
+    // if finished all vocab...
+    if (vocab_pool.length == 0) {
 
-    $("#english").text(hsk1[i].english);
+        session_finished = true;
+
+        // readds all vocab units to the vocab pool
+        for (const group_i of enabled_vocab_groups)
+            vocab_pool.push.apply(vocab_pool, vocab_groups[group_i]);
+    }
+
+    // gets new vocab unit index
+    vocab_i = Math.floor(Math.random() * vocab_pool.length);
+
+    // updates html
+
+    $("#english").text(vocab_pool[vocab_i].english);
 
     $("#correctness").css("display", "none");
     $("#input").val("");
@@ -144,23 +226,24 @@ function OnNext() {
 }
 
 /**
- * Sets vocab group progress value. Value is a number between 0 an 1.
+ * Sets vocab group progress value. Value is the number of vocab units
+ * answered correctly.
  */
-function SetVocabGroupProgress(group_name, value) {
+function SetVocabGroupProgress(group_i, value) {
 
-    // only keeps going if its a valid value between 0 and 1
-    if (value < 0 || value > 1)
+    let pct = value / vocab_groups[group_i].length * 100;
+
+    // only keeps going if its a valid value between 0 and 100
+    if (pct < 0 || pct > 100)
         return;
 
-    let pct = value * 100;
-
     // sets vocab group progress bar value
-    let prgr_val = $(".prgr-val." + group_name)[0];
+    let prgr_val = $(".prgr-val." + vocab_names[group_i])[0];
     let width = 100 - pct;
     $(prgr_val).css("width", width + "%");
 
     // sets vocab group progress bar label
-    let prgr_label = $(".prgr-label." + group_name)[0];
+    let prgr_label = $(".prgr-label." + vocab_names[group_i])[0];
     $(prgr_label).text(pct.toFixed(0) + "%");
 }
 
@@ -169,7 +252,38 @@ function SetVocabGroupProgress(group_name, value) {
  */
 function SelectVocabGroup() {
 
-    let classes = $(this).attr("class").split(/\s+/);
-    let vocab_name = classes[1];
-    console.log(vocab_name);
+    // if the session already started, return immediatly
+    if (session_started)
+        return;
+
+    const classes = $(this).attr("class").split(/\s+/);
+    const vocab_name = classes[1];
+    const vocab_group_i = vocab_names.indexOf(vocab_name);
+
+    if (enabled_vocab_groups.has(vocab_group_i)) {
+        enabled_vocab_groups.delete(vocab_group_i);
+        $(this).css("font-weight", "normal");
+    } else {
+        enabled_vocab_groups.add(vocab_group_i);
+        $(this).css("font-weight", "bold");
+    }
+
+    // updates list of selected vocab groups
+    let str = "";
+    if (enabled_vocab_groups.size > 0) {
+        str += "( ";
+        let i = 0;
+        for (const group_i of enabled_vocab_groups) {
+            str += vocab_names[group_i];
+            if (i < enabled_vocab_groups.size - 1)
+                str += ", ";
+            i++;
+        }
+        str += " )";
+    }
+    $("#groups-list").text(str);
+
+    // updates whether start button is disabled
+    $("#start").prop("disabled",
+            (enabled_vocab_groups.size == 0) ? true : false);
 }
