@@ -175,6 +175,24 @@ progress {
     margin: 4px;
 }
 
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.gallery div {
+    margin: 4px;
+    width: 250px;
+    border: 1px solid var(--col-main);
+    border-radius: var(--border-radius);
+    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+}
+
+.gallery div:hover { box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5); }
+
+.gallery img { width: 100%; }
+
 /*
  * Specific
  */
