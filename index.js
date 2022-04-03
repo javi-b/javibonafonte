@@ -5,6 +5,8 @@ $(document).ready(Main);
  */
 function Main() {
 
+    $("#toc-hide").click(SwapTOCStatus);
+
     // when hovering any element of class .popup-link and id #ppl-<...>,
     // it will interact with the element of class .popup and id #pp-<...>
     $(".popup-link").hover(function() {
@@ -18,6 +20,21 @@ function Main() {
 
     // starts looping the go text
     LoopGoText(0);
+}
+
+/**
+ * Swaps whether Table Of Contents list is being displayed or not.
+ */
+function SwapTOCStatus() {
+
+    const toc_list = $("#toc-list");
+    if (toc_list.css("display") == "none") {
+        toc_list.css("display", "initial");
+        $(this).text("[hide]");
+    } else {
+        toc_list.css("display", "none");
+        $(this).text("[show]");
+    }
 }
 
 /**

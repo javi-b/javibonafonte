@@ -198,6 +198,41 @@ progress {
     margin: 0;
 }
 
+#toc {
+    position: fixed;
+    width: 250px;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-750px);
+    background-color: var(--col-so-off);
+    border: 1px solid var(--col-main);
+    border-radius: var(--border-radius);
+    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+}
+
+@media screen and (max-width: 1520px) {
+    #toc { display: none; }
+}
+
+#toc-hide {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#toc ol, #toc ul, #toc p {
+    margin: 4px;
+    padding-left: 1em;
+}
+
+#toc li {
+    list-style-position: inside;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#toc a { color: var(--col-main); }
+
 #footer {
     margin: 100px 0;
 }
