@@ -46,7 +46,7 @@ function LoadVocabHTML() {
         const prgr = $('<span class=prgr><span class="prgr-val ' + name
                 + '"></span></span>');
         const prgr_label = $('<span class="prgr-label ' + name
-                + '">0%</span>');
+                + '">-%</span>');
         const prgr_small_label = $('<span class="prgr-small-label ' + name
                 + '"></span>');
 
@@ -180,10 +180,10 @@ function OnSubmitAnswer() {
         num_wrongs++;
     const accuracy_pct = num_corrects / (num_corrects + num_wrongs) * 100;
 
-    // if answer correct and session hasn't finished,
-    // updates vocab group's progress
-    if (correct && !session_finished) {
-        vocab_groups_progress[group_i]++;
+    // if session hasn't finished updates vocab group's progress
+    if (!session_finished) {
+        if (correct)
+            vocab_groups_progress[group_i]++;
         SetVocabGroupProgress(group_i, vocab_groups_progress[group_i]);
     }
 
@@ -288,9 +288,11 @@ function SelectVocabGroup() {
     if (enabled_vocab_groups.has(vocab_group_i)) {
         enabled_vocab_groups.delete(vocab_group_i);
         $(this).css("font-weight", "normal");
+        $(".prgr-label." + vocab_name).css("font-weight", "normal");
     } else {
         enabled_vocab_groups.add(vocab_group_i);
         $(this).css("font-weight", "bold");
+        $(".prgr-label." + vocab_name).css("font-weight", "bold");
     }
 
     // updates list of selected vocab groups
