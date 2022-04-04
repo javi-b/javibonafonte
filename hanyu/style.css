@@ -29,6 +29,28 @@
     margin: 2em;
 }
 
+#accuracy-div {
+    position: relative;
+    margin: 0 auto;
+    left: -400px;
+    top: 200px;
+    width: 0;
+    height: 0;
+}
+
+#accuracy {
+    position: absolute;
+    display: none;
+    padding: 4px;
+    background-color: var(--col-so-off);
+    border: 1px solid var(--col-main);
+    border-radius: var(--border-radius);
+    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+    font-weight: bold;
+}
+
+#accuracy img, #accuracy p { margin: 0; }
+
 #correctness-div {
     position: relative;
     margin: 0 auto;
@@ -78,4 +100,9 @@
     height: 100%;
     width: 100%;
     background: var(--col-so-off);
+}
+
+.prgr-small-label {
+    font-size: 90%;
+    color: var(--col-off);
 }

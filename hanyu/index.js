@@ -10,6 +10,7 @@ let enabled_vocab_groups = new Set(); // set of indexes of enabled groups
 
 let vocab_pool = []; // list of currently available vocab units
 let vocab_i = 0; // index of current vocab unit in the vocab pool
+let num_corrects = 0, num_wrongs = 0;
 
 let session_started = false;
 let session_finished = false;
@@ -46,10 +47,13 @@ function LoadVocabHTML() {
                 + '"></span></span>');
         const prgr_label = $('<span class="prgr-label ' + name
                 + '">0%</span>');
+        const prgr_small_label = $('<span class="prgr-small-label ' + name
+                + '"></span>');
 
         p.append(prgr_title);
         p.append(prgr);
-        p.append(prgr_label)
+        p.append(prgr_label);
+        p.append(prgr_small_label);
         div.append(p);
     }
 }
@@ -149,6 +153,7 @@ function OnStart() {
     $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
+    $("#accuracy").css("display", "initial");
 
     let group_titles = $(".group-title");
     for (let group_title of group_titles) {
@@ -168,6 +173,13 @@ function OnSubmitAnswer() {
     const correct = answer == vocab_pool[vocab_i].hanyu;
     const group_i = vocab_pool[vocab_i].group_i;
 
+    // updates number of correct or wrong answers
+    if (correct)
+        num_corrects++;
+    else
+        num_wrongs++;
+    const accuracy_pct = num_corrects / (num_corrects + num_wrongs) * 100;
+
     // if answer correct and session hasn't finished,
     // updates vocab group's progress
     if (correct && !session_finished) {
@@ -177,7 +189,10 @@ function OnSubmitAnswer() {
 
     // updates html
 
-    $("#correctness").css("color", (correct) ? "initial" : "DarkRed");
+    $("#accuracy-value").css("color",
+            (accuracy_pct >= 50) ? "SteelBlue" : "DarkRed");
+    $("#accuracy-value").text(accuracy_pct.toFixed(2) + "%");
+    $("#correctness").css("color", (correct) ? "SteelBlue" : "DarkRed");
     $("#correctness").text((correct) ? "正确！" : "错误");
     $("#correctness").css("display", "initial");
     $("#input").prop("disabled", true);
@@ -231,7 +246,8 @@ function OnNext() {
  */
 function SetVocabGroupProgress(group_i, value) {
 
-    let pct = value / vocab_groups[group_i].length * 100;
+    const pct = value / vocab_groups[group_i].length * 100;
+    const left = vocab_groups[group_i].length - value;
 
     // only keeps going if its a valid value between 0 and 100
     if (pct < 0 || pct > 100)
@@ -242,9 +258,14 @@ function SetVocabGroupProgress(group_i, value) {
     let width = 100 - pct;
     $(prgr_val).css("width", width + "%");
 
-    // sets vocab group progress bar label
-    let prgr_label = $(".prgr-label." + vocab_names[group_i])[0];
-    $(prgr_label).text(pct.toFixed(0) + "%");
+    // sets vocab group progress bar label and small label
+    let label = $(".prgr-label." + vocab_names[group_i])[0];
+    $(label).text(pct.toFixed(0) + "%");
+    let small_label = $(".prgr-small-label." + vocab_names[group_i])[0];
+    if (left > 0)
+        $(small_label).text(" ( " + left + " left )");
+    else
+        $(small_label).text("");
 }
 
 /**
