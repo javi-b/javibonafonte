@@ -189,8 +189,12 @@ function OnSubmitAnswer() {
 
     // updates html
 
-    $("#accuracy-value").css("color",
-            (accuracy_pct >= 50) ? "SteelBlue" : "DarkRed");
+    if (accuracy_pct >= 80)
+        $("#accuracy-value").css("color", "SteelBlue");
+    else if (accuracy_pct >= 50)
+        $("#accuracy-value").css("color", "OliveDrab");
+    else
+        $("#accuracy-value").css("color", "DarkRed");
     $("#accuracy-value").text(accuracy_pct.toFixed(2) + "%");
     $("#correctness").css("color", (correct) ? "SteelBlue" : "DarkRed");
     $("#correctness").text((correct) ? "正确！" : "错误");
