@@ -69,9 +69,15 @@ function LoadVocabFiles() {
             url: "vocab/" + vocab_names[i] + ".csv",
             dataType: "text",
             success: function(csv) {
+
                 vocab_group = $.csv.toObjects(csv);
                 vocab_group.forEach(AddAccentPinyin);
-                vocab_groups.push(vocab_group);
+
+                const name =
+                    this.url.replace("vocab/", "").replace(".csv", "");;
+                const index = vocab_names.indexOf(name);
+
+                vocab_groups[index] = vocab_group;
             }
         });
     }
