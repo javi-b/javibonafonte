@@ -74,7 +74,7 @@ function LoadVocabFiles() {
                 vocab_group.forEach(AddAccentPinyin);
 
                 const name =
-                    this.url.replace("vocab/", "").replace(".csv", "");;
+                    this.url.replace("vocab/", "").replace(".csv", "");
                 const index = vocab_names.indexOf(name);
 
                 vocab_groups[index] = vocab_group;
