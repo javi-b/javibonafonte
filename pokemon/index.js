@@ -71,7 +71,8 @@ function OnSubmitPokemon() {
 
     $("#input").val("");
 
-    $("#pokemon-img").attr("src", gifs_url + pokemon_name + ".gif");
+    $("#pokemon-img").attr("src", gifs_url
+            + pokemon_name.replace(/\s/g, "") + ".gif");
     $("#pokemon-name").css("display", "initial");
     $("#pokemon-name").text("#" + pokemon_id + " "
             + pokemon_names[pokemon_id].name);
