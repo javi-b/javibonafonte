@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset=UTF-8>
+    <title>pokémon</title>
+    <link rel="icon" type="image/ico" href="../imgs/favicon.ico"/>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+    <script src=../jquery-3.6.0.min.js></script>
+    <script src=index.js></script>
+</head>
+
+<body>
+<div id=site>
+
+    <div id=header>
+        <h1>Pokémon</h1>
+        <p>by Javi Bonafonte <a target=blank href=/>[什么也没有]</a></p>
+    </div>
+
+    <div class=center id=app>
+        <form autocomplete=off onsubmit="OnSubmitPokemon(); return false;">
+            <input id=input type=text>
+        </form>
+        <div id=img-container><img id=pokemon-img></img></div>
+        <p id=pokemon-name class=pokefont></p>
+    </div>
+
+</div>
+</body>
+
+</html>
+
