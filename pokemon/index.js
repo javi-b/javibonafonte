@@ -5,6 +5,7 @@ $(document).ready(Main);
 const pokeapi_url = "https://pokeapi.co/api/v2/";
 const pogoapi_url = "https://pogoapi.net/api/v1/";
 const gifs_url = "https://play.pokemonshowdown.com/sprites/ani/";
+const shiny_gifs_url = "https://play.pokemonshowdown.com/sprites/ani-shiny/";
 
 let pokemon_names, pokemon_moves;
 
@@ -28,6 +29,9 @@ function Main() {
             function(response) { pokemon_names = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "current_pokemon_moves.json",
             function(response) { pokemon_moves = JSON.parse(response); });
+
+    // event handlers
+    $("#pokemon-img").click(SwapPokemonImg);
 }
 
 /**
@@ -121,4 +125,17 @@ function GetPokemonMoves(pokemon_id) {
  */
 function GetDps(pokemon_id, fm, cm) {
 
+}
+
+/**
+ * Swaps the pokemon image for its shiny form.
+ */
+function SwapPokemonImg() {
+
+    let src = $("#pokemon-img").attr("src");
+    if (src.includes("/ani-shiny/"))
+        src = src.replace("/ani-shiny/", "/ani/");
+    else
+        src = src.replace("/ani/", "/ani-shiny/");
+    $("#pokemon-img").attr("src", src);
 }
