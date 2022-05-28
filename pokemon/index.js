@@ -62,7 +62,7 @@ function HttpGetAsync(url, callback) {
  */
 function OnSubmitPokemon() {
 
-    const pokemon_name = $("#input").val().toLowerCase();
+    const pokemon_name = $("#input").val().toLowerCase().replace(/\W/g, "");
 
     // gets the pokemon id from the name and returns if it doesn't find it
     const pokemon_id = GetPokemonId(pokemon_name);
@@ -71,8 +71,7 @@ function OnSubmitPokemon() {
 
     $("#input").val("");
 
-    $("#pokemon-img").attr("src", gifs_url
-            + pokemon_name.replace(/\s/g, "") + ".gif");
+    $("#pokemon-img").attr("src", gifs_url + pokemon_name + ".gif");
     $("#pokemon-name").css("display", "initial");
     $("#pokemon-name").text("#" + pokemon_id + " "
             + pokemon_names[pokemon_id].name);
@@ -91,8 +90,10 @@ function GetPokemonId(pokemon_name) {
 
     let pokemon_id = 0;
     Object.keys(pokemon_names).forEach(function (key) {
-        if (pokemon_names[key].name.toLowerCase() == pokemon_name)
+        if (pokemon_names[key].name.toLowerCase().replace(/\W/g, "")
+                == pokemon_name) {
             pokemon_id = key;
+        }
     });
 
     return pokemon_id;
