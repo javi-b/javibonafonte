@@ -124,7 +124,7 @@ function OnSubmitPokemon() {
 /**
  * Loads a pokemon page.
  */
-function LoadPokemon(pokemon_name) {
+function LoadPokemon(clean_input) {
 
     // checks if all json objects are available
     if (!pogoapi_names || !pogoapi_types || !pogoapi_evolutions
@@ -135,8 +135,8 @@ function LoadPokemon(pokemon_name) {
         return;
     }
 
-    // gets the pokemon id from the name and returns if it doesn't find it
-    const pokemon_id = GetPokemonId(pokemon_name);
+    // gets the pokemon id from the input and returns if it doesn't find it
+    const pokemon_id = GetPokemonId(clean_input);
     if (pokemon_id == 0)
         return;
 
@@ -161,7 +161,8 @@ function LoadPokemon(pokemon_name) {
     $("#main-container").append(GetPokemonContainer(pokemon_id));
 
     // sets the previous evolution container
-    const previous_evolutions_ids = GetPreviousEvolutions(pokemon_id);;
+    const previous_evolutions_ids =
+        new Set(GetPreviousEvolutions(pokemon_id));
     for (evolution_id of previous_evolutions_ids) {
         if (evolution_id != pokemon_id) {
             $("#previous-containers").prepend(
@@ -170,7 +171,7 @@ function LoadPokemon(pokemon_name) {
     }
 
     // sets the next evolution container
-    const next_evolutions_ids = GetNextEvolutions(pokemon_id);
+    const next_evolutions_ids = new Set(GetNextEvolutions(pokemon_id));
     for (evolution_id of next_evolutions_ids) {
         if (evolution_id != pokemon_id) {
             $("#next-containers").append(
@@ -199,15 +200,25 @@ function LoadPokeapiSpecificElements() {
 }
 
 /**
- * Gets the pokemon id from a specific pokemon name. Returns 0 if it
- * doesn't find it.
+ * Gets the pokemon id from a clean input (lowerscore alphanumeric).
+ * The input could be the id itself or the pokemon name.
+ * Returns 0 if it doesn't find it.
  */
-function GetPokemonId(pokemon_name) {
+function GetPokemonId(clean_input) {
 
+    // chekcs for an id
+    if (/^\d+$/.test(clean_input)) { // if input is an intger
+        const max_id = pogoapi_names[Object.keys(pogoapi_names)
+            [Object.keys(pogoapi_names).length - 1]].id;
+        if (clean_input >= 1 && clean_input <= max_id)
+            return clean_input;
+    }
+
+    // checks for a name
     let pokemon_id = 0;
     Object.keys(pogoapi_names).forEach(function (key) {
         if (pogoapi_names[key].name.toLowerCase().replace(/\W/g, "")
-                == pokemon_name) {
+                == clean_input) {
             pokemon_id = key;
         }
     });
