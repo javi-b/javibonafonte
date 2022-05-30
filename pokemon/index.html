@@ -3,7 +3,7 @@
 
 <head>
     <meta charset=UTF-8>
-    <title>pokémon</title>
+    <title>Pokémon</title>
     <link rel="icon" type="image/ico" href="../imgs/favicon.ico"/>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
@@ -15,8 +15,7 @@
 <div id=site>
 
     <div id=header>
-        <h1>Pokémon</h1>
-        <p>by Javi Bonafonte <a target=blank href=/>[什么也没有]</a></p>
+        <h1 class=pokefont>Pokémon</h1>
     </div>
 
     <div class=center id=app>
@@ -25,6 +24,29 @@
         </form>
         <div class=img-container><img id=pokemon-img></img></div>
         <p id=pokemon-name class=pokefont></p>
+        <p></p>
+    </div>
+
+    <div id=buttons-container>
+        <button id=maingames-btn>Main Games</button>
+        <button id=pokemongo-btn disabled>Pokémon GO</button>
+    </div>
+
+    <div id=maingames>
+        <p>work in progress</p>
+    </div>
+
+    <div id=pokemongo>
+        <p id=max-cp></p>
+        <table id=pokemongo-table>
+            <tr class=table-header>
+                <th>Fast Move</th>
+                <th>Charged Move</th>
+                <th>DPS</th>
+                <th>TDO</th>
+                <th>DPS³⨉TDO</th>
+            </tr>
+        </table>
     </div>
 
 </div>
