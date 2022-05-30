@@ -12,9 +12,15 @@ const shiny_gifs_url =
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 
-// api jsons objects
-let pokemon_names, pokemon_types, pokemon_stats, pokemon_moves, max_cp,
-        fast_moves, charged_moves, damage_window_starts;
+// pokeapi current pokemon
+let pokeapi_current;
+// pogoapi json objects
+let pogoapi_names, pogoapi_types, pogoapi_evolutions, pogoapi_stats,
+        pogoapi_moves, pogoapi_max_cp;
+// pokemongo1 json objects
+let pkmgo1_fm, pkmgo1_cm;
+// local files jsno objects
+let local_dws;
 
 /**
  * Main function.
@@ -23,43 +29,40 @@ function Main() {
 
     $("#input").focus();
 
-    // pokeapi
-    /*
-    HttpGetAsync(pokeapi_url + "pokemon/palkia", function(response) {
-        const obj = JSON.parse(response);
-        console.log(obj.name);
-    });
-    */
-
     // pogoapi
     HttpGetAsync(pogoapi_url + "pokemon_names.json",
-            function(response) { pokemon_names = JSON.parse(response); });
+            function(response) { pogoapi_names = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
-            function(response) { pokemon_types = JSON.parse(response); });
+            function(response) { pogoapi_types = JSON.parse(response); });
+    HttpGetAsync(pogoapi_url + "pokemon_evolutions.json",
+            function(response) {
+                pogoapi_evolutions = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "pokemon_stats.json",
-            function(response) { pokemon_stats = JSON.parse(response); });
+            function(response) { pogoapi_stats = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "current_pokemon_moves.json",
-            function(response) { pokemon_moves = JSON.parse(response); });
+            function(response) { pogoapi_moves = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "pokemon_max_cp.json",
-            function(response) { max_cp = JSON.parse(response); });
+            function(response) { pogoapi_max_cp = JSON.parse(response); });
     //HttpGetAsync(pogoapi_url + "pvp_fast_moves.json",
             //function(response) { fast_moves = JSON.parse(response); });
     //HttpGetAsync(pogoapi_url + "pvp_charged_moves.json",
             //function(response) { charged_moves = JSON.parse(response); });
-    HttpGetAsyncPokemongo1(pokemongo1_url + "fast_moves.json" ,
-            function(response) { fast_moves = JSON.parse(response); });
-    HttpGetAsyncPokemongo1(pokemongo1_url + "charged_moves.json" ,
-            function(response) { charged_moves = JSON.parse(response); });
 
+    // pokemongo1
+    HttpGetAsyncPokemongo1(pokemongo1_url + "fast_moves.json" ,
+            function(response) { pkmgo1_fm = JSON.parse(response); });
+    HttpGetAsyncPokemongo1(pokemongo1_url + "charged_moves.json" ,
+            function(response) { pkmgo1_cm = JSON.parse(response); });
+
+    // local
     $.ajax({
         type: "GET",
         url: "damage_window_starts.json",
         dataType: "text",
-        success: function(json) { damage_window_starts = JSON.parse(json); }
+        success: function(json) { local_dws = JSON.parse(json); }
     });
 
     // event handlers
-    $("#pokemon-img").click(SwapPokemonImg);
     $("#maingames-btn").click(function() { SelectGame(false); });
     $("#pokemongo-btn").click(function() { SelectGame(true); });
 }
@@ -123,17 +126,57 @@ function OnSubmitPokemon() {
  */
 function LoadPokemon(pokemon_name) {
 
+    // checks if all json objects are available
+    if (!pogoapi_names || !pogoapi_types || !pogoapi_evolutions
+            || !pogoapi_stats || !pogoapi_moves || !pogoapi_max_cp
+            || !pkmgo1_fm || !pkmgo1_cm || !local_dws) {
+        console.log("Couldn't load the pokemon because some json file "
+                + "couldn't be loaded.");
+        return;
+    }
+
     // gets the pokemon id from the name and returns if it doesn't find it
     const pokemon_id = GetPokemonId(pokemon_name);
     if (pokemon_id == 0)
         return;
 
+    // pokeapi
+    /*
+    HttpGetAsync(pokeapi_url + "pokemon/" + pokemon_id,
+            function(response) {
+                pokeapi_current = JSON.parse(response);
+                LoadPokeapiSpecificElements();
+            });
+            */
+
+    // empties the input
     $("#input").val("");
 
-    $("#pokemon-img").attr("src", gifs_url + pokemon_name + ".gif");
-    $("#pokemon-name").css("display", "initial");
-    $("#pokemon-name").text("#" + pokemon_id + " "
-            + pokemon_names[pokemon_id].name);
+    // empties the pokemon containers
+    $("#main-container").empty();
+    $("#previous-containers").empty();
+    $("#next-containers").empty();
+
+    // sets main pokemon container
+    $("#main-container").append(GetPokemonContainer(pokemon_id));
+
+    // sets the previous evolution container
+    const previous_evolutions_ids = GetPreviousEvolutions(pokemon_id);;
+    for (evolution_id of previous_evolutions_ids) {
+        if (evolution_id != pokemon_id) {
+            $("#previous-containers").prepend(
+                    GetPokemonContainer(evolution_id));
+        }
+    }
+
+    // sets the next evolution container
+    const next_evolutions_ids = GetNextEvolutions(pokemon_id);
+    for (evolution_id of next_evolutions_ids) {
+        if (evolution_id != pokemon_id) {
+            $("#next-containers").append(
+                    GetPokemonContainer(evolution_id));
+        }
+    }
 
     // if the buttons container (and other elements) are hidden...
     if ($("#buttons-container").css("display") == "none") {
@@ -146,23 +189,105 @@ function LoadPokemon(pokemon_name) {
 }
 
 /**
+ * Function that is triggered after the pokeapi data has been succesfully
+ * received and, then, it is possible to load the elements that depend on
+ * it.
+ */
+function LoadPokeapiSpecificElements() {
+
+    console.log(pokeapi_current);
+}
+
+/**
  * Gets the pokemon id from a specific pokemon name. Returns 0 if it
  * doesn't find it.
  */
 function GetPokemonId(pokemon_name) {
 
-    if (!pokemon_names)
-        return;
-
     let pokemon_id = 0;
-    Object.keys(pokemon_names).forEach(function (key) {
-        if (pokemon_names[key].name.toLowerCase().replace(/\W/g, "")
+    Object.keys(pogoapi_names).forEach(function (key) {
+        if (pogoapi_names[key].name.toLowerCase().replace(/\W/g, "")
                 == pokemon_name) {
             pokemon_id = key;
         }
     });
 
     return pokemon_id;
+}
+
+/**
+ * Gets array of ids from pokemon that are next evolutions of the
+ * specified. This function is recursive, that is why the pokemon specified
+ * is also returned in the array.
+ */
+function GetNextEvolutions(pokemon_id) {
+
+    evolutions_ids = [ pokemon_id ];
+
+    const evolutions_entry = pogoapi_evolutions.find(entry =>
+            entry.pokemon_id == pokemon_id);
+
+    if (evolutions_entry) {
+        for (evolution of evolutions_entry.evolutions) {
+            evolutions_ids = evolutions_ids.concat(
+                    GetNextEvolutions(evolution.pokemon_id));
+        }
+    }
+
+    return evolutions_ids;
+}
+
+/**
+ * Gets array of ids from pokemon that are previous evolutions of the
+ * specified. This function is recursive, that is why the pokemon specified
+ * is also returned in the array.
+ */
+function GetPreviousEvolutions(pokemon_id) {
+
+    evolutions_ids = [ pokemon_id ];
+
+    pogoapi_evolutions.forEach(function(entry) {
+        for (evolution of entry.evolutions) {
+            if (evolution.pokemon_id == pokemon_id) {
+                evolutions_ids = evolutions_ids.concat(
+                        GetPreviousEvolutions(entry.pokemon_id));
+                break;
+            }
+        }
+    });
+
+    return evolutions_ids;
+}
+
+/**
+ * Gets a pokemon container div element set up with a specified pokemon.
+ */
+function GetPokemonContainer(pokemon_id) {
+
+    const pokemon_name = pogoapi_names[pokemon_id].name;
+    const clean_name = pokemon_name.toLowerCase().replace(/\W/g, "");
+
+    const pokemon_container_div = $("<div></div>");
+
+    let img_container_div = $("<div class=img-container></div>");
+    img_container_div.append($("<img onclick='SwapPokemonImg(this)' src="
+            + gifs_url + clean_name + ".gif></img>"));
+    const pokemon_name_p = $("<p class='pokemon-name pokefont'>#"
+            + pokemon_id + " " + pokemon_name + "</p>");
+
+    const pokemon_types_div = $("<div class=pokemon-types></div>");
+    const types = pogoapi_types.find(entry =>
+            entry.pokemon_id == pokemon_id).type;
+    for (type of types) {
+        pokemon_types_div.append($("<img src=imgs/" + type.toLowerCase()
+                + ".gif></img>"));
+    }
+
+    pokemon_container_div.append(img_container_div);
+    pokemon_container_div.append(pokemon_name_p);
+    pokemon_container_div.append(pokemon_types_div);
+
+    return pokemon_container_div;
 }
 
 /**
@@ -180,12 +305,9 @@ function LoadPokemongo(pokemon_id) {
  */
 function LoadPokemongoTable(pokemon_id) {
 
-    if (!pokemon_types || !pokemon_stats)
-        return;
-
-    const types = pokemon_types.find(entry =>
+    const types = pogoapi_types.find(entry =>
             entry.pokemon_id == pokemon_id).type;
-    const stats = pokemon_stats.find(entry =>
+    const stats = pogoapi_stats.find(entry =>
             entry.pokemon_id == pokemon_id);
     const atk = (stats.base_attack + 15) * cpm_lvl40;
     const def = (stats.base_defense + 15) * cpm_lvl40;
@@ -234,12 +356,9 @@ function LoadPokemongoTable(pokemon_id) {
  */
 function GetPokemongoMoves(pokemon_id) {
 
-    if (!pokemon_moves)
-        return [];
-
-    //const entries = pokemon_moves.filter(
+    //const entries = pogoapi_moves.filter(
             //entry => entry.pokemon_id == pokemon_id);
-    const entry = pokemon_moves.find(entry =>
+    const entry = pogoapi_moves.find(entry =>
             entry.pokemon_id == pokemon_id && entry.form == "Normal");
 
     return (entry) ? [entry.fast_moves, entry.charged_moves] : [];
@@ -255,11 +374,8 @@ function GetPokemongoMoves(pokemon_id) {
  */
 function GetDPS(types, atk, def, hp, fm, cm) {
 
-    if (!fast_moves || !charged_moves || !damage_window_starts)
-        return 0;
-
-    const fm_obj = fast_moves.find(entry => entry.name == fm);
-    const cm_obj = charged_moves.find(entry => entry.name == cm);
+    const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
+    const cm_obj = pkmgo1_cm.find(entry => entry.name == cm);
 
     if (!fm_obj || !cm_obj)
         return 0;
@@ -284,7 +400,7 @@ function GetDPS(types, atk, def, hp, fm, cm) {
     let cm_eps = -cm_obj.energy_delta / (cm_obj.duration / 1000);
     // penalty to one-bar charged moves (they use more energy (cm_eps))
     if (cm_obj.energy_delta == -100) {
-        const dws_obj = damage_window_starts.find(entry =>entry.name == cm);
+        const dws_obj = local_dws.find(entry =>entry.name == cm);
         if (dws_obj) {
             const dws = dws_obj.damage_window_start;
             cm_eps = (-cm_obj.energy_delta + 0.5 * fm_obj.energy_delta
@@ -321,12 +437,7 @@ function GetTDO(dps, hp, def) {
  */
 function GetMaxCP(pokemon_id) {
 
-    if (!max_cp)
-        return 0;
-
-    //const entries = pokemon_moves.filter(
-            //entry => entry.pokemon_id == pokemon_id);
-    const entry = max_cp.find(entry =>
+    const entry = pogoapi_max_cp.find(entry =>
             entry.pokemon_id == pokemon_id && entry.form == "Normal");
 
     return (entry) ? entry.max_cp : 0;
@@ -342,14 +453,14 @@ function LoadMaingames(pokemon_id) {
 /**
  * Swaps the pokemon image for its shiny form.
  */
-function SwapPokemonImg() {
+function SwapPokemonImg(element) {
 
-    let src = $("#pokemon-img").attr("src");
+    let src = $(element).attr("src");
     if (src.includes("/ani-shiny/"))
         src = src.replace("/ani-shiny/", "/ani/");
     else
         src = src.replace("/ani/", "/ani-shiny/");
-    $("#pokemon-img").attr("src", src);
+    $(element).attr("src", src);
 }
 
 /**

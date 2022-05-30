@@ -22,10 +22,14 @@
         <form autocomplete=off onsubmit="OnSubmitPokemon(); return false;">
             <input id=input type=text>
         </form>
-        <div class=img-container><img id=pokemon-img></img></div>
-        <p id=pokemon-name class=pokefont></p>
-        <p></p>
+        <br>
+        <div id=containers-father>
+            <div class=pokemon-containers id=previous-containers></div>
+            <div class=pokemon-containers id=main-container></div>
+            <div class=pokemon-containers id=next-containers></div>
+        </div>
     </div>
+    <br>
 
     <div id=buttons-container>
         <button id=maingames-btn>Main Games</button>
