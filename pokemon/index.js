@@ -15,8 +15,8 @@ const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 // pokeapi current pokemon
 let pokeapi_current;
 // pogoapi json objects
-let pogoapi_names, pogoapi_types, pogoapi_evolutions, pogoapi_stats,
-        pogoapi_moves, pogoapi_max_cp;
+let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
+        pogoapi_stats, pogoapi_moves, pogoapi_max_cp;
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
 // local files jsno objects
@@ -31,7 +31,11 @@ function Main() {
 
     // pogoapi
     HttpGetAsync(pogoapi_url + "pokemon_names.json",
-            function(response) { pogoapi_names = JSON.parse(response); });
+            function(response) {
+                pogoapi_names = JSON.parse(response);
+                pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
+                    [Object.keys(pogoapi_names).length - 1]].id;
+            });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
             function(response) { pogoapi_types = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "pokemon_evolutions.json",
@@ -160,22 +164,15 @@ function LoadPokemon(clean_input) {
     // sets main pokemon container
     $("#main-container").append(GetPokemonContainer(pokemon_id));
 
-    // sets the previous evolution container
-    const previous_evolutions_ids =
-        new Set(GetPreviousEvolutions(pokemon_id));
-    for (evolution_id of previous_evolutions_ids) {
-        if (evolution_id != pokemon_id) {
+    // sets previous and next pokemon containers
+    for (i = 1; i <= 2; i++) {
+        if (parseInt(pokemon_id) - i > 0) {
             $("#previous-containers").prepend(
-                    GetPokemonContainer(evolution_id));
+                    GetPokemonContainer(parseInt(pokemon_id) - i));
         }
-    }
-
-    // sets the next evolution container
-    const next_evolutions_ids = new Set(GetNextEvolutions(pokemon_id));
-    for (evolution_id of next_evolutions_ids) {
-        if (evolution_id != pokemon_id) {
+        if (parseInt(pokemon_id) + i <= pogoapi_max_id) {
             $("#next-containers").append(
-                    GetPokemonContainer(evolution_id));
+                    GetPokemonContainer(parseInt(pokemon_id) + i));
         }
     }
 
@@ -208,9 +205,7 @@ function GetPokemonId(clean_input) {
 
     // chekcs for an id
     if (/^\d+$/.test(clean_input)) { // if input is an intger
-        const max_id = pogoapi_names[Object.keys(pogoapi_names)
-            [Object.keys(pogoapi_names).length - 1]].id;
-        if (clean_input >= 1 && clean_input <= max_id)
+        if (clean_input >= 1 && clean_input <= pogoapi_max_id)
             return clean_input;
     }
 
@@ -295,12 +290,14 @@ function GetPokemonContainer(pokemon_id) {
 
     const pokemon_container_div = $("<div></div>");
 
+    const shiny_img =
+        $("<div class=shiny-img-div><img src=imgs/shiny.png></img></div>");
     let img_container_div = $("<div class=img-container></div>");
-    img_container_div.append($("<img onclick='SwapPokemonImg(this)' src="
+    img_container_div.append($("<img onclick='SwapShiny(this)' src="
             + gifs_url + clean_name + ".gif></img>"));
-    const pokemon_name_p = $("<p class='pokemon-name pokefont'>#"
-            + pokemon_id + " " + pokemon_name + "</p>");
-
+    const pokemon_name_p = $("<p class='pokemon-name pokefont unselectable'"
+            + "onclick='LoadPokemon(" + pokemon_id + ")'>#" + pokemon_id
+            + " " + pokemon_name + "</p>");
     const pokemon_types_div = $("<div class=pokemon-types></div>");
     const types = pogoapi_types.find(entry =>
             entry.pokemon_id == pokemon_id).type;
@@ -309,6 +306,7 @@ function GetPokemonContainer(pokemon_id) {
                 + ".gif></img>"));
     }
 
+    pokemon_container_div.append(shiny_img);
     pokemon_container_div.append(img_container_div);
     pokemon_container_div.append(pokemon_name_p);
     pokemon_container_div.append(pokemon_types_div);
@@ -479,13 +477,22 @@ function LoadMaingames(pokemon_id) {
 /**
  * Swaps the pokemon image for its shiny form.
  */
-function SwapPokemonImg(element) {
+function SwapShiny(element) {
+
+    const pokemon_container = $(element).parent().parent();
+    const shiny_img =
+        pokemon_container.children(".shiny-img-div").children("img");
 
     let src = $(element).attr("src");
-    if (src.includes("/ani-shiny/"))
+
+    if (src.includes("/ani-shiny/")) {
         src = src.replace("/ani-shiny/", "/ani/");
-    else
+        shiny_img.css("display", "none");
+    } else {
         src = src.replace("/ani/", "/ani-shiny/");
+        shiny_img.css("display", "initial");
+    }
+
     $(element).attr("src", src);
 }
 

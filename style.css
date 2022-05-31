@@ -107,6 +107,15 @@ progress {
     margin: 0 1em;
 }
 
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .invisible { display: none; }
 
 .small-text { font-size: 90%; }

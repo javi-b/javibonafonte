@@ -33,6 +33,19 @@
     cursor: pointer;
 }
 
+.shiny-img-div {
+    position: relative;
+    left: 100px;
+    width: 0px;
+    height: 0px;
+}
+
+.shiny-img-div img {
+    display: none;
+    position: absolute;
+    width: 20px;
+}
+
 .pokemon-name {
     display: initial;
     padding: 2px;
@@ -41,6 +54,7 @@
     border-radius: var(--border-radius);
     box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
     font-size: 16px;
+    cursor: pointer;
 }
 
 .pokemon-types {
@@ -76,6 +90,10 @@
     border: 1px solid var(--col-main);
     border-radius: var(--border-radius);
 }
+
+#previous-containers { justify-content: right; }
+
+#next-containers { justify-content: left; }
 
 #buttons-container { display: none; }
 
