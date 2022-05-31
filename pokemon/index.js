@@ -223,6 +223,16 @@ function GetPokemonId(clean_input) {
         }
     });
 
+    // if still didn't find anything
+    if (pokemon_id == 0) {
+
+        // checks for stupid nidoran
+        if (clean_input == "nidoranf")
+            return 29;
+        else if (clean_input == "nidoranm")
+            return 32;
+    }
+
     return pokemon_id;
 }
 
@@ -276,7 +286,12 @@ function GetPreviousEvolutions(pokemon_id) {
 function GetPokemonContainer(pokemon_id) {
 
     const pokemon_name = pogoapi_names[pokemon_id].name;
-    const clean_name = pokemon_name.toLowerCase().replace(/\W/g, "");
+    let clean_name = pokemon_name.toLowerCase().replace(/\W/g, "");
+    // checks for stupid nidoran
+    if (pokemon_id == 29)
+        clean_name = "nidoranf";
+    else if (pokemon_id == 32)
+        clean_name = "nidoranm";
 
     const pokemon_container_div = $("<div></div>");
 
