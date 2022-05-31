@@ -6,8 +6,13 @@ const pokeapi_url = "https://pokeapi.co/api/v2/";
 const pogoapi_url = "https://pogoapi.net/api/v1/";
 const pokemongo1_url = "https://pokemon-go1.p.rapidapi.com/";
 const pokemongo1_key = "a7236470dbmsheefb2d24399d84cp118c40jsn1f6c231dcf33";
-const gifs_url = "https://play.pokemonshowdown.com/sprites/ani/";
-const shiny_gifs_url =
+
+const pokemon_resources_url =
+    "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
+const gifs_url = pokemon_resources_url + "ani/";
+const shiny_gifs_url = pokemon_resources_url + "ani-shiny/";
+const gifs_url_2 = "https://play.pokemonshowdown.com/sprites/ani/";
+const shiny_gifs_url_2 =
     "https://play.pokemonshowdown.com/sprites/ani-shiny/";
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
@@ -293,7 +298,10 @@ function GetPokemonContainer(pokemon_id) {
     const shiny_img =
         $("<div class=shiny-img-div><img src=imgs/shiny.png></img></div>");
     let img_container_div = $("<div class=img-container></div>");
-    img_container_div.append($("<img onclick='SwapShiny(this)' src="
+    img_container_div.append(
+            $("<img class=loading src=../imgs/loading.gif></img>"));
+    img_container_div.append($("<img class=pokemon-img "
+            + "onload ='HideLoading(this)' onclick='SwapShiny(this)' src="
             + gifs_url + clean_name + ".gif></img>"));
     const pokemon_name_p = $("<p class='pokemon-name pokefont unselectable'"
             + "onclick='LoadPokemon(" + pokemon_id + ")'>#" + pokemon_id
@@ -472,6 +480,17 @@ function GetMaxCP(pokemon_id) {
  */
 function LoadMaingames(pokemon_id) {
 
+}
+
+/**
+ * Receives the pokemon image that just loaded as an argument.
+ * Hides the placeholder loading image and shows the loaded pokemon image.
+ */
+function HideLoading(element) {
+
+    const loading = $(element).parent().children(".loading");
+    loading.css("display", "none");
+    $(element).css("display", "initial");
 }
 
 /**
