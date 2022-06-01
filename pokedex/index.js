@@ -211,7 +211,7 @@ function GetPokemonId(clean_input) {
     // chekcs for an id
     if (/^\d+$/.test(clean_input)) { // if input is an intger
         if (clean_input >= 1 && clean_input <= pogoapi_max_id)
-            return clean_input;
+            return parseInt(clean_input);
     }
 
     // checks for a name
