@@ -15,11 +15,14 @@
 <div id=site>
 
     <div id=header>
-        <p class="pokefont">Palkia's</a></p>
+        <!--
+        <p class=pokefont>Palkia's</a></p>
         <h1 class=pokefont>Pokédex</h1>
+        -->
     </div>
 
     <div class=center id=app>
+        <p class="center small-text off no-top-m">search a Pokémon name or id...</p>
         <form autocomplete=off onsubmit="OnSubmitPokemon(); return false;">
             <input id=input type=text>
         </form>
@@ -29,29 +32,48 @@
             <div class=pokemon-containers id=main-container></div>
             <div class=pokemon-containers id=next-containers></div>
         </div>
+        <div class=pokemon-containers id=additional-containers></div>
     </div>
-    <br>
 
+    <!--
     <div id=buttons-container>
         <button id=maingames-btn>Main Games</button>
         <button id=pokemongo-btn disabled>Pokémon GO</button>
     </div>
+    -->
 
     <div id=maingames>
-        <p>work in progress</p>
+        <p class="center">work in progress :)</p>
     </div>
 
     <div id=pokemongo>
-        <p id=max-cp></p>
-        <table id=pokemongo-table>
-            <tr class=table-header>
-                <th>Fast Move</th>
-                <th>Charged Move</th>
-                <th>DPS</th>
-                <th>TDO</th>
-                <th>DPS³⨉TDO</th>
-            </tr>
-        </table>
+        <div id=not-released>
+            <br>
+            <p class="center">Not released in <b>Pokémon GO</b> yet :(</p>
+        </div>
+        <div id=released>
+            <p class=center>
+                <span id=max-cp-div><span id=max-cp></span></span>
+                <span class=prgr><span class=prgr-val></span></span><br>
+                <span class="small-text off">with 100% IVs at level 40</span>
+            </p>
+            <br>
+            <table id=pokemongo-table>
+                <tr class=table-header>
+                    <th>Fast<br>Move</th>
+                    <th>Charged<br>Move</th>
+                    <th>DPS</th>
+                    <th>DPS<br>(Shadow)</th>
+                    <th>TDO</th>
+                    <th>TDO<br>(Shadow)</th>
+                    <th>DPS³⨉TDO</th>
+                    <th>DPS³⨉TDO<br>(Shadow)</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id=footer class="center">
     </div>
 
 </div>

@@ -186,6 +186,9 @@
         "name": "Future Sight",
 	    "damage_window_start": "1.40"
     }, {
+        "name": "Futuresight",
+	    "damage_window_start": "1.40"
+    }, {
         "name": "Giga Drain",
 	    "damage_window_start": "1.20"
     }, {

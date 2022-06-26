@@ -1,13 +1,35 @@
 /* pokemon/style.css */
 
 @font-face {
-  font-family: "Pokemon";
-  src: url("../fonts/pokemon_x_y.ttf");
+    font-family: "Pokemon";
+    src: url("../fonts/pokemon_x_y.ttf");
 }
 
 /*
  * General
  */
+
+body {
+    font-family: Verdana,Geneva,sans-serif;
+    font-size: 14px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th {
+    background-color: var(--col-so-off);
+}
+
+th, td {
+    text-align: center;
+    padding: 0.25em 0;
+}
+
+tr:nth-child(even) {
+    background-color: WhiteSmoke;
+}
 
 .pokefont {
     font-family: Pokemon;
@@ -27,6 +49,7 @@
     margin: 0 auto;
     justify-content: center;
     align-items: center;
+    border: 1px hidden var(--col-main);
 }
 
 .pokemon-img {
@@ -45,16 +68,20 @@
     display: none;
     position: absolute;
     width: 20px;
+    z-index: -1;
 }
 
 .pokemon-name {
-    display: initial;
+    display: inline-block;
+    width: max-content;
+    margin: 0;
     padding: 2px;
     background-color: var(--col-so-off);
     border: 1px solid var(--col-main);
     border-radius: var(--border-radius);
     box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
     font-size: 16px;
+    transform: translateY(-2px);
     cursor: pointer;
 }
 
@@ -63,21 +90,48 @@
     margin: 0.5em auto;
     justify-content: center;
     align-items: center;
+    transform: translateY(-2px);
 }
 
 .pokemon-types img {
     margin: 0 2px;
 }
 
+.prgr {
+    display: inline-flex;
+    justify-content: flex-end;
+    font-size: 110%;
+    height: 1.5em;
+    width: 400px;
+    background-image:
+        linear-gradient(to right, var(--col-light), GreenYellow);
+}
+
+.prgr-val {
+    height: 100%;
+    width: 100%;
+    background: var(--col-so-off);
+}
+
+.prgr-small-label {
+    font-size: 90%;
+    color: var(--col-off);
+}
+
 /*
  * Specific
  */
+
+#app {
+    height: 500px;
+}
 
 #input {
     width: 25%;
     margin: 0 auto;
     font-size: 100%;
     text-align: center;
+    border-bottom: 1px solid var(--col-main);
 }
 
 #containers-father {
@@ -87,14 +141,20 @@
     align-items: center;
 }
 
-#main-container .img-container {
-    border: 1px solid var(--col-main);
-    border-radius: var(--border-radius);
-}
-
 #previous-containers { justify-content: right; }
 
 #next-containers { justify-content: left; }
+
+#additional-containers {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#additional-containers > div {
+    margin: 30px 15px 0px 15px;
+}
 
 #buttons-container { display: none; }
 
@@ -104,8 +164,26 @@
 
 #maingames { display: none; }
 
-#pokemongo { display: none; }
+#not-released { display: none; }
+
+#pokemongo {
+    display: none;
+}
+
+#max-cp-div {
+    width: 0;
+    height: 0;
+    position: relative;
+    left: 150px;
+}
+
+#max-cp {
+    width: 100px;
+    position: absolute;
+    font-size: 1.25em;
+}
 
 #pokemongo-table {
     width: 100%;
+    table-layout: fixed;
 }
