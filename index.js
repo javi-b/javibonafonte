@@ -5,7 +5,7 @@ $(document).ready(Main);
  */
 function Main() {
 
-    $("#toc-hide").click(SwapTOCStatus);
+    $(".side-box-hide").click(SwapSideBoxStatus);
 
     // when hovering any element of class .popup-link and id #ppl-<...>,
     // it will interact with the element of class .popup and id #pp-<...>
@@ -23,16 +23,17 @@ function Main() {
 }
 
 /**
- * Swaps whether Table Of Contents list is being displayed or not.
+ * Swaps whether a side box list is being displayed or not.
  */
-function SwapTOCStatus() {
+function SwapSideBoxStatus() {
 
-    const toc_list = $("#toc-list");
-    if (toc_list.css("display") == "none") {
-        toc_list.css("display", "initial");
+    const list = $(this).parent().parent().children(".side-box-list");
+
+    if (list.css("display") == "none") {
+        list.css("display", "initial");
         $(this).text("[hide]");
     } else {
-        toc_list.css("display", "none");
+        list.css("display", "none");
         $(this).text("[show]");
     }
 }
