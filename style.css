@@ -128,6 +128,10 @@ progress {
     margin-right: auto;
 }
 
+.big-vertical-m { margin-top: 100px; margin-bottom: 100px; }
+
+.huge-vertical-m { margin-top: 500px; margin-bottom: 500px; }
+
 .no-top-m { margin-top: 0; }
 
 .no-bottom-m { margin-bottom: 0; }
