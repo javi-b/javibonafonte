@@ -38,7 +38,7 @@ function LoadVocabHTML() {
 
     let div = $("#vocab-controls");
 
-    for (const name of vocab_names) {
+    for (let name of vocab_names) {
 
         const p = $("<p></p>");
         const prgr_title = $('<span class="group-title ' + name + '">'
@@ -230,7 +230,7 @@ function OnNext() {
         session_finished = true;
 
         // readds all vocab units to the vocab pool
-        for (const group_i of enabled_vocab_groups)
+        for (let group_i of enabled_vocab_groups)
             vocab_pool.push.apply(vocab_pool, vocab_groups[group_i]);
     }
 
@@ -306,7 +306,7 @@ function SelectVocabGroup() {
     if (enabled_vocab_groups.size > 0) {
         str += "( ";
         let i = 0;
-        for (const group_i of enabled_vocab_groups) {
+        for (let group_i of enabled_vocab_groups) {
             str += vocab_names[group_i];
             if (i < enabled_vocab_groups.size - 1)
                 str += ", ";
