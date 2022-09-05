@@ -68,6 +68,10 @@ input:focus {
     border-bottom: 1px solid var(--col-main);
 }
 
+input:disabled {
+    background: inherit;
+}
+
 textarea {
     display: block;
 }
