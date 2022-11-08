@@ -528,15 +528,15 @@ function LoadPokemongoTable(pokemon_id, region, mega, mega_y, stats) {
     let atk_sh = atk * 6 / 5;
     let def_sh = def * 5 / 6;
 
+    // removes previous table rows
+    $("#pokemongo-table tr:not(.table-header)").remove();
+
     const moves = GetPokemongoMoves(pokemon_id, region);
     if (moves.length != 2)
         return;
 
     const fms = moves[0];
     const cms = moves[1];
-
-    // removes previous table rows
-    $("#pokemongo-table tr:not(.table-header)").remove();
 
     // appends new table rows
 
