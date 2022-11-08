@@ -58,8 +58,10 @@ function Main() {
     HttpGetAsync(pogoapi_url + "pokemon_names.json",
             function(response) {
                 pogoapi_names = JSON.parse(response);
-                pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
-                    [Object.keys(pogoapi_names).length - 1]].id;
+                // FIXME provisionally capped to 898
+                //pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
+                    //[Object.keys(pogoapi_names).length - 1]].id;
+                pogoapi_max_id = 898;
             });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
             function(response) { pogoapi_types = JSON.parse(response); });
@@ -301,7 +303,10 @@ function GetPokemonId(clean_input) {
             return 32;
     }
 
-    return pokemon_id;
+    if (pokemon_id > pogoapi_max_id)
+        return 0;
+
+    return parseInt(pokemon_id);
 }
 
 /**
