@@ -71,6 +71,23 @@ tr:nth-child(even) {
     z-index: -1;
 }
 
+.pokemon-form {
+    position: relative;
+    width: 0px;
+    height: 0px;
+    left: 5px;
+    bottom: 10px;
+}
+
+.pokemon-form p {
+    position: absolute;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: -1;
+}
+
 .pokemon-name {
     display: inline-block;
     width: max-content;

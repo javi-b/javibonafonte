@@ -5,6 +5,11 @@
  * - https://pokeapi.co/docs/v2
  * - https://rapidapi.com/chewett/api/pokemon-go1/details
  * - https://pogoapi.net/documentation/
+ *
+ * TODO:
+ * - More forms...
+ * - Update 'mega' pokemons types
+ * - Search suggestions
  */
 
 $(document).ready(Main);
@@ -172,7 +177,7 @@ function OnSubmitPokemon() {
 /**
  * Loads a pokemon page.
  */
-function LoadPokemon(clean_input, region = "normal", mega = false,
+function LoadPokemon(clean_input, form = "def", mega = false,
         mega_y = false) {
 
     // checks if all json objects are available
@@ -192,6 +197,10 @@ function LoadPokemon(clean_input, region = "normal", mega = false,
     if (pokemon_id == 0)
         return;
 
+    // sets the form
+    if (form == "def")
+        form = GetPokemonDefaultForm(pokemon_id);
+
     // pokeapi
     /*
     HttpGetAsync(pokeapi_url + "pokemon/" + pokemon_id,
@@ -210,46 +219,50 @@ function LoadPokemon(clean_input, region = "normal", mega = false,
     $("#next-containers").empty();
     $("#additional-containers").empty();
 
+    const forms = GetPokemonForms(pokemon_id);
+    const def_form = forms[0];
+
     // sets main pokemon container
     $("#main-container").append(GetPokemonContainer(pokemon_id,
-            (region == "normal" && !mega)));
+            (form == def_form && !mega), def_form));
 
     // sets previous and next pokemon containers
     for (i = 1; i <= 2; i++) {
-        if (parseInt(pokemon_id) - i > 0) {
+        const prev_pokemon_id = parseInt(pokemon_id) - i;
+        if (prev_pokemon_id > 0) {
             $("#previous-containers").prepend(
-                    GetPokemonContainer(parseInt(pokemon_id) - i));
+                GetPokemonContainer(prev_pokemon_id, false,
+                    GetPokemonDefaultForm(prev_pokemon_id)));
         }
-        if (parseInt(pokemon_id) + i <= pogoapi_max_id) {
+        const next_pokemon_id = parseInt(pokemon_id) + i;
+        if (next_pokemon_id <= pogoapi_max_id) {
             $("#next-containers").append(
-                    GetPokemonContainer(parseInt(pokemon_id) + i));
+                GetPokemonContainer(next_pokemon_id, false,
+                    GetPokemonDefaultForm(next_pokemon_id)));
         }
     }
 
     // sets additional pokemon containers
 
     const can_be_mega = local_mega[pokemon_id];
-    const can_be_alolan = local_alolan[pokemon_id];
-    const can_be_galarian = local_galarian[pokemon_id];
 
     if (can_be_mega) {
         if (pokemon_id == 6 || pokemon_id == 150) { // charizard and mewtwo
             $("#additional-containers").append(GetPokemonContainer(
-                    pokemon_id, mega && !mega_y, "normal", true, false));
+                    pokemon_id, mega && !mega_y, "Normal", true, false));
             $("#additional-containers").append(GetPokemonContainer(
-                    pokemon_id, mega && mega_y, "normal", true, true));
+                    pokemon_id, mega && mega_y, "Normal", true, true));
         } else {
             $("#additional-containers").append(
-                GetPokemonContainer(pokemon_id, mega, "normal", true));
+                GetPokemonContainer(pokemon_id, mega, "Normal", true));
         }
     }
-    if (can_be_alolan) {
-        $("#additional-containers").append(GetPokemonContainer(pokemon_id,
-                (region == "alolan"), "alolan"));
-    }
-    if (can_be_galarian) {
-        $("#additional-containers").append(GetPokemonContainer(pokemon_id,
-                (region == "galarian"), "galarian"));
+
+    const additional_forms = forms.slice(1);
+
+    for (f of additional_forms) {
+        $("#additional-containers").append(
+            GetPokemonContainer(pokemon_id, form == f, f));
     }
 
     // if the buttons container (and other elements) are hidden...
@@ -259,7 +272,7 @@ function LoadPokemon(clean_input, region = "normal", mega = false,
         $("#pokemongo").css("display", "initial");
     }
 
-    LoadPokemongo(pokemon_id, region, mega, mega_y);
+    LoadPokemongo(pokemon_id, form, mega, mega_y);
     LoadMaingames(pokemon_id);
 }
 
@@ -356,23 +369,34 @@ function GetPreviousEvolutions(pokemon_id) {
 /**
  * Gets a pokemon container div element set up with a specified pokemon.
  */
-function GetPokemonContainer(pokemon_id, is_selected, region = "normal",
+function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
         mega = false, mega_y = false) {
 
     const pokemon_name = pogoapi_names[pokemon_id].name;
-    let clean_name = Clean(pokemon_name);
-    // checks for stupid nidoran
-    if (pokemon_id == 29)
-        clean_name = "nidoranf";
-    else if (pokemon_id == 32)
-        clean_name = "nidoranm";
-
+    const clean_name = Clean(pokemon_name);
+    const img_src_name = GetPokemonImgSrcName(pokemon_id, clean_name, form,
+            mega, mega_y);
+    const img_src = gifs_url + img_src_name + ".gif";
     const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
+    const form_text = GetFormText(pokemon_id, form);
 
+    // container div
     const pokemon_container_div = $("<div></div>");
 
+    // form text p
+    if (form_text.length > 0) {
+        const form_text_div = $("<div class='pokemon-form'>"
+                + "<p class='pokefont unselectable small-text'>"
+                + form_text + "</p></div>");
+        pokemon_container_div.append(form_text_div);
+    }
+
+    // shiny img
     const shiny_img =
         $("<div class=shiny-img-div><img src=imgs/shiny.png></img></div>");
+    pokemon_container_div.append(shiny_img);
+
+    // img container div
     let img_container_div = $("<div class=img-container></div>");
     if (is_selected)
         img_container_div.css("border", "1px solid var(--col-main)");
@@ -380,31 +404,28 @@ function GetPokemonContainer(pokemon_id, is_selected, region = "normal",
             $("<img class=loading src=../imgs/loading.gif></img>"));
     img_container_div.append($("<img class=pokemon-img "
             + "onload ='HideLoading(this)' onclick='SwapShiny(this)' src="
-            + gifs_url + clean_name
-            + ((region == "alolan") ? "-alola" : "")
-            + ((region == "galarian") ? "-galar" : "")
-            + ((mega) ? "-mega" : "" )
-            + ((mega && can_be_mega_y) ? ((mega_y) ? "y" : "x") : "")
-            + ".gif></img>"));
+            + img_src + "></img>"));
+    pokemon_container_div.append(img_container_div);
+
+    // pokemon name p
     const pokemon_name_p = $("<p class='pokemon-name pokefont unselectable'"
-            + "onclick='LoadPokemon(" + pokemon_id + ", \"" + region
+            + "onclick='LoadPokemon(" + pokemon_id + ", \"" + form
             + "\", " + mega + ", " + mega_y + ")'>#" + pokemon_id
-            + ((region == "alolan") ? " Alolan " : " ")
-            + ((region == "galarian") ? " Galarian " : " ")
             + ((mega) ? " Mega " : " ") + pokemon_name
             + ((mega && can_be_mega_y) ? ((mega_y) ? " Y " : " X ") : "")
             + "</p>");
-    const pokemon_types_div = $("<div class=pokemon-types></div>");
-    const types = pogoapi_types.find(entry =>
-            entry.pokemon_id == pokemon_id).type;
-    for (type of types) {
-        pokemon_types_div.append($("<img src=imgs/types/"
-                + type.toLowerCase() + ".gif></img>"));
-    }
-
-    pokemon_container_div.append(shiny_img);
-    pokemon_container_div.append(img_container_div);
     pokemon_container_div.append(pokemon_name_p);
+
+    // pokemon types
+    const pokemon_types_div = $("<div class=pokemon-types></div>");
+    const types_entry = pogoapi_types.find(entry =>
+            entry.pokemon_id == pokemon_id && entry.form == form);
+    if (types_entry) {
+        for (type of types_entry.type) {
+            pokemon_types_div.append($("<img src=imgs/types/"
+                    + type.toLowerCase() + ".gif></img>"));
+        }
+    }
     pokemon_container_div.append(pokemon_types_div);
 
     return pokemon_container_div;
@@ -413,13 +434,13 @@ function GetPokemonContainer(pokemon_id, is_selected, region = "normal",
 /**
  * Loads one pokemon data for the Pokemon GO section.
  */
-function LoadPokemongo(pokemon_id, region, mega, mega_y = false) {
+function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
 
     const pogoapi_mega_obj = pogoapi_mega.find(entry =>
         entry.pokemon_id == pokemon_id);
     const released = pogoapi_released[pokemon_id]
-            && !(region == "alolan" && !pogoapi_alolan[pokemon_id])
-            && !(region == "galarian" && !pogoapi_galarian[pokemon_id])
+            && !(form == "Alola" && !pogoapi_alolan[pokemon_id])
+            && !(form == "Galarian" && !pogoapi_galarian[pokemon_id])
             && !(mega && !pogoapi_mega_obj);
 
     // if this pokemon is not released in pokemon go yet...
@@ -432,16 +453,16 @@ function LoadPokemongo(pokemon_id, region, mega, mega_y = false) {
     $("#not-released").css("display", "none");
     $("#released").css("display", "initial");
 
-    const stats = GetLvl40MaxStats(pokemon_id, region, mega, mega_y);
-    LoadPokemongoMaxCP(pokemon_id, region, mega, mega_y, stats);
-    LoadPokemongoTable(pokemon_id, region, mega, mega_y, stats);
+    const stats = GetLvl40MaxStats(pokemon_id, form, mega, mega_y);
+    LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
+    LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats);
 }
 
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is level 40
  * and it has the maximum IV points.
  */
-function GetLvl40MaxStats(pokemon_id, region, mega, mega_y) {
+function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
 
     let stats;
 
@@ -451,15 +472,9 @@ function GetLvl40MaxStats(pokemon_id, region, mega, mega_y) {
     } else if (mega) { // mega x or normal mega
         stats = pogoapi_mega.find(entry =>
                 entry.pokemon_id == pokemon_id).stats;
-    } else if (region == "alolan") { // alolan
+    } else { // any form non mega
         stats = pogoapi_stats.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == "Alola");
-    } else if (region == "galarian") { // galarian
-        stats = pogoapi_stats.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == "Galarian");
-    } else { // normal
-        stats = pogoapi_stats.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == "Normal");
+                entry.pokemon_id == pokemon_id && entry.form == form);
         if (!stats) {
             stats = pogoapi_stats.find(entry =>
                 entry.pokemon_id == pokemon_id);
@@ -485,7 +500,7 @@ function GetLvl40MaxStats(pokemon_id, region, mega, mega_y) {
  * Loads the section containing the maximum CP of the selected pokemon when
  * it is level 40.
  */
-function LoadPokemongoMaxCP(pokemon_id, region, mega, mega_y, stats) {
+function LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats) {
 
     const max_cp_40 = GetCP(stats);
     let prgr_pct = max_cp_40 * 100 / 5000;
@@ -516,14 +531,19 @@ function GetCP(stats) {
  * Loads the table in the Pokemon Go section including information about
  * the possible move combinations and their stats (dps, tod, dps3tdo).
  */
-function LoadPokemongoTable(pokemon_id, region, mega, mega_y, stats) {
+function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
     // whether can be shadow
     const can_be_shadow = pogoapi_shadow[pokemon_id] && !mega;
 
     // types
-    const types = pogoapi_types.find(entry =>
-            entry.pokemon_id == pokemon_id).type;
+    let types = [];
+    const types_entry = pogoapi_types.find(entry =>
+            entry.pokemon_id == pokemon_id && entry.form == form);
+    if (types_entry) {
+        types = pogoapi_types.find(entry =>
+                entry.pokemon_id == pokemon_id && entry.form == form).type;
+    }
 
     const atk = stats.atk;
     const def = stats.def;
@@ -536,7 +556,7 @@ function LoadPokemongoTable(pokemon_id, region, mega, mega_y, stats) {
     // removes previous table rows
     $("#pokemongo-table tr:not(.table-header)").remove();
 
-    const moves = GetPokemongoMoves(pokemon_id, region);
+    const moves = GetPokemongoMoves(pokemon_id, form);
     if (moves.length != 2)
         return;
 
@@ -589,13 +609,7 @@ function LoadPokemongoTable(pokemon_id, region, mega, mega_y, stats) {
  * Gets array of two arrays. The specified Pokemon's fast moves and charged
  * moves. If the pokemon is not found, returns an empty array.
  */
-function GetPokemongoMoves(pokemon_id, region) {
-
-    let form = "Normal";
-    if (region == "alolan")
-        form = "Alola";
-    else if (region == "galarian")
-        form = "Galarian";
+function GetPokemongoMoves(pokemon_id, form) {
 
     //const entries = pogoapi_moves.filter(
             //entry => entry.pokemon_id == pokemon_id);
