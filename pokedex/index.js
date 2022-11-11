@@ -9,7 +9,7 @@
  * TODO:
  * - More forms...
  * - Update 'mega' pokemons types
- * - Search suggestions
+ * - Add pogo stats, not just CP
  */
 
 $(document).ready(Main);
@@ -42,10 +42,18 @@ let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
 
+// search input selected suggestion index
+let selected_suggestion_i = -1;
+
 /**
  * Main function.
  */
 function Main() {
+
+    $("#input").bind("keydown", OnInputKeyDown);
+    $("#input").bind("keyup", OnInputKeyUp);
+    $("#input").bind("focus", OnInputFocus);
+    $("#input").bind("blur", OnInputBlur);
 
     $("#input").focus();
 
@@ -167,11 +175,169 @@ function HttpGetAsyncPokemongo1(url, callback) {
 }
 
 /**
- * Callback function for when a pokemon name is input by the user.
+ * Callback function for KeyDown event in search input box.
  */
-function OnSubmitPokemon() {
+function OnInputKeyDown(e) {
 
-    LoadPokemon(Clean($("#input").val()));
+    let selected_suggestion_changed = false;
+
+    switch (e.keyCode) {
+
+        case 9: // tab
+            e.preventDefault();
+            break;
+
+        case 13: // enter
+            e.preventDefault();
+            if (selected_suggestion_i > -1) {
+                const selected_text = $("#suggestions").children()
+                        .eq(selected_suggestion_i)[0].textContent;
+                const name =
+                    selected_text.slice(selected_text.indexOf(" "));
+                LoadPokemon(Clean(name));
+            } else {
+                LoadPokemon(Clean($("#input").val()));
+            }
+            break;
+
+        case 38: // arrow up
+            e.preventDefault();
+            selected_suggestion_i--;
+            selected_suggestion_changed = true;
+            break;
+
+        case 40: // arrow down
+            e.preventDefault();
+            selected_suggestion_i++;
+            selected_suggestion_changed = true;
+            break;
+    }
+
+    if (!selected_suggestion_changed)
+        return;
+
+    // if selected suggestion changed...
+
+    const suggestions = $("#suggestions").children();
+
+    if (selected_suggestion_i < -1)
+        selected_suggestion_i = -1;
+    if (selected_suggestion_i >= suggestions.length)
+        selected_suggestion_i = suggestions.length - 1;
+
+    for (let i = 0; i < suggestions.length; i++) {
+        if (i == selected_suggestion_i)
+            suggestions.eq(i).addClass("selected-suggestion");
+        else
+            suggestions.eq(i).removeClass("selected-suggestion");
+    }
+}
+
+/**
+ * Callback function for KeyUp event in search input box.
+ */
+function OnInputKeyUp(e) {
+
+    if (e.keyCode == 38 || e.keyCode == 40)
+        return;
+
+    UpdateInputSuggestions();
+}
+
+/**
+ * Callback function for Focus event in search input box.
+ */
+function OnInputFocus(e) {
+
+    UpdateInputSuggestions();
+}
+
+/**
+ * Callback function for Blur event in search input box.
+ */
+function OnInputBlur(e) {
+
+    let suggestions = $("#suggestions");
+
+    // empties suggestions
+    suggestions.empty();
+
+    // sets borders
+    suggestions.css("border", "none");
+    suggestions.css("border-top", "1px solid var(--col-main)");
+}
+
+/**
+ * Updates the search input suggestions.
+ */
+function UpdateInputSuggestions() {
+
+    // checks whether json object is available
+    if (!pogoapi_names)
+        return;
+
+    selected_suggestion_i = -1;
+
+    const input = $("#input").val();
+    const clean_input = input.toLowerCase();
+    const input_len = clean_input.length;
+    let suggestions = $("#suggestions");
+
+    suggestions.empty();
+
+    if (input_len > 0) {
+
+        const pogoapi_names_keys = Object.keys(pogoapi_names);
+        for (key of pogoapi_names_keys) {
+
+            const entry = pogoapi_names[key];
+
+            if (entry.id > pogoapi_max_id)
+                continue;
+
+            // checks for ids
+            if (String(entry.id).startsWith(clean_input)) {
+                suggestions.append("<p>#<b>" + clean_input
+                        + "</b>" + String(entry.id).slice(input_len)
+                        + " " + entry.name + "</p>");
+                if (suggestions.children().length >= 10)
+                    break;
+            }
+
+            // checks for # + ids
+            const hash_id = "#" + String(entry.id);
+            if (hash_id.startsWith(clean_input)) {
+                suggestions.append("<p><b>" + clean_input
+                        + "</b>" + hash_id.slice(input_len)
+                        + " " + entry.name + "</p>");
+                if (suggestions.children().length >= 10)
+                    break;
+            }
+
+            // checks for names
+            if (entry.name.toLowerCase().startsWith(clean_input)) {
+                suggestions.append("<p>#" + entry.id
+                        + " <b>" + input + "</b>"
+                        + entry.name.slice(input_len) + "</p>");
+                if (suggestions.children().length >= 10)
+                    break;
+            }
+        }
+
+        // sets borders
+        if (suggestions.children().length > 0) {
+            suggestions.css("border", "1px solid var(--col-main)");
+        } else {
+            suggestions.css("border", "none");
+            suggestions.css("border-top", "1px solid var(--col-main)");
+        }
+
+    } else {
+
+        // sets borders
+        suggestions.css("border", "none");
+        suggestions.css("border-top", "1px solid var(--col-main)");
+    }
 }
 
 /**

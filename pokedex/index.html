@@ -24,9 +24,10 @@
 
     <div class=center id=app>
         <p class="center small-text off no-top-m">search a Pokémon name or id...</p>
-        <form autocomplete=off onsubmit="OnSubmitPokemon(); return false;">
-            <input id=input type=text>
+        <form autocomplete=off>
+            <input id=input type=text">
         </form>
+        <div id=suggestions-c><div id=suggestions class=small-text></div></div>
         <br>
         <div id=containers-father>
             <div class=pokemon-containers id=previous-containers></div>
