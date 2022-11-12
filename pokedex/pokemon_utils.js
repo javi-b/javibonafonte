@@ -46,6 +46,10 @@ function GetPokemonForms(pokemon_id) {
             return [ "Normal", "Galarian" ];
         case 52: // Meowth
             return [ "Normal", "Alola", "Galarian" ];
+        case 351: // Castform
+            return [ "Normal", "Sunny", "Rainy", "Snowy" ];
+        case 386: // Deoxys
+            return [ "Normal", "Attack", "Defense", "Speed" ];
         case 412: // Burmy
         case 413: // Wormadam
             return [ "Plant", "Sandy", "Trash" ];
@@ -54,6 +58,8 @@ function GetPokemonForms(pokemon_id) {
         case 422: // Shellos
         case 423: // Gastrodon
             return [ "West_sea", "East_sea" ];
+        case 479: // Rotom
+            return [ "Normal", "Heat", "Wash", "Frost", "Fan", "Mow" ]
         case 487: // Giratina
             return [ "Altered", "Origin" ];
         case 492: // Shaymin
@@ -82,6 +88,8 @@ function GetPokemonForms(pokemon_id) {
         case 676: // Furfrou
             return [ "Natural", "Heart", "Star", "Diamond", "Debutante",
                 "Matron", "Dandy", "La_reine", "Kabuki", "Pharaoh" ];
+        case 678: // Meowstic
+            return [ "Normal", "Female" ];
         case 710: // Pumpkaboo
         case 711: // Gourgeist
             return [ "Average", "Small", "Large", "Super" ];
@@ -120,6 +128,8 @@ function GetPokemonForms(pokemon_id) {
             return [ "Hero" , "Crowned_shield" ];
         case 892: // Urshifu
             return [ "Single_strike", "Rapid_strike" ];
+        case 898: // Calyrex
+            return [ "Normal", "Ice_rider", "Shadow_rider" ];
         default:
             return [ "Normal" ];
     }
@@ -156,7 +166,10 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
                 img_src_name += "-galar";
                 break;
             case "Sunny":
-                img_src_name += "-sunshine";
+                if (pokemon_id == 421) // Cherrim
+                    img_src_name += "-sunshine";
+                else
+                    img_src_name += "-sunny";
                 break;
             case "East_sea":
                 img_src_name += "-east";
@@ -173,6 +186,12 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
             case "Crowned_sword":
             case "Crowned_shield":
                 img_src_name += "-crowned";
+                break;
+            case "Ice_rider":
+                img_src_name += "-ice";
+                break;
+            case "Shadow_rider":
+                img_src_name += "-shadow";
                 break;
             default:
                 img_src_name += "-";
@@ -206,12 +225,26 @@ function GetFormText(pokemon_id, form) {
         return "";
 
     switch (form) {
+        case "Normal":
+            switch (pokemon_id) {
+                case 351: // Castform
+                    return "Normal Form";
+                case 386: // Deoxys
+                    return "Normal Forme";
+                case 479: // Rotom
+                    return "Rotom";
+                case 678: // Meowstic
+                    return "Male";
+            }
+            break;
         case "Alola":
             return "Alolan Form";
         case "Plant":
         case "Sandy":
         case "Trash":
             return form + " Cloak";
+        case "Rainy":
+        case "Snowy":
         case "Overcast":
         case "Spring":
         case "Autumn":
@@ -232,11 +265,23 @@ function GetFormText(pokemon_id, form) {
         case "Antique":
             return form + " Form";
         case "Sunny":
-            return "Sunshine Form";
+            if (pokemon_id == 421) // Cherrim
+                return "Sunshine Form";
+            else
+                return "Sunny Form";
         case "West_sea":
             return "West Sea";
         case "East_sea":
             return "East Sea";
+        case "Heat":
+        case "Wash":
+        case "Frost":
+        case "Fan":
+        case "Mow":
+            return form + " Rotom";
+        case "Attack":
+        case "Defense":
+        case "Speed":
         case "Altered":
         case "Origin":
         case "Land":
@@ -313,6 +358,10 @@ function GetFormText(pokemon_id, form) {
             return "Single Strike Style";
         case "Rapid_strike":
             return "Rapid Strike Style";
+        case "Ice_rider":
+            return "Ice Rider";
+        case "Shadow_rider":
+            return "Shadow Rider";
     }
 
     return "";

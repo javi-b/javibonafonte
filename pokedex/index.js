@@ -7,8 +7,10 @@
  * - https://pogoapi.net/documentation/
  *
  * TODO:
+ * - Hisuian forms
  * - More forms...
  * - Add pogo stats, not just CP
+ * - Missing shinies: Yungoos, Castform forms (pokemonshowdown)
  */
 
 $(document).ready(Main);
