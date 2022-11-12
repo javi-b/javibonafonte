@@ -364,6 +364,11 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     if (pokemon_id == 0)
         return;
 
+    // sets the page title
+    const pokemon_name = pogoapi_names[pokemon_id].name;
+    document.title = "#" + pokemon_id + " " + pokemon_name
+            + " - Palkia's Pokédex";
+
     // sets the form
     if (form == "def")
         form = GetPokemonDefaultForm(pokemon_id);
