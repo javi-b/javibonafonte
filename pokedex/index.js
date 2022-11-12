@@ -8,7 +8,6 @@
  *
  * TODO:
  * - More forms...
- * - Update 'mega' pokemons types
  * - Add pogo stats, not just CP
  */
 
@@ -489,6 +488,44 @@ function GetPokemonId(clean_input) {
 }
 
 /**
+ * Gets array of specific pokemon types. Take into account form and whether 
+ * is mega.
+ */
+function GetPokemonTypes(pokemon_id, form, mega, mega_y) {
+
+    types = [];
+
+    if (mega) {
+        // mega
+
+        const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
+        let types_entry;
+
+        if (can_be_mega_y) {
+            const form = (mega_y) ? "Y" : "X";
+            types_entry = pogoapi_mega.find(entry =>
+                    entry.pokemon_id == pokemon_id && entry.form == form);
+        } else {
+            types_entry = pogoapi_mega.find(entry =>
+                    entry.pokemon_id == pokemon_id);
+        }
+
+        if (types_entry)
+            types = types_entry.type;
+
+    } else {
+        // non mega
+
+        const types_entry = pogoapi_types.find(entry =>
+                entry.pokemon_id == pokemon_id && entry.form == form);
+        if (types_entry)
+            types = types_entry.type;
+    }
+
+    return types;
+}
+
+/**
  * Gets array of ids from pokemon that are next evolutions of the
  * specified. This function is recursive, that is why the pokemon specified
  * is also returned in the array.
@@ -583,14 +620,11 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     pokemon_container_div.append(pokemon_name_p);
 
     // pokemon types
+    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
     const pokemon_types_div = $("<div class=pokemon-types></div>");
-    const types_entry = pogoapi_types.find(entry =>
-            entry.pokemon_id == pokemon_id && entry.form == form);
-    if (types_entry) {
-        for (type of types_entry.type) {
-            pokemon_types_div.append($("<img src=imgs/types/"
-                    + type.toLowerCase() + ".gif></img>"));
-        }
+    for (type of types) {
+        pokemon_types_div.append($("<img src=imgs/types/"
+                + type + ".gif></img>"));
     }
     pokemon_container_div.append(pokemon_types_div);
 
@@ -703,13 +737,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     const can_be_shadow = pogoapi_shadow[pokemon_id] && !mega;
 
     // types
-    let types = [];
-    const types_entry = pogoapi_types.find(entry =>
-            entry.pokemon_id == pokemon_id && entry.form == form);
-    if (types_entry) {
-        types = pogoapi_types.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == form).type;
-    }
+    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
 
     const atk = stats.atk;
     const def = stats.def;
