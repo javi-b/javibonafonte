@@ -72,15 +72,24 @@ function GetPokemonForms(pokemon_id) {
         case 585: // Deerling
         case 586: // Sawsbuck
             return [ "Spring", "Summer", "Autumn", "Winter" ];
+        case 592: // Frillish
+        case 593: // Jellicent
+            return [ "Normal", "Female" ];
         case 641: // Tornadus
         case 642: // Thundurus
         case 645: // Landorus
         case 905: // Enamorus
             return [ "Incarnate", "Therian" ];
+        case 646: // Kyurem
+            return [ "Normal", "White", "Black" ];
         case 647: // Keldeo
             return [ "Ordinary", "Resolute" ];
         case 648: // Meloetta
             return [ "Aria", "Pirouette" ];
+        case 649: // Genesect
+            return [ "Normal", "Shock", "Burn", "Chill", "Douse" ];
+        case 668: // Pyroar
+            return [ "Normal", "Female" ];
         case 669: // Flabebe
         case 670: // Floette
         case 671: // Florges
@@ -126,6 +135,8 @@ function GetPokemonForms(pokemon_id) {
             return [ "Hero" , "Crowned_sword" ];
         case 889: // Zamazenta
             return [ "Hero" , "Crowned_shield" ];
+        case 890: // Eternatus
+            return [ "Normal", "Eternamax" ];
         case 892: // Urshifu
             return [ "Single_strike", "Rapid_strike" ];
         case 898: // Calyrex
@@ -233,8 +244,17 @@ function GetFormText(pokemon_id, form) {
                     return "Normal Forme";
                 case 479: // Rotom
                     return "Rotom";
+                case 592: // Frillish
+                case 593: // Jellicent
                 case 678: // Meowstic
+                case 668: // Pyroar
                     return "Male";
+                case 646: // Kyurem
+                    return "Kyurem";
+                case 649: // Genesect
+                    return "Normal";
+                case 890: // Eternatus
+                    return "Eternatus";
             }
             break;
         case "Alola":
@@ -291,6 +311,23 @@ function GetFormText(pokemon_id, form) {
         case "Aria":
         case "Pirouette":
             return form + " Forme";
+        case "White":
+            switch (pokemon_id) {
+                case 646: // Kyurem
+                    return "White Kyurem";
+                case 669: // Flabebe
+                case 670: // Floette
+                case 671: // Florges
+                    return "White Flower";
+            }
+            break;
+        case "Black":
+            return "Black Kyurem";
+        case "Shock":
+        case "Burn":
+        case "Chill":
+        case "Douse":
+            return form + " Drive";
         case "Red_striped":
             return "Red-Striped";
         case "Blue_striped":
@@ -307,7 +344,6 @@ function GetFormText(pokemon_id, form) {
         case "Yellow":
         case "Orange":
         case "Blue":
-        case "White":
             return form + " Flower";
         case "Heart":
         case "Star":
@@ -354,6 +390,8 @@ function GetFormText(pokemon_id, form) {
             return "Crowned Sword";
         case "Crowned_shield":
             return "Crowned Shield";
+        case "Eternamax":
+            return "Eternamax Eternatus";
         case "Single_strike":
             return "Single Strike Style";
         case "Rapid_strike":
