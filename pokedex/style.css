@@ -1,4 +1,4 @@
-/* pokemon/style.css */
+/* pokedex/style.css */
 
 @font-face {
     font-family: "Pokemon";
@@ -134,6 +134,33 @@ tr:nth-child(even) {
     font-size: 90%;
     color: var(--col-off);
 }
+
+.move {
+    padding: 0 0.25em;
+    color: rgb(248, 248, 248);
+    border-radius: var(--border-radius);
+    text-shadow: 1px 1px gray;
+    box-shadow: 1px 1px gray;
+    white-space: nowrap;
+}
+.move_normal { background-color: rgb(168, 168, 120); }
+.move_fire { background-color: rgb(240, 128, 48); }
+.move_water { background-color: rgb(104, 144, 240); }
+.move_grass { background-color: rgb(120, 200, 80); }
+.move_electric { background-color: rgb(248, 208, 57); }
+.move_ice { background-color: rgb(152, 216, 216); }
+.move_fighting { background-color: rgb(192, 48, 40); }
+.move_poison { background-color: rgb(160, 64, 160); }
+.move_ground { background-color: rgb(224, 192, 104); }
+.move_flying { background-color: rgb(168, 144, 240); }
+.move_psychic { background-color: rgb(238, 86, 135); }
+.move_bug { background-color: rgb(168, 184, 46); }
+.move_rock { background-color: rgb(184, 160, 56); }
+.move_ghost { background-color: rgb(112, 88, 152); }
+.move_dragon { background-color: rgb(115, 79, 248); }
+.move_dark { background-color: rgb(112, 88, 72); }
+.move_steel { background-color: rgb(184, 184, 208); }
+.move_fairy { background-color: rgb(241, 162, 231); }
 
 /*
  * Specific

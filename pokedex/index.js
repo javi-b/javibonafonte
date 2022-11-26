@@ -767,18 +767,39 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     // appends new table rows
 
     for (fm of fms) {
+
+        // gets the fast move object
+        const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
+        if (!fm_obj)
+            continue;
+
+        const fm_type = fm_obj.type.toLowerCase();
+
         for (cm of cms) {
 
-            const dps = GetDPS(types, atk, def, hp, fm, cm);
-            const dps_sh = GetDPS(types, atk_sh, def_sh, hp, fm, cm);
+            // gets the charged move object
+            const cm_obj = pkmgo1_cm.find(entry => entry.name == cm);
+            if (!cm_obj)
+                continue;
+
+            const cm_type = cm_obj.type.toLowerCase();
+
+            // calculates the data
+
+            const dps = GetDPS(types, atk, def, hp, fm_obj, cm_obj);
+            const dps_sh = GetDPS(types, atk_sh, def_sh, hp, fm_obj,cm_obj);
             const tdo = GetTDO(dps, hp, def);
             const tdo_sh = GetTDO(dps_sh, hp, def_sh);
             const dps3tdo = Math.pow(dps, 3) * tdo / 1000;
             const dps3tdo_sh = Math.pow(dps_sh, 3) * tdo_sh / 1000;
 
+            // creates one row
+
             const tr = $("<tr></tr>");
-            const td_fm = $("<td>" + fm + "</td>");
-            const td_cm = $("<td>" + cm + "</td>");
+            const td_fm = $("<td><span class='move move_" + fm_type + "'>"
+                    + fm + "</td>");
+            const td_cm = $("<td><span class='move move_" + cm_type + "'>"
+                    + cm + "</td>");
             const td_dps = $("<td>" + dps.toFixed(3) + "</td>");
             const td_dps_sh = $("<td>"
                     + ((can_be_shadow) ? dps_sh.toFixed(3) : "-")
@@ -828,10 +849,7 @@ function GetPokemongoMoves(pokemon_id, form) {
  * https://gamepress.gg/pokemongo/damage-mechanics
  * https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
  */
-function GetDPS(types, atk, def, hp, fm, cm) {
-
-    const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
-    const cm_obj = pkmgo1_cm.find(entry => entry.name == cm);
+function GetDPS(types, atk, def, hp, fm_obj, cm_obj) {
 
     if (!fm_obj || !cm_obj)
         return 0;
