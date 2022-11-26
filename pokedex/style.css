@@ -258,3 +258,8 @@ tr:nth-child(even) {
     width: 100%;
     table-layout: fixed;
 }
+
+#pokemongo-table .sortable {
+    cursor: pointer;
+    text-decoration: underline;
+}

@@ -762,14 +762,29 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     const fms = moves[0];
     const cms = moves[1];
 
-    // appends new table rows
+    // appends new table rows asyncronously (so that Mew loads fast)
+    // each chunk of moves combinations with a specific fast move
+    // is appeneded in a different frame
 
-    for (fm of fms) {
+    /**
+     * Appends all the rows containing a specific fast move.
+     * Receives the index of the fast move and
+     * the callback function for when all chunks have been appended.
+     */
+    function AppendFMChunk(fm_i, callback) {
+
+        const fm = fms[fm_i];
 
         // gets the fast move object
         const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
-        if (!fm_obj)
-            continue;
+        if (!fm_obj) {
+            fm_i++;
+            if (fm_i < fms.length)
+                setTimeout(function() {AppendFMChunk(fm_i, callback);}, 0);
+            else
+                callback();
+            return;
+        }
 
         const fm_type = fm_obj.type.toLowerCase();
 
@@ -785,7 +800,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             // calculates the data
 
             const dps = GetDPS(types, atk, def, hp, fm_obj, cm_obj);
-            const dps_sh = GetDPS(types, atk_sh, def_sh, hp, fm_obj,cm_obj);
+            const dps_sh = GetDPS(types, atk_sh, def_sh, hp,fm_obj,cm_obj);
             const tdo = GetTDO(dps, hp, def);
             const tdo_sh = GetTDO(dps_sh, hp, def_sh);
             const dps3tdo = Math.pow(dps, 3) * tdo / 1000;
@@ -822,7 +837,17 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
             $("#pokemongo-table").append(tr);
         }
+
+        // appends the next fast move chunk, if there is more
+        fm_i++;
+        if (fm_i < fms.length)
+            setTimeout(function() {AppendFMChunk(fm_i, callback);}, 0);
+        else
+            callback();
     }
+
+    // appends the first fast move chunk
+    AppendFMChunk(0, function() { SortPokemongoTable(6); });
 }
 
 /**
@@ -903,6 +928,91 @@ function GetTDO(dps, hp, def) {
 
     const y = 900 / def;
     return (dps * (hp / y));
+}
+
+/**
+ * Sorts the pokemon go moves combinations table rows according to the
+ * values from a specific column.
+ */
+function SortPokemongoTable(column_i) {
+
+    let table = $("#pokemongo-table")[0];
+
+    // updates downside triangles
+    let triangles = $(".th-triangle");
+    for (triangle of triangles)
+        triangle.remove();
+    cells = table.rows[0].cells;
+    for (let cell_i = 0; cell_i < cells.length; cell_i++) {
+        let cell = $(cells[cell_i]);
+        if (cell_i == column_i) {
+            let triangle = $("<span class=th-triangle> ▾</span>");
+            cell.append(triangle);
+        } else if (cell.hasClass("sortable")) {
+            let triangle = $("<span class=th-triangle> ▿</span>");
+            cell.append(triangle);
+        }
+    }
+
+    // sorts rows
+    let rows_array = Array.from(table.rows).slice(1);
+    rows_array = MergeSortPokemongoTable(rows_array, column_i);
+    for (let i = 0; i < rows_array.length; i++)
+        table.append(rows_array[i]);
+}
+
+/**
+ * Applies the merge sort algorithm to the pokemon go table rows.
+ * Sorts according to the values from a specific column.
+ */
+function MergeSortPokemongoTable(rows, column_i) {
+
+    if (rows.length <= 1)
+        return rows;
+
+    const n = (rows.length / 2);
+    let a = MergeSortPokemongoTable(rows.slice(0, n), column_i);
+    let b = MergeSortPokemongoTable(rows.slice(n), column_i);
+
+    return MergeRows(a, b, column_i);
+}
+
+/**
+ * Part of the merge sort algorithm for the pokemon go table rows.
+ * Sorts and merges two arrays of rows according to the values
+ * from a specific column. Returns the single resulting array.
+ */
+function MergeRows(a, b, column_i) {
+
+    function GetRowValue(row) {
+        return parseFloat(
+                row.getElementsByTagName("TD")[column_i]
+                .innerHTML.toLowerCase());
+    }
+
+    let c = [];
+
+    while (a.length > 0 && b.length > 0) {
+        if (GetRowValue(a[0]) >= GetRowValue(b[0])) {
+            c.push(a[0]);
+            a.shift();
+        } else {
+            c.push(b[0]);
+            b.shift();
+        }
+    }
+
+    while (a.length > 0) {
+        c.push(a[0]);
+        a.shift();
+    }
+
+    while (b.length > 0) {
+        c.push(b[0]);
+        b.shift();
+    }
+
+    return c;
 }
 
 /**
