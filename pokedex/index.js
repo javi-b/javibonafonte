@@ -716,11 +716,9 @@ function LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats) {
 
     const width = 100 - prgr_pct;
     $(".prgr-val").css("width", width + "%");
-    setTimeout(function() {
-        $("#max-cp").text("CP ");
-        const bold_num = $("<b>" + max_cp_40 + "</b>");
-        $("#max-cp").append(bold_num);
-    }, 10);
+    $("#max-cp").text("CP ");
+    const bold_num = $("<b>" + max_cp_40 + "</b>");
+    $("#max-cp").append(bold_num);
 }
 
 /**

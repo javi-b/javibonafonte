@@ -245,6 +245,7 @@ tr:nth-child(even) {
     height: 0;
     position: relative;
     left: 150px;
+    top: -0.5em;
 }
 
 #max-cp {
