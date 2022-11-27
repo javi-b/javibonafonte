@@ -198,6 +198,7 @@ tr:nth-child(even) {
 
 #suggestions p {
     margin: 0.5em;
+    cursor: pointer;
 }
 
 .selected-suggestion {

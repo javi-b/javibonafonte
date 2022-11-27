@@ -255,6 +255,7 @@ function OnInputFocus(e) {
 
 /**
  * Callback function for Blur event in search input box.
+ * The Blur event fires when an element has lost focus.
  */
 function OnInputBlur(e) {
 
@@ -298,7 +299,8 @@ function UpdateInputSuggestions() {
 
             // checks for ids
             if (String(entry.id).startsWith(clean_input)) {
-                suggestions.append("<p>#<b>" + clean_input
+                suggestions.append("<p onmousedown=LoadPokemon('"
+                        + entry.id + "')>#<b>" + clean_input
                         + "</b>" + String(entry.id).slice(input_len)
                         + " " + entry.name + "</p>");
                 if (suggestions.children().length >= 10)
@@ -308,7 +310,8 @@ function UpdateInputSuggestions() {
             // checks for # + ids
             const hash_id = "#" + String(entry.id);
             if (hash_id.startsWith(clean_input)) {
-                suggestions.append("<p><b>" + clean_input
+                suggestions.append("<p onmousedown=LoadPokemon('"
+                        + entry.id + "')><b>" + clean_input
                         + "</b>" + hash_id.slice(input_len)
                         + " " + entry.name + "</p>");
                 if (suggestions.children().length >= 10)
@@ -317,7 +320,8 @@ function UpdateInputSuggestions() {
 
             // checks for names
             if (entry.name.toLowerCase().startsWith(clean_input)) {
-                suggestions.append("<p>#" + entry.id
+                suggestions.append("<p onmousedown=LoadPokemon('"
+                        + entry.id + "')>#" + entry.id
                         + " <b>" + input + "</b>"
                         + entry.name.slice(input_len) + "</p>");
                 if (suggestions.children().length >= 10)
