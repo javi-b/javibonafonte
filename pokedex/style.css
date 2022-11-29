@@ -246,12 +246,14 @@ tr:nth-child(even) {
     height: 0;
     position: relative;
     left: 150px;
-    top: -0.5em;
+    top: -0.6em;
 }
 
 #max-cp {
     width: 100px;
     position: absolute;
+    top: 0;
+    left: 0;
     font-size: 1.25em;
 }
 
