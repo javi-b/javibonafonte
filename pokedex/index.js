@@ -760,11 +760,16 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     $("#pokemongo-table tr:not(.table-header)").remove();
 
     const moves = GetPokemongoMoves(pokemon_id, form);
-    if (moves.length != 2)
+    if (moves.length != 4)
         return;
 
     const fms = moves[0];
     const cms = moves[1];
+    const elite_fms = moves[2];
+    const elite_cms = moves[3];
+
+    const all_fms = fms.concat(elite_fms);
+    const all_cms = cms.concat(elite_cms);
 
     // appends new table rows asyncronously (so that Mew loads fast)
     // each chunk of moves combinations with a specific fast move
@@ -777,13 +782,14 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
      */
     function AppendFMChunk(fm_i, callback) {
 
-        const fm = fms[fm_i];
+        const fm = all_fms[fm_i];
+        const is_elite_fm = elite_fms.includes(fm);
 
         // gets the fast move object
         const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
         if (!fm_obj) {
             fm_i++;
-            if (fm_i < fms.length)
+            if (fm_i < all_fms.length)
                 setTimeout(function() {AppendFMChunk(fm_i, callback);}, 0);
             else
                 callback();
@@ -792,7 +798,9 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
         const fm_type = fm_obj.type.toLowerCase();
 
-        for (cm of cms) {
+        for (cm of all_cms) {
+
+            const is_elite_cm = elite_cms.includes(cm);
 
             // gets the charged move object
             const cm_obj = pkmgo1_cm.find(entry => entry.name == cm);
@@ -814,9 +822,9 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
             const tr = $("<tr></tr>");
             const td_fm = $("<td><span class='move move_" + fm_type + "'>"
-                    + fm + "</td>");
+                    + fm + ((is_elite_fm) ? "*" : "") + "</span></td>");
             const td_cm = $("<td><span class='move move_" + cm_type + "'>"
-                    + cm + "</td>");
+                    + cm + ((is_elite_cm) ? "*" : "") + "</span></td>");
             const td_dps = $("<td>" + dps.toFixed(3) + "</td>");
             const td_dps_sh = $("<td>"
                     + ((can_be_shadow) ? dps_sh.toFixed(3) : "-")
@@ -844,7 +852,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
         // appends the next fast move chunk, if there is more
         fm_i++;
-        if (fm_i < fms.length)
+        if (fm_i < all_fms.length)
             setTimeout(function() {AppendFMChunk(fm_i, callback);}, 0);
         else
             callback();
@@ -865,7 +873,10 @@ function GetPokemongoMoves(pokemon_id, form) {
     const entry = pogoapi_moves.find(entry =>
             entry.pokemon_id == pokemon_id && entry.form == form);
 
-    return (entry) ? [entry.fast_moves, entry.charged_moves] : [];
+    return ((entry)
+            ? [entry.fast_moves, entry.charged_moves,
+                entry.elite_fast_moves, entry.elite_charged_moves]
+            : []);
 }
 
 /**
