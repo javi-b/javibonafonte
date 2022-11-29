@@ -21,6 +21,7 @@ const pokeapi_url = "https://pokeapi.co/api/v2/";
 const pogoapi_url = "https://pogoapi.net/api/v1/";
 const pokemongo1_url = "https://pokemon-go1.p.rapidapi.com/";
 const pokemongo1_key = "a7236470dbmsheefb2d24399d84cp118c40jsn1f6c231dcf33";
+const game_master_url = "https://raw.githubusercontent.com/PokeMiners/game_masters/master/latest/latest.json"
 
 const pokemon_resources_url =
     "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
@@ -32,6 +33,10 @@ const shiny_gifs_url_2 =
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 
+const loading_max_val = 14; // mx number of files that need to be loaded
+let loading_val = 0; // number of files loaded so far
+let finished_loading = false; // whether page finished loading all files
+
 // local files json objects
 let local_alolan, local_galarian, local_mega, local_dws;
 // pokeapi current pokemon
@@ -39,9 +44,12 @@ let pokeapi_current;
 // pogoapi json objects
 let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
         pogoapi_stats, pogoapi_moves, pogoapi_max_cp, pogoapi_released,
-        pogoapi_alolan, pogoapi_galarian, pogoapi_shadow, pogoapi_mega;
+        pogoapi_alolan, pogoapi_galarian, pogoapi_shadow, pogoapi_mega,
+        pogoapi_fms, pogoapi_cms;
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
+// game master json object
+let game_master;
 
 // whether pokemon go table moves are currenlty being loaded asyncronously,
 // so no new pokemon should be loaded for now
@@ -66,14 +74,28 @@ function Main() {
     $("#input").focus();
 
     // local
+    /*
     LocalGetAsync("data/alolan_pokemon.json",
-        function(response) { local_alolan = JSON.parse(response) });
+        function(response) {
+            local_alolan = JSON.parse(response);
+            IncreaseLoadingVal();
+        });
     LocalGetAsync("data/galarian_pokemon.json",
-        function(response) { local_galarian = JSON.parse(response) });
+        function(response) {
+            local_galarian = JSON.parse(response);
+            IncreaseLoadingVal();
+        });
+    */
     LocalGetAsync("data/mega_pokemon.json",
-        function(response) { local_mega = JSON.parse(response) });
+        function(response) {
+            local_mega = JSON.parse(response);
+            IncreaseLoadingVal();
+        });
     LocalGetAsync("data/damage_window_starts.json",
-        function(response) { local_dws = JSON.parse(response) });
+        function(response) {
+            local_dws = JSON.parse(response);
+            IncreaseLoadingVal();
+        });
 
     // pogoapi
     HttpGetAsync(pogoapi_url + "pokemon_names.json",
@@ -93,30 +115,44 @@ function Main() {
             function(response) { pogoapi_stats = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "current_pokemon_moves.json",
             function(response) { pogoapi_moves = JSON.parse(response); });
+    /*
     HttpGetAsync(pogoapi_url + "pokemon_max_cp.json",
             function(response) { pogoapi_max_cp = JSON.parse(response); });
+    */
     HttpGetAsync(pogoapi_url + "released_pokemon.json",
-            function(response) {
-                pogoapi_released = JSON.parse(response); });
-    //HttpGetAsync(pogoapi_url + "pvp_fast_moves.json",
-            //function(response) { fast_moves = JSON.parse(response); });
-    //HttpGetAsync(pogoapi_url + "pvp_charged_moves.json",
-            //function(response) { charged_moves = JSON.parse(response); });
+            function(response) {pogoapi_released = JSON.parse(response);});
+    /*
+    HttpGetAsync(pogoapi_url + "pvp_fast_moves.json",
+            function(response) { fast_moves = JSON.parse(response); });
+    HttpGetAsync(pogoapi_url + "pvp_charged_moves.json",
+            function(response) { charged_moves = JSON.parse(response); });
+    */
     HttpGetAsync(pogoapi_url + "alolan_pokemon.json",
             function(response) { pogoapi_alolan = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "galarian_pokemon.json",
-            function(response) {
-                pogoapi_galarian = JSON.parse(response); });
+            function(response) {pogoapi_galarian = JSON.parse(response);});
     HttpGetAsync(pogoapi_url + "shadow_pokemon.json",
             function(response) { pogoapi_shadow = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "mega_pokemon.json",
             function(response) { pogoapi_mega = JSON.parse(response); });
+    HttpGetAsync(pogoapi_url + "fast_moves.json",
+            function(response) { pogoapi_fms = JSON.parse(response); });
+    HttpGetAsync(pogoapi_url + "charged_moves.json",
+            function(response) { pogoapi_cms = JSON.parse(response); });
 
     // pokemongo1
+    /*
     HttpGetAsyncPokemongo1(pokemongo1_url + "fast_moves.json",
             function(response) { pkmgo1_fm = JSON.parse(response); });
     HttpGetAsyncPokemongo1(pokemongo1_url + "charged_moves.json",
             function(response) { pkmgo1_cm = JSON.parse(response); });
+    */
+
+    // game master
+    /*
+    HttpGetAsync(game_master_url,
+            function(response) { game_master = JSON.parse(response); });
+    */
 
     // event handlers
     $("#maingames-btn").click(function() { SelectGame(false); });
@@ -156,8 +192,10 @@ function HttpGetAsync(url, callback) {
 
     let xml_http = new XMLHttpRequest();
     xml_http.onreadystatechange = function() { 
-        if (xml_http.readyState == 4 && xml_http.status == 200)
+        if (xml_http.readyState == 4 && xml_http.status == 200) {
             callback(xml_http.response);
+            IncreaseLoadingVal();
+        }
     }
     xml_http.open("GET", url, true); // true for asynchronous 
     xml_http.send(null);
@@ -172,14 +210,35 @@ function HttpGetAsyncPokemongo1(url, callback) {
     let xml_http = new XMLHttpRequest();
     //xml_http.withCredentials = true;
     xml_http.onreadystatechange = function() {
-        if (xml_http.readyState == 4 && xml_http.status == 200)
+        if (xml_http.readyState == 4 && xml_http.status == 200) {
             callback(xml_http.response);
+            IncreaseLoadingVal();
+        }
     }
     xml_http.open("GET", url, true); // true for asynchronous
     xml_http.setRequestHeader("X-RapidAPI-Host",
             "pokemon-go1.p.rapidapi.com");
     xml_http.setRequestHeader("X-RapidAPI-Key", pokemongo1_key);
     xml_http.send(null);
+}
+
+/**
+ * Increases value that represents number of files loaded so far
+ * and updates its html loading bar on the page.
+ */
+function IncreaseLoadingVal() {
+
+    loading_val++;
+    let pct = 100 * loading_val / loading_max_val;
+    $("#loading-bar").css("width", pct + "%");
+
+    // if finished loading...
+    if (pct >= 100) {
+        finished_loading = true;
+        setTimeout(function() {
+            $("#loading-bar").css("display", "none");
+        }, 100);
+    }
 }
 
 /**
@@ -377,20 +436,8 @@ function UpdateSelectedSuggestion() {
 function LoadPokemon(clean_input, form = "def", mega = false,
         mega_y = false) {
 
-    if (loading_pogo_moves)
+    if (!finished_loading || loading_pogo_moves)
         return;
-
-    // checks if all json objects are available
-    if (!local_alolan || !local_galarian || !local_mega || !local_dws
-            || !pogoapi_names || !pogoapi_types || !pogoapi_evolutions
-            || !pogoapi_stats || !pogoapi_moves || !pogoapi_max_cp
-            || !pogoapi_released || !pogoapi_alolan || !pogoapi_galarian
-            || !pogoapi_shadow || !pogoapi_mega
-            || !pkmgo1_fm || !pkmgo1_cm) {
-        console.log("Couldn't load the pokemon because some json file "
-                + "couldn't be loaded in time.");
-        return;
-    }
 
     // gets the pokemon id from the input and returns if it doesn't find it
     const pokemon_id = GetPokemonId(clean_input);
@@ -815,7 +862,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
         const is_elite_fm = elite_fms.includes(fm);
 
         // gets the fast move object
-        const fm_obj = pkmgo1_fm.find(entry => entry.name == fm);
+        const fm_obj = pogoapi_fms.find(entry => entry.name == fm);
         if (!fm_obj) {
             fm_i++;
             if (fm_i < all_fms.length)
@@ -832,7 +879,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const is_elite_cm = elite_cms.includes(cm);
 
             // gets the charged move object
-            const cm_obj = pkmgo1_cm.find(entry => entry.name == cm);
+            const cm_obj = pogoapi_cms.find(entry => entry.name == cm);
             if (!cm_obj)
                 continue;
 
