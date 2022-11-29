@@ -214,24 +214,8 @@ function OnInputKeyDown(e) {
             break;
     }
 
-    if (!selected_suggestion_changed)
-        return;
-
-    // if selected suggestion changed...
-
-    const suggestions = $("#suggestions").children();
-
-    if (selected_suggestion_i < -1)
-        selected_suggestion_i = -1;
-    if (selected_suggestion_i >= suggestions.length)
-        selected_suggestion_i = suggestions.length - 1;
-
-    for (let i = 0; i < suggestions.length; i++) {
-        if (i == selected_suggestion_i)
-            suggestions.eq(i).addClass("selected-suggestion");
-        else
-            suggestions.eq(i).removeClass("selected-suggestion");
-    }
+    if (selected_suggestion_changed)
+        UpdateSelectedSuggestion();
 }
 
 /**
@@ -297,33 +281,47 @@ function UpdateInputSuggestions() {
             if (entry.id > pogoapi_max_id)
                 continue;
 
-            // checks for ids
-            if (String(entry.id).startsWith(clean_input)) {
-                suggestions.append("<p onmousedown=LoadPokemon('"
-                        + entry.id + "')>#<b>" + clean_input
-                        + "</b>" + String(entry.id).slice(input_len)
-                        + " " + entry.name + "</p>");
-                if (suggestions.children().length >= 10)
-                    break;
-            }
+            // whether input starts with a pokemon id
+            const same_id = (String(entry.id).startsWith(clean_input));
 
-            // checks for # + ids
+            // whether input starts with a pokemon '#' + id
             const hash_id = "#" + String(entry.id);
-            if (hash_id.startsWith(clean_input)) {
-                suggestions.append("<p onmousedown=LoadPokemon('"
-                        + entry.id + "')><b>" + clean_input
-                        + "</b>" + hash_id.slice(input_len)
-                        + " " + entry.name + "</p>");
-                if (suggestions.children().length >= 10)
-                    break;
-            }
+            const same_hash_id = (hash_id.startsWith(clean_input));
 
-            // checks for names
-            if (entry.name.toLowerCase().startsWith(clean_input)) {
-                suggestions.append("<p onmousedown=LoadPokemon('"
-                        + entry.id + "')>#" + entry.id
-                        + " <b>" + input + "</b>"
-                        + entry.name.slice(input_len) + "</p>");
+            // whether input starts with a pokemon name
+            const same_name =
+                (entry.name.toLowerCase().startsWith(clean_input));
+
+            // if the input matches any possible start...
+            if (same_id || same_hash_id || same_name ) {
+
+                // index of suggestion currently being added
+                const sug_i = suggestions.children().length;
+
+                let sug_p = $("<p></p>");
+                sug_p.mouseover(function () {
+                    selected_suggestion_i = sug_i;
+                    UpdateSelectedSuggestion();
+                });
+                sug_p.mousedown(function () {
+                    LoadPokemon(entry.id);
+                });
+            
+                if (same_id) {
+                    sug_p.html("#<b>" + clean_input + "</b>"
+                            + String(entry.id).slice(input_len)
+                            + " " + entry.name);
+
+                } else if (same_hash_id) {
+                    sug_p.html("<b>" + clean_input + "</b>"
+                            + hash_id.slice(input_len) + " " + entry.name);
+
+                } else if (same_name) {
+                    sug_p.html("#" + entry.id + " <b>" + input + "</b>"
+                            + entry.name.slice(input_len));
+                }
+
+                suggestions.append(sug_p);
                 if (suggestions.children().length >= 10)
                     break;
             }
@@ -342,6 +340,27 @@ function UpdateInputSuggestions() {
         // sets borders
         suggestions.css("border", "none");
         suggestions.css("border-top", "1px solid var(--col-main)");
+    }
+}
+
+/**
+ * Updates which suggestion is currently selected according to
+ * the global variable 'selected_suggestion_i'.
+ */
+function UpdateSelectedSuggestion() {
+
+    const suggestions = $("#suggestions").children();
+
+    if (selected_suggestion_i < -1)
+        selected_suggestion_i = -1;
+    if (selected_suggestion_i >= suggestions.length)
+        selected_suggestion_i = suggestions.length - 1;
+
+    for (let i = 0; i < suggestions.length; i++) {
+        if (i == selected_suggestion_i)
+            suggestions.eq(i).addClass("selected-suggestion");
+        else
+            suggestions.eq(i).removeClass("selected-suggestion");
     }
 }
 
