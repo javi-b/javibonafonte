@@ -43,6 +43,13 @@ let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
 
+// whether pokemon go table moves are currenlty being loaded asyncronously,
+// so no new pokemon should be loaded for now
+// FIXME this is a workaround, what should actually be done is that,
+//       if a new pokemon is loaded, moves being added to the previous one
+//       asyncronously, should be cancelled
+let loading_pogo_moves = false;
+
 // search input selected suggestion index
 let selected_suggestion_i = -1;
 
@@ -369,6 +376,9 @@ function UpdateSelectedSuggestion() {
  */
 function LoadPokemon(clean_input, form = "def", mega = false,
         mega_y = false) {
+
+    if (loading_pogo_moves)
+        return;
 
     // checks if all json objects are available
     if (!local_alolan || !local_galarian || !local_mega || !local_dws
@@ -877,8 +887,12 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             callback();
     }
 
+    loading_pogo_moves = true;
     // appends the first fast move chunk
-    AppendFMChunk(0, function() { SortPokemongoTable(6); });
+    AppendFMChunk(0, function() {
+        SortPokemongoTable(6);
+        loading_pogo_moves = false;
+    });
 }
 
 /**
