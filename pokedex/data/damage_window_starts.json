@@ -213,6 +213,9 @@
         "name": "Heavy Slam",
 	    "damage_window_start": "1.50"
     }, {
+        "name": "High Horsepower",
+        "damage_window_start": "1.00"
+    }, {
         "name": "Horn Attack",
 	    "damage_window_start": "0.80"
     }, {
