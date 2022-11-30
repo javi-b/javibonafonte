@@ -105,6 +105,7 @@ tr:nth-child(even) {
 .pokemon-types {
     display: flex;
     margin: 0.5em auto;
+    height: 14px;
     justify-content: center;
     align-items: center;
     transform: translateY(-2px);

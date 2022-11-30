@@ -27,9 +27,8 @@ const pokemon_resources_url =
     "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
 const gifs_url = pokemon_resources_url + "ani/";
 const shiny_gifs_url = pokemon_resources_url + "ani-shiny/";
-const gifs_url_2 = "https://play.pokemonshowdown.com/sprites/ani/";
-const shiny_gifs_url_2 =
-    "https://play.pokemonshowdown.com/sprites/ani-shiny/";
+const pogo_pngs_url = pokemon_resources_url + "pogo-256/"
+const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 
@@ -102,9 +101,9 @@ function Main() {
             function(response) {
                 pogoapi_names = JSON.parse(response);
                 // FIXME provisionally capped to 898
-                //pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
-                    //[Object.keys(pogoapi_names).length - 1]].id;
-                pogoapi_max_id = 898;
+                pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
+                    [Object.keys(pogoapi_names).length - 1]].id;
+                //pogoapi_max_id = 898;
             });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
             function(response) { pogoapi_types = JSON.parse(response); });
@@ -693,7 +692,8 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     img_container_div.append(
             $("<img class=loading src=../imgs/loading.gif></img>"));
     img_container_div.append($("<img class=pokemon-img "
-            + "onload ='HideLoading(this)' onclick='SwapShiny(this)' src="
+            + "onload ='HideLoading(this)' onerror='TryNextSrc(this)'"
+            + " onclick='SwapShiny(this)' src="
             + img_src + "></img>"));
     pokemon_container_div.append(img_container_div);
 
@@ -1129,6 +1129,34 @@ function HideLoading(element) {
 }
 
 /**
+ * When a pokemon image source couldn't be loaded, this function tries the 
+ * next option.
+ * Eventually it will just load the 'notfound' image and stop trying.
+ */
+function TryNextSrc(element) {
+
+    const src = $(element).attr("src");
+
+    if (src.includes(gifs_url)) {
+        // loads pogo-256 image
+        let next_src = src.replace(gifs_url, pogo_pngs_url);
+        next_src = next_src.replace(".gif", ".png");
+        $(element).attr("src", next_src);
+        $(element).css("width", "140px");
+        $(element).css("height", "140px");
+
+    } else {
+        // loads notfound image and stops trying (disables error callback)
+        const next_src = "imgs/notfound.png";
+        $(element).attr("src", next_src);
+        $(element).css("width", "96px");
+        $(element).css("height", "96px");
+        $(element).css("cursor", "default");
+        $(element).off("onerror");
+    }
+}
+
+/**
  * Swaps the pokemon image for its shiny form.
  */
 function SwapShiny(element) {
@@ -1139,12 +1167,21 @@ function SwapShiny(element) {
 
     let src = $(element).attr("src");
 
-    if (src.includes("/ani-shiny/")) {
-        src = src.replace("/ani-shiny/", "/ani/");
-        shiny_img.css("display", "none");
-    } else {
-        src = src.replace("/ani/", "/ani-shiny/");
+    if (src.includes(gifs_url)) {
+        src = src.replace(gifs_url, shiny_gifs_url);
         shiny_img.css("display", "initial");
+
+    } else if (src.includes(shiny_gifs_url)) {
+        src = src.replace(shiny_gifs_url, gifs_url);
+        shiny_img.css("display", "none");
+
+    } else if (src.includes(pogo_pngs_url)) {
+        src = src.replace(pogo_pngs_url,shiny_pogo_pngs_url);
+        shiny_img.css("display", "initial");
+
+    } else if (src.includes(shiny_pogo_pngs_url)) {
+        src = src.replace(shiny_pogo_pngs_url,pogo_pngs_url);
+        shiny_img.css("display", "none");
     }
 
     $(element).attr("src", src);
