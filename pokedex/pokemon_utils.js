@@ -46,6 +46,23 @@ function GetPokemonForms(pokemon_id) {
             return [ "Normal", "Galarian" ];
         case 52: // Meowth
             return [ "Normal", "Alola", "Galarian" ];
+        case 58: // Growlithe
+        case 59: // Arcanine
+        case 100: // Voltorb
+        case 101: // Electrode
+        case 157: // Typhlosion
+        case 211: // Qwillfish
+        case 215: // Sneasel
+        case 503: // Samurott
+        case 549: // Lilligat
+        case 570: // Zorua
+        case 571: // Zoroark
+        case 628: // Braviary
+        case 705: // Sliggoo
+        case 706: // Goodra
+        case 713: // Avalugg
+        case 724: // Decidueye
+            return [ "Normal", "Hisuian" ];
         case 351: // Castform
             return [ "Normal", "Sunny", "Rainy", "Snowy" ];
         case 386: // Deoxys
@@ -263,6 +280,7 @@ function GetFormText(pokemon_id, form) {
         case "Sandy":
         case "Trash":
             return form + " Cloak";
+        case "Hisuian":
         case "Rainy":
         case "Snowy":
         case "Overcast":

@@ -32,7 +32,7 @@ const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 
-const loading_max_val = 14; // mx number of files that need to be loaded
+const loading_max_val = 12; // mx number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
 let finished_loading = false; // whether page finished loading all files
 
@@ -100,10 +100,8 @@ function Main() {
     HttpGetAsync(pogoapi_url + "pokemon_names.json",
             function(response) {
                 pogoapi_names = JSON.parse(response);
-                // FIXME provisionally capped to 898
                 pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
                     [Object.keys(pogoapi_names).length - 1]].id;
-                //pogoapi_max_id = 898;
             });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
             function(response) { pogoapi_types = JSON.parse(response); });
@@ -125,11 +123,11 @@ function Main() {
             function(response) { fast_moves = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "pvp_charged_moves.json",
             function(response) { charged_moves = JSON.parse(response); });
-    */
     HttpGetAsync(pogoapi_url + "alolan_pokemon.json",
             function(response) { pogoapi_alolan = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "galarian_pokemon.json",
             function(response) {pogoapi_galarian = JSON.parse(response);});
+    */
     HttpGetAsync(pogoapi_url + "shadow_pokemon.json",
             function(response) { pogoapi_shadow = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "mega_pokemon.json",
@@ -723,12 +721,17 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
  */
 function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
 
-    const pogoapi_mega_obj = pogoapi_mega.find(entry =>
-        entry.pokemon_id == pokemon_id);
-    const released = pogoapi_released[pokemon_id]
-            && !(form == "Alola" && !pogoapi_alolan[pokemon_id])
-            && !(form == "Galarian" && !pogoapi_galarian[pokemon_id])
-            && !(mega && !pogoapi_mega_obj);
+    let released = pogoapi_released[pokemon_id];
+    if (form == "Alola" || form == "Galarian" || form == "Hisuian") {
+        const pogoapi_form_moves_obj = pogoapi_moves.find(entry =>
+                entry.pokemon_id == pokemon_id && entry.form == form);
+        released = released && pogoapi_form_moves_obj;
+    }
+    if (mega) {
+        const pogoapi_mega_obj = pogoapi_mega.find(entry =>
+            entry.pokemon_id == pokemon_id);
+        released = released && pogoapi_mega_obj;
+    }
 
     // if this pokemon is not released in pokemon go yet...
     if (!released) {
