@@ -817,7 +817,7 @@ function GetCP(stats) {
 
 /**
  * Loads the table in the Pokemon Go section including information about
- * the possible move combinations and their stats (dps, tod, dps3tdo).
+ * the possible move combinations and their stats (dps, tdo, er).
  */
 function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
@@ -894,8 +894,12 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const dps_sh = GetDPS(types, atk_sh, def_sh, hp,fm_obj,cm_obj);
             const tdo = GetTDO(dps, hp, def);
             const tdo_sh = GetTDO(dps_sh, hp, def_sh);
-            const dps3tdo = Math.pow(dps, 3) * tdo / 1000;
-            const dps3tdo_sh = Math.pow(dps_sh, 3) * tdo_sh / 1000;
+            const dps3tdo = Math.pow(dps, 3) * tdo;
+            const dps3tdo_sh = Math.pow(dps_sh, 3) * tdo_sh;
+            // Equivalent Rating from Reddit user u/Elastic_Space
+            // https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/
+            const er = Math.pow(dps3tdo, 1/4);
+            const er_sh = Math.pow(dps3tdo_sh, 1/4);
 
             // creates one row
 
@@ -912,9 +916,9 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const td_tdo_sh = $("<td>"
                     + ((can_be_shadow) ? tdo_sh.toFixed(1) : "-")
                     + "</td>");
-            const td_dps3tdo = $("<td>" + dps3tdo.toFixed(1) + "</td>");
-            const td_dps3tdo_sh = $("<td>"
-                    + ((can_be_shadow) ? dps3tdo_sh.toFixed(1) : "-")
+            const td_er = $("<td>" + er.toFixed(2) + "</td>");
+            const td_er_sh = $("<td>"
+                    + ((can_be_shadow) ? er_sh.toFixed(2) : "-")
                     + "</td>");
 
             tr.append(td_fm);
@@ -923,8 +927,8 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             tr.append(td_dps_sh);
             tr.append(td_tdo);
             tr.append(td_tdo_sh);
-            tr.append(td_dps3tdo);
-            tr.append(td_dps3tdo_sh);
+            tr.append(td_er);
+            tr.append(td_er_sh);
 
             $("#pokemongo-table").append(tr);
         }
