@@ -124,6 +124,8 @@ progress {
 
 .small-text { font-size: 90%; }
 
+.left { text-align: left; }
+
 .right { text-align: right; }
 
 .center {
