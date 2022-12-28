@@ -283,3 +283,19 @@ tr:nth-child(even) {
     cursor: pointer;
     text-decoration: underline;
 }
+
+#footer {
+    position: fixed;
+    width: 100px;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-550px);
+}
+
+#footer * {
+    color: var(--col-main);
+}
+
+@media screen and (max-width: 1070px) {
+    #footer { display: none; }
+}
