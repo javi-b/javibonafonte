@@ -14,6 +14,10 @@ body {
     font-size: 14px;
 }
 
+a {
+    color: var(--col-main);
+}
+
 table {
     border-collapse: collapse;
 }
@@ -290,10 +294,6 @@ tr:nth-child(even) {
     top: 10%;
     left: 50%;
     transform: translateX(-550px);
-}
-
-#footer * {
-    color: var(--col-main);
 }
 
 @media screen and (max-width: 1070px) {
