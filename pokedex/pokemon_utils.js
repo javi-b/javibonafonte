@@ -105,6 +105,13 @@ function GetPokemonForms(pokemon_id) {
             return [ "Aria", "Pirouette" ];
         case 649: // Genesect
             return [ "Normal", "Shock", "Burn", "Chill", "Douse" ];
+        //case 664: // Scatterbug
+        //case 665: // Spewpa
+        case 666: // Vivillon
+            return [ "Meadow", "Archipelago", "Continental", "Elegant",
+                "Fancy", "Garden", "High_plains", "Icy_snow", "Jungle",
+                "Marine", "Modern", "Monsoon", "Ocean", "Poke_ball",
+                "Polar", "River", "Sandstorm", "Savanna", "Sun", "Tundra" ];
         case 668: // Pyroar
             return [ "Normal", "Female" ];
         case 669: // Flabebe
@@ -189,6 +196,7 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
 
         switch (form) {
             case "Normal":
+            case "Meadow":
                 break;
             case "Galarian":
                 img_src_name += "-galar";
@@ -358,6 +366,30 @@ function GetFormText(pokemon_id, form) {
             return "Galarian Standard Mode";
         case "Galarian_zen":
             return "Galarian Zen Mode";
+        case "Archipelago":
+        case "Continental":
+        case "Elegant":
+        case "Fancy":
+        case "Garden":
+        case "Jungle":
+        case "Marine":
+        case "Meadow":
+        case "Modern":
+        case "Monsoon":
+        case "Ocean":
+        case "Polar":
+        case "River":
+        case "Sandstorm":
+        case "Savanna":
+        case "Sun":
+        case "Tundra":
+            return form + " Pattern";
+        case "High_plains":
+            return "High Plains Pattern";
+        case "Icy_snow":
+            return "Icy Snow Pattern";
+        case "Poke_ball":
+            return "Poké Ball Pattern";
         case "Red":
         case "Yellow":
         case "Orange":
