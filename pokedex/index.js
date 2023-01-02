@@ -722,7 +722,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
 function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
 
     let released = pogoapi_released[pokemon_id];
-    if (form == "Alola" || form == "Galarian" || form == "Hisuian") {
+    if (form != GetPokemonDefaultForm(pokemon_id)) {
         const pogoapi_form_moves_obj = pogoapi_moves.find(entry =>
                 entry.pokemon_id == pokemon_id && entry.form == form);
         released = released && pogoapi_form_moves_obj;
