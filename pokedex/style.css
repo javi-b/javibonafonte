@@ -238,10 +238,18 @@ tr:nth-child(even) {
 #next-containers { justify-content: left; }
 
 #additional-containers {
+    width: 900px;
     margin: 0 auto;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    /*justify-content: center;*/
+    /*align-items: center;*/
+}
+
+.additional-containers-overflow {
+    justify-content: flex-start;
+    overflow: auto;
+    border-left: 1px solid var(--col-main);
+    border-right: 1px solid var(--col-main);
 }
 
 #additional-containers > div {

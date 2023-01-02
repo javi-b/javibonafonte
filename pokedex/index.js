@@ -493,16 +493,18 @@ function LoadPokemon(clean_input, form = "def", mega = false,
 
     // sets additional pokemon containers
 
+    let additional_cs = $("#additional-containers");
+
     const can_be_mega = local_mega[pokemon_id];
 
     if (can_be_mega) {
         if (pokemon_id == 6 || pokemon_id == 150) { // charizard and mewtwo
-            $("#additional-containers").append(GetPokemonContainer(
+            additional_cs.append(GetPokemonContainer(
                     pokemon_id, mega && !mega_y, "Normal", true, false));
-            $("#additional-containers").append(GetPokemonContainer(
+            additional_cs.append(GetPokemonContainer(
                     pokemon_id, mega && mega_y, "Normal", true, true));
         } else {
-            $("#additional-containers").append(
+            additional_cs.append(
                 GetPokemonContainer(pokemon_id, mega, "Normal", true));
         }
     }
@@ -510,9 +512,15 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     const additional_forms = forms.slice(1);
 
     for (f of additional_forms) {
-        $("#additional-containers").append(
+        additional_cs.append(
             GetPokemonContainer(pokemon_id, form == f, f));
     }
+
+    // deals with additional containers overflow
+    if (additional_cs.children().length > 6)
+        additional_cs.addClass("additional-containers-overflow");
+    else
+        additional_cs.removeClass("additional-containers-overflow");
 
     // if the buttons container (and other elements) are hidden...
     if ($("#buttons-container").css("display") == "none"
