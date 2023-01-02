@@ -282,6 +282,9 @@
         "name": "Megahorn",
 	    "damage_window_start": "1.70"
     }, {
+        "name": "Meteor Beam",
+	    "damage_window_start": "1.00"
+    }, {
         "name": "Meteor Mash",
 	    "damage_window_start": "2.30"
     }, {
@@ -338,6 +341,9 @@
     }, {
         "name": "Poison Fang",
 	    "damage_window_start": "0.90"
+    }, {
+        "name": "Poltergeist",
+	    "damage_window_start": "2.80"
     }, {
         "name": "Power Gem",
 	    "damage_window_start": "1.95"
