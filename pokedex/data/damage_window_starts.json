@@ -54,6 +54,9 @@
         "name": "Bone Club",
 	    "damage_window_start": "1.00"
     }, {
+        "name": "Boomburst",
+	    "damage_window_start": "1.00"
+    }, {
         "name": "Brave Bird",
 	    "damage_window_start": "1.00"
     }, {
@@ -183,6 +186,12 @@
         "name": "Frustration",
 	    "damage_window_start": "1.00"
     }, {
+        "name": "Fusion Bolt",
+	    "damage_window_start": "1.25"
+    }, {
+        "name": "Fusion Flare",
+	    "damage_window_start": "1.50"
+    }, {
         "name": "Future Sight",
 	    "damage_window_start": "1.40"
     }, {
@@ -194,6 +203,9 @@
     }, {
         "name": "Giga Impact",
 	    "damage_window_start": "1.00"
+    }, {
+        "name": "Glaciate",
+	    "damage_window_start": "1.50"
     }, {
         "name": "Grass Knot",
 	    "damage_window_start": "1.70"
@@ -428,6 +440,9 @@
     }, {
         "name": "Shadow Bone",
 	    "damage_window_start": "2.25"
+    }, {
+        "name": "Shadow Force",
+	    "damage_window_start": "1.70"
     }, {
         "name": "Shadow Punch",
 	    "damage_window_start": "1.30"
