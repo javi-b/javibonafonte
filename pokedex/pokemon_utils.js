@@ -236,8 +236,12 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
         }
     }
 
-    if (mega)
-        img_src_name += "-mega"
+    if (mega) {
+        if (pokemon_id == 382 || pokemon_id == 383) // Kyogre or Groudon
+            img_src_name += "-primal";
+        else
+            img_src_name += "-mega";
+    }
 
     const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
     if (mega && can_be_mega_y)

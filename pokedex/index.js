@@ -673,6 +673,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
             mega, mega_y);
     const img_src = gifs_url + img_src_name + ".gif";
     const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
+    const primal = mega && (pokemon_id == 382 || pokemon_id == 383);
     const form_text = GetFormText(pokemon_id, form);
 
     // container div
@@ -707,7 +708,8 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     const pokemon_name_p = $("<p class='pokemon-name pokefont unselectable'"
             + "onclick='LoadPokemon(" + pokemon_id + ", \"" + form
             + "\", " + mega + ", " + mega_y + ")'>#" + pokemon_id
-            + ((mega) ? " Mega " : " ") + pokemon_name
+            + ((primal) ? (" Primal ") : ((mega) ? " Mega " : " "))
+            + pokemon_name
             + ((mega && can_be_mega_y) ? ((mega_y) ? " Y " : " X ") : "")
             + "</p>");
     pokemon_container_div.append(pokemon_name_p);
