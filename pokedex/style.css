@@ -171,10 +171,6 @@ tr:nth-child(even) {
  * Specific
  */
 
-#app {
-    height: 500px;
-}
-
 #loading-bar-c {
     position: fixed;
     width: 0;
@@ -189,6 +185,10 @@ tr:nth-child(even) {
         linear-gradient(to right, var(--col-light), GreenYellow);
     width: 0%;
     height: 2px;
+}
+
+#pokedex {
+    height: 400px;
 }
 
 #input {
