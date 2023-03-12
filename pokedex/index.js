@@ -531,12 +531,12 @@ function LoadPokemon(clean_input, form = "def", mega = false,
         additional_cs.removeClass("additional-containers-overflow");
 
     // displays what should be displayed
-    if ($("#pokemongo").css("display") == "none")
-        $("#pokemongo").css("display", "initial");
-    if ($("#pokedex").css("display") == "none")
-        $("#pokedex").css("display", "initial");
     if ($("#strongest").css("display") != "none")
         $("#strongest").css("display", "none");
+    if ($("#pokedex").css("display") == "none")
+        $("#pokedex").css("display", "block");
+    if ($("#pokemongo").css("display") == "none")
+        $("#pokemongo").css("display", "initial");
 
     LoadPokemongo(pokemon_id, form, mega, mega_y);
 }
@@ -1220,10 +1220,10 @@ function LoadStrongest() {
         return;
 
     // displays what should be displayed 
-    if ($("#pokedex").css("display") != "none")
-        $("#pokedex").css("display", "none");
     if ($("#pokemongo").css("display") != "none")
         $("#pokemongo").css("display", "none");
+    if ($("#pokedex").css("display") != "none")
+        $("#pokedex").css("display", "none");
     if ($("#strongest").css("display") == "none")
         $("#strongest").css("display", "initial");
     if ($("#legend").css("display") == "none")
