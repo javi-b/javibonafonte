@@ -29,10 +29,11 @@ const gifs_url = pokemon_resources_url + "ani/";
 const shiny_gifs_url = pokemon_resources_url + "ani-shiny/";
 const pogo_pngs_url = pokemon_resources_url + "pogo-256/"
 const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
+const icons_url = pokemon_resources_url + "pokemonicons-sheet.png";
 
 const cpm_lvl40 = 0.7903; // cp multiplier at level 40
 
-const loading_max_val = 12; // mx number of files that need to be loaded
+const loading_max_val = 13; // mx number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
 let finished_loading = false; // whether page finished loading all files
 
@@ -44,7 +45,7 @@ let pokeapi_current;
 let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
         pogoapi_stats, pogoapi_moves, pogoapi_max_cp, pogoapi_released,
         pogoapi_alolan, pogoapi_galarian, pogoapi_shadow, pogoapi_mega,
-        pogoapi_fms, pogoapi_cms;
+        pogoapi_fms, pogoapi_cms, pogoapi_rarity;
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
 // game master json object
@@ -136,6 +137,8 @@ function Main() {
             function(response) { pogoapi_fms = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "charged_moves.json",
             function(response) { pogoapi_cms = JSON.parse(response); });
+    HttpGetAsync(pogoapi_url + "pokemon_rarity.json",
+            function(response) { pogoapi_rarity = JSON.parse(response); });
 
     // pokemongo1
     /*
@@ -152,8 +155,13 @@ function Main() {
     */
 
     // event handlers
-    $("#maingames-btn").click(function() { SelectGame(false); });
-    $("#pokemongo-btn").click(function() { SelectGame(true); });
+    $("#strongest-link").click(function() {
+        LoadStrongest();
+        return false;
+    });
+    $("#strongest :checkbox").change(function() {
+        LoadStrongest();
+    });
 }
 
 /**
@@ -522,15 +530,15 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     else
         additional_cs.removeClass("additional-containers-overflow");
 
-    // if the buttons container (and other elements) are hidden...
-    if ($("#buttons-container").css("display") == "none"
-            || $("#pokemongo").css("display") == "none") {
-        $("#buttons-container").css("display", "initial");
+    // displays what should be displayed
+    if ($("#pokemongo").css("display") == "none")
         $("#pokemongo").css("display", "initial");
-    }
+    if ($("#pokedex").css("display") == "none")
+        $("#pokedex").css("display", "initial");
+    if ($("#strongest").css("display") != "none")
+        $("#strongest").css("display", "none");
 
     LoadPokemongo(pokemon_id, form, mega, mega_y);
-    LoadMaingames(pokemon_id);
 }
 
 /**
@@ -705,7 +713,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     pokemon_container_div.append(img_container_div);
 
     // pokemon name p
-    const pokemon_name_p = $("<p class='pokemon-name pokefont unselectable'"
+    const pokemon_name_p= $("<p class='pokemon-name pokefont unselectable'"
             + "onclick='LoadPokemon(" + pokemon_id + ", \"" + form
             + "\", " + mega + ", " + mega_y + ")'>#" + pokemon_id
             + ((primal) ? (" Primal ") : ((mega) ? " Mega " : " "))
@@ -747,11 +755,17 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
     if (!released) {
         $("#not-released").css("display", "initial");
         $("#released").css("display", "none");
+        if ($("#legend").css("display") != "none")
+            $("#legend").css("display", "none");
         return;
     }
 
+    // if this pokemon is released in pokemon go...
+
     $("#not-released").css("display", "none");
     $("#released").css("display", "initial");
+    if ($("#legend").css("display") == "none")
+        $("#legend").css("display", "flex");
 
     const stats = GetLvl40MaxStats(pokemon_id, form, mega, mega_y);
     LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
@@ -1128,13 +1142,6 @@ function MergeRows(a, b, column_i) {
 }
 
 /**
- * Loads one pokemon data for the Main Games section.
- */
-function LoadMaingames(pokemon_id) {
-
-}
-
-/**
  * Receives the pokemon image that just loaded as an argument.
  * Hides the placeholder loading image and shows the loaded pokemon image.
  */
@@ -1205,21 +1212,312 @@ function SwapShiny(element) {
 }
 
 /**
- * Swaps the Pokemon GO and Main Series sections of the page.
+ * Loads the list of the strongest pokemon for each type in pokemon go.
  */
-function SelectGame(pokemongo) {
+function LoadStrongest() {
 
-    if (pokemongo) {
-        $("#maingames-btn").prop("disabled", false);
-        $("#pokemongo-btn").prop("disabled", true);
-        $("#maingames").css("display", "none");
-        $("#pokemongo").css("display", "initial");
-    } else {
-        $("#maingames-btn").prop("disabled", true);
-        $("#pokemongo-btn").prop("disabled", false);
-        $("#maingames").css("display", "initial");
+    if (!finished_loading)
+        return;
+
+    // displays what should be displayed 
+    if ($("#pokedex").css("display") != "none")
+        $("#pokedex").css("display", "none");
+    if ($("#pokemongo").css("display") != "none")
         $("#pokemongo").css("display", "none");
+    if ($("#strongest").css("display") == "none")
+        $("#strongest").css("display", "initial");
+    if ($("#legend").css("display") == "none")
+        $("#legend").css("display", "flex");
+
+    // sets the page title
+    document.title = "Strongest Pokémon of each type - Palkia's Pokédex";
+
+    // removes previous table rows
+    $("#strongest-table tr:not(.table-header)").remove();
+
+    // gets checkboxes filters
+    let search_mega =
+        $("#strongest input[value='mega']:checkbox").is(":checked");
+    let search_shadow =
+        $("#strongest input[value='shadow']:checkbox").is(":checked");
+    let search_legendary =
+        $("#strongest input[value='legendary']:checkbox").is(":checked");
+    let search_elite =
+        $("#strongest input[value='elite']:checkbox").is(":checked");
+
+    // set of types constant
+    const types = new Set();
+    types.add("normal");    types.add("fire");      types.add("water");
+    types.add("grass");     types.add("electric");  types.add("ice");
+    types.add("fighting");  types.add("poison");    types.add("ground");
+    types.add("flying");    types.add("psychic");   types.add("bug");
+    types.add("rock");      types.add("ghost");     types.add("dragon");
+    types.add("dark");      types.add("steel");     types.add("fairy");
+
+    for (const search_type of types) { // for each type...
+
+        const type_text =
+            search_type.charAt(0).toUpperCase() + search_type.slice(1);
+
+        // creates one row
+
+        const tr = $("<tr id=strongest-" + search_type + "></tr>");
+        const td_name = $("<td>-</td>");
+        const td_fm = $("<td>-</td>");
+        const td_cm = $("<td>-</td>");
+        const td_er = $("<td>-</td>");
+        const td_link  = $("<td class=small-text><a href=#>"
+                + "(list of strongest <b>" + type_text
+                + "</b>)</a></td>");
+
+        tr.append(td_name);
+        tr.append(td_fm);
+        tr.append(td_cm);
+        tr.append(td_er);
+        tr.append(td_link);
+
+        $("#strongest-table").append(tr);
+
+        // searches for strongest pokemon for this type and sets it
+        setTimeout(function() {
+            SetTypeStrongestPokemon(search_type, search_mega,
+                search_shadow, search_legendary, search_elite);
+        }, 0);
     }
+}
+
+/**
+ * Searches for the strongest pokemon ER for a specific type and following 
+ * some filters. Once found, updates the strongest pokemon table row for
+ * that specific type with the pokemon found.
+ */
+function SetTypeStrongestPokemon(search_type, search_mega, search_shadow,
+        search_legendary, search_elite) {
+
+    // finds type strongest pokemon and its moveset
+
+    // variables for strongest pokemon and moveset found so far
+    let str_er = 0;
+    let str_id = 0;
+    let str_form = "Normal";
+    let str_mega = false;
+    let str_mega_y = false;
+    let str_shadow = false;
+    let str_fm = "-", str_fm_is_elite = false;
+    let str_cm = "-", str_cm_is_elite = false;
+
+    /**
+     * Checks if the strongest moveset for a specific pokemon is stronger
+     * than the current strongest pokemon found. If it is, updates the
+     * strongest variables.
+     */
+    function CheckIfStronger(id, form, mega, mega_y, shadow) {
+
+        let [er, fm, fm_is_elite, cm, cm_is_elite] =
+            GetPokemonTypeStrongestMoveset(id, form, mega, mega_y, shadow,
+                search_type, search_elite);
+
+        if (er > str_er) {
+            str_er = er;
+            str_id = id;
+            str_form = form;
+            str_mega = mega;
+            str_mega_y = mega_y;
+            str_shadow = shadow;
+            str_fm = fm;
+            str_fm_is_elite = fm_is_elite;
+            str_cm = cm;
+            str_cm_is_elite = cm_is_elite;
+        }
+    }
+
+    // searches for pokemons...
+
+    for (let id = 1; id <= pogoapi_max_id; id++) {
+
+        // checks whether pokemon should be skipped
+        if (!search_legendary) {
+            const pogoapi_legendary_obj =
+                pogoapi_rarity["Legendary"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_legendary_obj)
+                continue;
+            const pogoapi_mythic_obj =
+                pogoapi_rarity["Mythic"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_mythic_obj)
+                continue;
+            const pogoapi_ultrabeast_obj =
+                pogoapi_rarity["Ultra beast"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_ultrabeast_obj)
+                continue;
+        }
+
+        const forms = GetPokemonForms(id);
+        const def_form = forms[0];
+
+        // default form
+        CheckIfStronger(id, def_form, false, false, false);
+
+        // other forms
+        for (let form_i = 1; form_i < forms.length; form_i++)
+            CheckIfStronger(id, forms[form_i], false, false, false);
+
+        // mega(s)
+        const can_be_mega = local_mega[id];
+        if (search_mega && can_be_mega) {
+            CheckIfStronger(id, def_form, true, false, false);
+            if (id == 6 || id == 150) // charizard and mewtwo
+                CheckIfStronger(id, def_form, true, true, false);
+        }
+
+        // shadow
+        const can_be_shadow = pogoapi_shadow[id];
+        if (search_shadow && can_be_shadow)
+            CheckIfStronger(id, def_form, false, false, true);
+    }
+
+    // sets type strongest pokemon row
+
+    const str_name = pogoapi_names[str_id].name;
+    const str_can_be_mega_y = str_id == 6 || str_id == 150; 
+    const str_primal = str_mega && (str_id == 382 || str_id == 383);
+
+    let row_cells = $("#strongest-" + search_type)[0].cells;
+    row_cells[0].innerHTML = "<td>"
+        + "<a class='' href=# onclick='LoadPokemon(" + str_id + ", \""
+        + str_form + "\", " + str_mega + ", " + str_mega_y + ")'>"
+        + "<span class=pokemon-icon></span><b>"
+        + ((str_primal) ? ("Primal ") : ((str_mega) ? "Mega " : " "))
+        + ((str_shadow) ? "<span class=shadow-text>Shadow</span> " : "")
+        + str_name
+        + ((str_mega && str_can_be_mega_y) ? ((str_mega_y)?" Y":" X") : "")
+        + "</b></a></td>";
+    row_cells[1].innerHTML = "<td><span class='move move_" + search_type
+        + "'>" + str_fm + ((str_fm_is_elite) ? "*" : "") + "</span></td>";
+    row_cells[2].innerHTML = "<td><span class='move move_" + search_type
+        + "'>" + str_cm + ((str_cm_is_elite) ? "*" : "") + "</span></td>";
+    row_cells[3].innerHTML = "<td>ER <b>" + str_er.toFixed(2)
+        + "</b></td>";
+
+    // sets icon
+    let icon_span = $(row_cells[0]).children().children(".pokemon-icon");
+    const icon_x = (str_id % 12) * -40;
+    const icon_y = Math.floor(str_id / 12) * -30;
+    $(icon_span).css("background-image", "url(" + icons_url + ")");
+    $(icon_span).css("background-position", icon_x+"px "+icon_y+"px");
+}
+
+/**
+ * Searches for the strongest moveset ER for a specific pokemon following
+ * some restrictions on the move. Once foud, returns the resulting ER and
+ * the moveset.
+ */
+function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
+        shadow, search_type, search_elite) {
+
+    let str_er = 0;
+    let str_fm = "-", str_fm_is_elite = false;
+    let str_cm = "-", str_cm_is_elite = false;
+
+    // checks whether this pokemon is actually released,
+    // and if not, returns 0
+
+    let released = pogoapi_released[pokemon_id];
+    if (form != GetPokemonDefaultForm(pokemon_id)) {
+        const pogoapi_form_moves_obj = pogoapi_moves.find(entry =>
+                entry.pokemon_id == pokemon_id && entry.form == form);
+        released = released && pogoapi_form_moves_obj;
+    }
+    if (mega) {
+        const pogoapi_mega_obj = pogoapi_mega.find(entry =>
+            entry.pokemon_id == pokemon_id);
+        released = released && pogoapi_mega_obj;
+    }
+
+    if (!released)
+        return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
+
+    // gets the necessary data to make the ER calculations
+
+    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
+
+    const stats = GetLvl40MaxStats(pokemon_id, form, mega, mega_y);
+    const atk = (shadow) ? (stats.atk * 6 / 5) : stats.atk;
+    const def = (shadow) ? (stats.def * 5 / 6) : stats.def;
+    const hp = stats.hp;
+
+    const moves = GetPokemongoMoves(pokemon_id, form);
+    if (moves.length != 4)
+        return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
+
+    const fms = moves[0];
+    const cms = moves[1];
+    const elite_fms = moves[2];
+    const elite_cms = moves[3];
+
+    const all_fms = fms.concat(elite_fms);
+    const all_cms = cms.concat(elite_cms);
+
+    // searches for the moveset
+
+    for (fm of all_fms) {
+
+        const is_elite_fm = elite_fms.includes(fm);
+
+        if (!search_elite && is_elite_fm)
+            continue;
+
+        // gets the fast move object
+        const fm_obj = pogoapi_fms.find(entry => entry.name == fm);
+        if (!fm_obj)
+            continue;
+
+        // gets its type and checks that matches the type searched
+        const fm_type = fm_obj.type.toLowerCase();
+        if (fm_type != search_type)
+            continue;
+
+        for (cm of all_cms) {
+
+            const is_elite_cm = elite_cms.includes(cm);
+
+            if (!search_elite && is_elite_cm)
+                continue;
+
+            // gets the charged move object
+            const cm_obj = pogoapi_cms.find(entry => entry.name == cm);
+            if (!cm_obj)
+                continue;
+
+            // gets its type and checks that matches the type searched
+            const cm_type = cm_obj.type.toLowerCase();
+            if (cm_type != search_type)
+                continue;
+
+            // calculates the data
+
+            const dps = GetDPS(types, atk, def, hp, fm_obj, cm_obj);
+            const tdo = GetTDO(dps, hp, def);
+            const dps3tdo = Math.pow(dps, 3) * tdo;
+            // Equivalent Rating from Reddit user u/Elastic_Space
+            // https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/
+            const er = Math.pow(dps3tdo, 1/4);
+
+            // checks whether this moveset is the strongest so far and,
+            // if it is, overrides the strongest
+            if (er > str_er) {
+                str_er = er;
+                str_fm = fm;
+                str_fm_is_elite = is_elite_fm;
+                str_cm = cm;
+                str_cm_is_elite = is_elite_cm;
+            }
+        }
+    }
+
+    return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
 }
 
 /**

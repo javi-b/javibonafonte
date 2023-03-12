@@ -167,6 +167,17 @@ tr:nth-child(even) {
 .move_steel { background-color: rgb(184, 184, 208); }
 .move_fairy { background-color: rgb(241, 162, 231); }
 
+.pokemon-icon {
+    width: 40px;
+    height: 30px;
+    display: inline-block;
+}
+
+.shadow-text {
+    color: var(--col-bg);
+    background-color: var(--col-main);
+}
+
 /*
  * Specific
  */
@@ -189,6 +200,20 @@ tr:nth-child(even) {
 
 #pokedex {
     height: 400px;
+}
+
+#strongest-button-c {
+    position: relative;
+    width: 0;
+    height: 0;
+    margin: 0 auto;
+    transform: translateX(+125px);
+}
+
+#strongest-button {
+    position: absolute;
+    width: 300px;
+    margin: 0;
 }
 
 #input {
@@ -256,19 +281,9 @@ tr:nth-child(even) {
     margin: 30px 15px 0px 15px;
 }
 
-#buttons-container { display: none; }
-
-#buttons-container button {
-    margin: 1em 0.5em 1em 0.5em;
-}
-
-#maingames { display: none; }
+#pokemongo { display: none; }
 
 #not-released { display: none; }
-
-#pokemongo {
-    display: none;
-}
 
 #max-cp-div {
     width: 0;
@@ -295,6 +310,32 @@ tr:nth-child(even) {
     cursor: pointer;
     text-decoration: underline;
 }
+
+#strongest { display: none; }
+
+#strongest-header {
+    background-color: var(--col-so-off);
+    margin: 0;
+    padding: 0.25em 0;
+}
+
+#strongest-table {
+    width: 100%;
+    /*table-layout: fixed;*/
+} 
+#strongest-table tr { height: 30px; }
+#strongest-table td { padding: 0; }
+
+#strongest-table tr > *:nth-child(1) { width: 25%; }
+#strongest-table tr > *:nth-child(2) { width: 15%; }
+#strongest-table tr > *:nth-child(3) { width: 15%; }
+#strongest-table tr > *:nth-child(4) { width: 15%; }
+
+#strongest-table tr > *:nth-child(1) * {
+    vertical-align: middle;
+}
+
+#legend { display: none; }
 
 #footer {
     position: fixed;
