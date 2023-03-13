@@ -705,7 +705,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     if (is_selected)
         img_container_div.css("border", "1px solid var(--col-main)");
     img_container_div.append(
-            $("<img class=loading src=../imgs/loading.gif></img>"));
+            $("<img class=loading src=imgs/loading.gif></img>"));
     img_container_div.append($("<img class=pokemon-img "
             + "onload ='HideLoading(this)' onerror='TryNextSrc(this)'"
             + " onclick='SwapShiny(this)' src="
