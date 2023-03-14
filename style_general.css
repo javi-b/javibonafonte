@@ -48,13 +48,6 @@ img {
     margin: 0 auto;
 }
 
-hr {
-    margin: 100px 0;
-    color: var(--col-so-off);
-    border-top: 1px solid var(--col-so-off);
-    border-bottom: none;
-}
-
 form {
     width: 100%;
 }
