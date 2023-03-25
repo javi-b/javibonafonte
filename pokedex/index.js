@@ -1267,8 +1267,8 @@ function LoadStrongest() {
         const td_cm = $("<td>-</td>");
         const td_er = $("<td>-</td>");
         const td_link  = $("<td class=small-text><a href=#>"
-                + "(list of strongest <b>" + type_text
-                + "</b>)</a></td>");
+                + "strongest <b>" + type_text
+                + "</b></a></td>");
 
         tr.append(td_name);
         tr.append(td_fm);
