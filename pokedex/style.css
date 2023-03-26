@@ -125,8 +125,8 @@ tr:nth-child(even) {
     font-size: 110%;
     height: 1.5em;
     width: 400px;
-    background-image:
-        linear-gradient(to right, var(--col-light), GreenYellow);
+    background-image: linear-gradient(to right,
+            rgb(104, 144, 240), rgb(120, 200, 80), rgb(248, 208, 57));
 }
 
 .prgr-val {
@@ -192,8 +192,8 @@ tr:nth-child(even) {
 
 #loading-bar {
     position: fixed;
-    background-image:
-        linear-gradient(to right, var(--col-light), GreenYellow);
+    background-image: linear-gradient(to right,
+            rgb(104, 144, 240), rgb(120, 200, 80), rgb(248, 208, 57));
     width: 0%;
     height: 2px;
 }
