@@ -8,7 +8,7 @@
  *
  * TODO:
  * - Hisuian forms
- * - More forms...
+ * - More forms... Arceus, Silvally, Minior, Necorzma, Magearma
  * - Add pogo stats, not just CP
  * - Missing shinies: Yungoos, Castform forms (pokemonshowdown)
  */
@@ -691,7 +691,7 @@ function GetPokemonId(clean_input) {
 }
 
 /**
- * Gets array of specific pokemon types. Take into account form and whether 
+ * Gets array of specific pokemon types. Take into account form and whether
  * is mega.
  */
 function GetPokemonTypes(pokemon_id, form, mega, mega_y) {
