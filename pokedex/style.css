@@ -216,7 +216,7 @@ tr:nth-child(even) {
     margin: 0;
 }
 
-#input {
+#input[type="text"] {
     width: 25%;
     margin: 0 auto;
     padding-left: 0;
