@@ -52,10 +52,23 @@
             <p class="center">Not released in <b>Pokémon GO</b> yet :(</p>
         </div>
         <div id=released>
-            <p class=center>
+            <form id=ivs-form class="center small-text">
+                <label>atk
+                    <input id=input-atk type=number min=0 max=15 value=15>
+                </label>
+                <label>def
+                    <input id=input-def type=number min=0 max=15 value=15>
+                </label>
+                <label>hp
+                    <input id=input-hp type=number min=0 max=15 value=15>
+                </label>
+                <input type=submit value=reload />
+            </form>
+            <br>
+            <p class="center no-top-m no-bottom-m">
                 <span id=max-cp-div><span id=max-cp></span></span>
                 <span class=prgr><span class=prgr-val></span></span><br>
-                <span class="small-text off">with 100% IVs at level 40</span>
+                <span id=cp-text class="small-text off"></span>
             </p>
             <br>
             <table id=pokemongo-table>

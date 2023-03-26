@@ -155,10 +155,20 @@ function Main() {
     */
 
     // event handlers
-    $("#strongest-link").click(function() {
-        LoadStrongest();
+
+    // when going back or forward in the browser history
+    window.onpopstate = function() { CheckURLAndAct(); }
+
+    $("#ivs-form").submit(function(e) {
+        UpdatePokemonIVsAndURL();
         return false;
     });
+
+    $("#strongest-link").click(function() {
+        LoadStrongestAndUpdateURL();
+        return false;
+    });
+
     $("#strongest :checkbox").change(function() {
         LoadStrongest();
     });
@@ -243,6 +253,7 @@ function IncreaseLoadingVal() {
         setTimeout(function() {
             $("#loading-bar").css("display", "none");
         }, 100);
+        CheckURLAndAct();
     }
 }
 
@@ -266,9 +277,9 @@ function OnInputKeyDown(e) {
                         .eq(selected_suggestion_i)[0].textContent;
                 const name =
                     selected_text.slice(selected_text.indexOf(" "));
-                LoadPokemon(Clean(name));
+                LoadPokemonAndUpdateURL(Clean(name));
             } else {
-                LoadPokemon(Clean($("#input").val()));
+                LoadPokemonAndUpdateURL(Clean($("#input").val()));
             }
             break;
 
@@ -375,7 +386,7 @@ function UpdateInputSuggestions() {
                     UpdateSelectedSuggestion();
                 });
                 sug_p.mousedown(function () {
-                    LoadPokemon(entry.id);
+                    LoadPokemonAndUpdateURL(entry.id);
                 });
             
                 if (same_id) {
@@ -436,10 +447,93 @@ function UpdateSelectedSuggestion() {
 }
 
 /**
+ * Checks whether the current url contains search parameters that dictate
+ * what to do. If it finds something, it does it.
+ */
+function CheckURLAndAct() {
+
+    const params = new URLSearchParams(location.search);
+
+    // if url has pokemon params...
+    if (params.has("p")) {
+
+        const pkm = params.get("p");
+
+        let form = "def";
+        if (params.has("f"))
+            form = params.get("f");
+
+        let mega = false;
+        if (params.has("m"))
+            mega = true;
+
+        let mega_y = false;
+        if (params.has("y"))
+            mega_y = true;
+
+        let ivs = null;
+        if (params.has("ivs")) {
+            let ivs_str = params.get("ivs");
+            ivs = {
+                atk: parseInt(ivs_str.slice(0, 2)),
+                def: parseInt(ivs_str.slice(2, 4)),
+                hp: parseInt(ivs_str.slice(4, 6))
+            };
+            function IsValidIV(val) {
+                return (Number.isInteger(val) && val >= 0 && val <= 15);
+            }
+            if (!IsValidIV(ivs.atk) || !IsValidIV(ivs.def)
+                    || !IsValidIV(ivs.hp)) {
+                ivs = null;
+            }
+        }
+
+        LoadPokemon(pkm, form, mega, mega_y, ivs);
+
+        return;
+    }
+
+    // if url has 'strongest' param...
+    if (params.has("strongest")) {
+        LoadStrongest();
+        return;
+    }
+}
+
+/**
+ * Calls the 'LoadPokemon' function and updates the url to match the
+ * pokemon being loaded.
+ */
+function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
+        mega_y = false, ivs = null) {
+
+    LoadPokemon(clean_input, form, mega, mega_y, ivs);
+
+    let url = "?p=" + clean_input;
+
+    if (form != "def")
+        url += "&f=" + form;
+    if (mega)
+        url += "&m";
+    if (mega_y)
+        url += "&y";
+    if (ivs) {
+        url += "&ivs="
+            + String(ivs.atk).padStart(2, "0")
+            + String(ivs.def).padStart(2, "0")
+            + String(ivs.hp).padStart(2, "0");
+    }
+
+    window.history.pushState({}, "", url);
+
+    return false;
+}
+
+/**
  * Loads a pokemon page.
  */
 function LoadPokemon(clean_input, form = "def", mega = false,
-        mega_y = false) {
+        mega_y = false, ivs = null) {
 
     if (!finished_loading || loading_pogo_moves)
         return;
@@ -454,9 +548,18 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     document.title = "#" + pokemon_id + " " + pokemon_name
             + " - Palkia's Pokédex";
 
-    // sets the form
+    // sets the default form
     if (form == "def")
         form = GetPokemonDefaultForm(pokemon_id);
+
+    // sets the default ivs
+    if (ivs == null)
+        ivs = { atk: 15, def: 15, hp: 15 };
+
+    // sets ivs inputs values
+    $("#input-atk").val(ivs.atk);
+    $("#input-def").val(ivs.def);
+    $("#input-hp").val(ivs.hp);
 
     // pokeapi
     /*
@@ -538,7 +641,7 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     if ($("#pokemongo").css("display") == "none")
         $("#pokemongo").css("display", "initial");
 
-    LoadPokemongo(pokemon_id, form, mega, mega_y);
+    LoadPokemongo(pokemon_id, form, mega, mega_y, ivs);
 }
 
 /**
@@ -714,8 +817,8 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
 
     // pokemon name p
     const pokemon_name_p= $("<p class='pokemon-name pokefont unselectable'"
-            + "onclick='LoadPokemon(" + pokemon_id + ", \"" + form
-            + "\", " + mega + ", " + mega_y + ")'>#" + pokemon_id
+            + "onclick='LoadPokemonAndUpdateURL(" + pokemon_id + ", \""
+            + form + "\", " + mega + ", " + mega_y + ")'>#" + pokemon_id
             + ((primal) ? (" Primal ") : ((mega) ? " Mega " : " "))
             + pokemon_name
             + ((mega && can_be_mega_y) ? ((mega_y) ? " Y " : " X ") : "")
@@ -737,7 +840,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
 /**
  * Loads one pokemon data for the Pokemon GO section.
  */
-function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
+function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
 
     let released = pogoapi_released[pokemon_id];
     if (form != GetPokemonDefaultForm(pokemon_id)) {
@@ -767,16 +870,17 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y = false) {
     if ($("#legend").css("display") == "none")
         $("#legend").css("display", "flex");
 
-    const stats = GetLvl40MaxStats(pokemon_id, form, mega, mega_y);
+    const stats = GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
     LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
+    UpdatesPokemongoMaxCPText(ivs);
     LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats);
 }
 
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is level 40
- * and it has the maximum IV points.
+ * and it has some specific IV points.
  */
-function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
+function GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs) {
 
     let stats;
 
@@ -803,11 +907,21 @@ function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
             cpm = cpm_override;
     }
 
-    stats.atk = (stats.base_attack + 15) * cpm;
-    stats.def = (stats.base_defense + 15) * cpm;
-    stats.hp = (stats.base_stamina + 15) * cpm;
+    stats.atk = (stats.base_attack + ivs.atk) * cpm;
+    stats.def = (stats.base_defense + ivs.def) * cpm;
+    stats.hp = (stats.base_stamina + ivs.hp) * cpm;
 
     return stats;
+}
+
+/**
+ * Gets the Pokemon GO stats of a specific pokemon when it is level 40
+ * and it has the maximum IV points.
+ */
+function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
+
+    const ivs = { atk: 15, def: 15, hp: 15 };
+    return GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
 }
 
 /**
@@ -826,6 +940,17 @@ function LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats) {
     $("#max-cp").text("CP ");
     const bold_num = $("<b>" + max_cp_40 + "</b>");
     $("#max-cp").append(bold_num);
+}
+
+/**
+ * Updates the text for pokemon max cp to match the IVs being used to
+ * calculate it.
+ */
+function UpdatesPokemongoMaxCPText(ivs) {
+
+    const pct = Math.round(100 * (ivs.atk + ivs.def + ivs.hp) / 45);
+    $("#cp-text").text("with IVs " + ivs.atk + "/" + ivs.def + "/" + ivs.hp
+            + " (" + pct + "%) at level 40");
 }
 
 /**
@@ -1212,6 +1337,50 @@ function SwapShiny(element) {
 }
 
 /**
+ * Callback function for when pokemon IVs are updated.
+ * Reloads the pokemon page and the url with the new specified IVs.
+ */
+function UpdatePokemonIVsAndURL() {
+
+    const params = new URLSearchParams(location.search);
+
+    // if url has pokemon params...
+    if (params.has("p")) {
+
+        const pkm = params.get("p");
+
+        let form = "def";
+        if (params.has("f"))
+            form = params.get("f");
+
+        let mega = false;
+        if (params.has("m"))
+            mega = true;
+
+        let mega_y = false;
+        if (params.has("y"))
+            mega_y = true;
+
+        let ivs = {};
+        ivs.atk = parseInt($("#input-atk").val());
+        ivs.def = parseInt($("#input-def").val());
+        ivs.hp = parseInt($("#input-hp").val());
+
+        LoadPokemonAndUpdateURL(pkm, form, mega, mega_y, ivs);
+    }
+}
+
+/**
+ * Calls the 'LoadStrongest' function and updates the url accordingly.
+ */
+function LoadStrongestAndUpdateURL() {
+
+    LoadStrongest();
+
+    window.history.pushState({}, "", "?strongest");
+}
+
+/**
  * Loads the list of the strongest pokemon for each type in pokemon go.
  */
 function LoadStrongest() {
@@ -1266,7 +1435,7 @@ function LoadStrongest() {
         const td_fm = $("<td>-</td>");
         const td_cm = $("<td>-</td>");
         const td_er = $("<td>-</td>");
-        const td_link  = $("<td class=small-text><a href=#>"
+        const td_link  = $("<td class=small-text><a>"
                 + "strongest <b>" + type_text
                 + "</b></a></td>");
 
@@ -1386,7 +1555,7 @@ function SetTypeStrongestPokemon(search_type, search_mega, search_shadow,
 
     let row_cells = $("#strongest-" + search_type)[0].cells;
     row_cells[0].innerHTML = "<td>"
-        + "<a class='' href=# onclick='LoadPokemon(" + str_id + ", \""
+        + "<a class='' onclick='LoadPokemonAndUpdateURL(" + str_id + ", \""
         + str_form + "\", " + str_mega + ", " + str_mega_y + ")'>"
         + "<span class=pokemon-icon></span><b>"
         + ((str_primal) ? ("Primal ") : ((str_mega) ? "Mega " : " "))

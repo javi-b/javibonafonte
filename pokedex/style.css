@@ -285,6 +285,33 @@ tr:nth-child(even) {
 
 #not-released { display: none; }
 
+#ivs-form > label {
+    margin: 0 0.5em;
+}
+
+#ivs-form input[type="number"] {
+    width: 3em;
+    border: none;
+    border: 1px solid var(--col-off);
+}
+
+#ivs-form input[type="number"]:focus {
+    outline: none;
+}
+
+#ivs-form input[type="submit"] {
+    margin: 0 1em;
+    cursor: pointer;
+    font-family: inherit;
+    background-color: var(--col-so-off);
+    border: 1px solid var(--col-dark-main);
+    border-radius: var(--border-radius);
+}
+
+#ivs-form input[type="submit"]:focus {
+    outline: 1px solid var(--col-off);
+}
+
 #max-cp-div {
     width: 0;
     height: 0;
@@ -333,6 +360,11 @@ tr:nth-child(even) {
 
 #strongest-table tr > *:nth-child(1) * {
     vertical-align: middle;
+}
+
+#strongest-table a {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 #legend { display: none; }
