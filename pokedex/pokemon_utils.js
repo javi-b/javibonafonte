@@ -2,6 +2,18 @@
  * Author: Javi Bonafonte
  */
 
+// set of types constant
+const POKEMON_TYPES = new Set();
+POKEMON_TYPES.add("Normal");        POKEMON_TYPES.add("Fire");
+POKEMON_TYPES.add("Water");         POKEMON_TYPES.add("Grass");
+POKEMON_TYPES.add("Electric");      POKEMON_TYPES.add("Ice");
+POKEMON_TYPES.add("Fighting");      POKEMON_TYPES.add("Poison");
+POKEMON_TYPES.add("Ground");        POKEMON_TYPES.add("Flying");
+POKEMON_TYPES.add("Psychic");       POKEMON_TYPES.add("Bug");
+POKEMON_TYPES.add("Rock");          POKEMON_TYPES.add("Ghost");
+POKEMON_TYPES.add("Dragon");        POKEMON_TYPES.add("Dark");
+POKEMON_TYPES.add("Steel");         POKEMON_TYPES.add("Fairy");
+
 /**
  * Gets array of strings of a specific pokemon forms.
  */

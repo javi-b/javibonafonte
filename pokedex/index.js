@@ -170,7 +170,8 @@ function Main() {
     });
 
     $("#strongest :checkbox").change(function() {
-        LoadStrongest();
+        //LoadStrongest();
+        CheckURLAndAct();
     });
 }
 
@@ -488,6 +489,7 @@ function CheckURLAndAct() {
             }
         }
 
+        // loads pokemon
         LoadPokemon(pkm, form, mega, mega_y, ivs);
 
         return;
@@ -495,7 +497,22 @@ function CheckURLAndAct() {
 
     // if url has 'strongest' param...
     if (params.has("strongest")) {
+
+        // if url has 't' param...
+        if (params.has("t")) {
+            let type = params.get("t");
+            type = type.charAt(0).toUpperCase()
+                + type.slice(1).toLowerCase();
+            if (POKEMON_TYPES.has(type)) { // if 't' param makes sense...
+                // loads strongest of type
+                LoadStrongest(type);
+                return;
+            }
+        }
+
+        // loads strongest
         LoadStrongest();
+
         return;
     }
 }
@@ -506,6 +523,9 @@ function CheckURLAndAct() {
  */
 function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
         mega_y = false, ivs = null) {
+
+    if (!finished_loading || loading_pogo_moves)
+        return false;
 
     LoadPokemon(clean_input, form, mega, mega_y, ivs);
 
@@ -1024,7 +1044,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             return;
         }
 
-        const fm_type = fm_obj.type.toLowerCase();
+        const fm_type = fm_obj.type;
 
         for (cm of all_cms) {
 
@@ -1035,7 +1055,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             if (!cm_obj)
                 continue;
 
-            const cm_type = cm_obj.type.toLowerCase();
+            const cm_type = cm_obj.type;
 
             // calculates the data
 
@@ -1053,10 +1073,12 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             // creates one row
 
             const tr = $("<tr></tr>");
-            const td_fm = $("<td><span class='move move_" + fm_type + "'>"
-                    + fm + ((is_elite_fm) ? "*" : "") + "</span></td>");
-            const td_cm = $("<td><span class='move move_" + cm_type + "'>"
-                    + cm + ((is_elite_cm) ? "*" : "") + "</span></td>");
+            const td_fm = $("<td><span class='type-text bg-" + fm_type
+                    + "'>" + fm + ((is_elite_fm) ? "*" : "")
+                    + "</span></td>");
+            const td_cm = $("<td><span class='type-text bg-" + cm_type
+                    + "'>" + cm + ((is_elite_cm) ? "*" : "")
+                    + "</span></td>");
             const td_dps = $("<td>" + dps.toFixed(3) + "</td>");
             const td_dps_sh = $("<td>"
                     + ((can_be_shadow) ? dps_sh.toFixed(3) : "-")
@@ -1373,17 +1395,24 @@ function UpdatePokemonIVsAndURL() {
 /**
  * Calls the 'LoadStrongest' function and updates the url accordingly.
  */
-function LoadStrongestAndUpdateURL() {
+function LoadStrongestAndUpdateURL(type = null) {
 
-    LoadStrongest();
+    if (!finished_loading)
+        return false;
 
-    window.history.pushState({}, "", "?strongest");
+    LoadStrongest(type);
+
+    let url = "?strongest";
+    if (type)
+        url += "&t=" + type;
+
+    window.history.pushState({}, "", url);
 }
 
 /**
  * Loads the list of the strongest pokemon for each type in pokemon go.
  */
-function LoadStrongest() {
+function LoadStrongest(type = null) {
 
     if (!finished_loading)
         return;
@@ -1398,8 +1427,23 @@ function LoadStrongest() {
     if ($("#legend").css("display") == "none")
         $("#legend").css("display", "flex");
 
-    // sets the page title
-    document.title = "Strongest Pokémon of each type - Palkia's Pokédex";
+    // sets links
+    let links_types = $("#strongest-links-types");
+    links_types.empty();
+    for (const type of POKEMON_TYPES) {
+        links_types.append("<li><a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a></li>");
+    }
+
+    // sets titles
+    let title = "";
+    if (type)
+        title = "Strongest Pokémon of " + type + " type";
+    else
+        title = "Strongest Pokémon of each type";
+    document.title = title + " - Palkia's Pokédex"; // page title
+    $("#strongest-title").text(title); // table title
 
     // removes previous table rows
     $("#strongest-table tr:not(.table-header)").remove();
@@ -1414,89 +1458,68 @@ function LoadStrongest() {
     let search_elite =
         $("#strongest input[value='elite']:checkbox").is(":checked");
 
-    // set of types constant
-    const types = new Set();
-    types.add("normal");    types.add("fire");      types.add("water");
-    types.add("grass");     types.add("electric");  types.add("ice");
-    types.add("fighting");  types.add("poison");    types.add("ground");
-    types.add("flying");    types.add("psychic");   types.add("bug");
-    types.add("rock");      types.add("ghost");     types.add("dragon");
-    types.add("dark");      types.add("steel");     types.add("fairy");
-
-    for (const search_type of types) { // for each type...
-
-        const type_text =
-            search_type.charAt(0).toUpperCase() + search_type.slice(1);
-
-        // creates one row
-
-        const tr = $("<tr id=strongest-" + search_type + "></tr>");
-        const td_name = $("<td>-</td>");
-        const td_fm = $("<td>-</td>");
-        const td_cm = $("<td>-</td>");
-        const td_er = $("<td>-</td>");
-        const td_link  = $("<td class=small-text><a>"
-                + "strongest <b>" + type_text
-                + "</b></a></td>");
-
-        tr.append(td_name);
-        tr.append(td_fm);
-        tr.append(td_cm);
-        tr.append(td_er);
-        tr.append(td_link);
-
-        $("#strongest-table").append(tr);
-
-        // searches for strongest pokemon for this type and sets it
-        setTimeout(function() {
-            SetTypeStrongestPokemon(search_type, search_mega,
-                search_shadow, search_legendary, search_elite);
-        }, 0);
+    if (type) {
+        SetTableOfStrongestOfOneType(search_mega, search_shadow,
+                search_legendary, search_elite, type);
+    } else {
+        SetTableOfStrongestOfEachType(search_mega, search_shadow,
+                search_legendary, search_elite);
     }
 }
 
 /**
- * Searches for the strongest pokemon ER for a specific type and following 
- * some filters. Once found, updates the strongest pokemon table row for
- * that specific type with the pokemon found.
+ * Searches the strongest pokemon of each type and sets the strongest
+ * pokemon table with the result.
  */
-function SetTypeStrongestPokemon(search_type, search_mega, search_shadow,
+function SetTableOfStrongestOfEachType(search_mega, search_shadow,
         search_legendary, search_elite) {
 
-    // finds type strongest pokemon and its moveset
-
-    // variables for strongest pokemon and moveset found so far
-    let str_er = 0;
-    let str_id = 0;
-    let str_form = "Normal";
-    let str_mega = false;
-    let str_mega_y = false;
-    let str_shadow = false;
-    let str_fm = "-", str_fm_is_elite = false;
-    let str_cm = "-", str_cm_is_elite = false;
+    // map of strongest pokemon and moveset found so far for each type
+    let str_pokemons = new Map();
 
     /**
-     * Checks if the strongest moveset for a specific pokemon is stronger
-     * than the current strongest pokemon found. If it is, updates the
-     * strongest variables.
+     * Checks if the any of the strongest movesets of a specific pokemon
+     * is stronger than any of the current strongest pokemon of each type.
+     * If it is, updates the strongest pokemon map.
      */
     function CheckIfStronger(id, form, mega, mega_y, shadow) {
 
-        let [er, fm, fm_is_elite, cm, cm_is_elite] =
-            GetPokemonTypeStrongestMoveset(id, form, mega, mega_y, shadow,
-                search_type, search_elite);
+        const types_movesets = GetPokemonStrongestMovesets(id, form,
+                mega, mega_y, shadow, search_elite);
 
-        if (er > str_er) {
-            str_er = er;
-            str_id = id;
-            str_form = form;
-            str_mega = mega;
-            str_mega_y = mega_y;
-            str_shadow = shadow;
-            str_fm = fm;
-            str_fm_is_elite = fm_is_elite;
-            str_cm = cm;
-            str_cm_is_elite = cm_is_elite;
+        for (const type of POKEMON_TYPES) {
+
+            // checks that pokemon has a moveset solely of this type
+            if (!types_movesets.has(type))
+                continue;
+
+            const moveset = types_movesets.get(type);
+            let is_stronger = false;
+
+            if (!str_pokemons.has(type)) { // if no strong pkm yet...
+
+                if (moveset.er > 0)
+                    is_stronger = true;
+
+            } else { // if some strong pkm already...
+
+                // if finds something better than worst in array...
+                if (moveset.er > str_pokemons.get(type).er)
+                    is_stronger = true;
+            }
+
+            if (is_stronger) {
+
+                // adds pokemon to array of strongest
+                const str_pokemon = {
+                    er: moveset.er, id: id, form: form,
+                    mega: mega, mega_y: mega_y, shadow: shadow,
+                    fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
+                    cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
+                    moves_type: moveset.moves_type
+                };
+                str_pokemons.set(type, str_pokemon);
+            }
         }
     }
 
@@ -1547,51 +1570,153 @@ function SetTypeStrongestPokemon(search_type, search_mega, search_shadow,
             CheckIfStronger(id, def_form, false, false, true);
     }
 
-    // sets type strongest pokemon row
+    // converts map into array
+    let str_pokemons_array = [];
+    for (const type of POKEMON_TYPES) {
+        if (str_pokemons.has(type))
+            str_pokemons_array.push(str_pokemons.get(type));
+    }
 
-    const str_name = pogoapi_names[str_id].name;
-    const str_can_be_mega_y = str_id == 6 || str_id == 150; 
-    const str_primal = str_mega && (str_id == 382 || str_id == 383);
-
-    let row_cells = $("#strongest-" + search_type)[0].cells;
-    row_cells[0].innerHTML = "<td>"
-        + "<a class='' onclick='LoadPokemonAndUpdateURL(" + str_id + ", \""
-        + str_form + "\", " + str_mega + ", " + str_mega_y + ")'>"
-        + "<span class=pokemon-icon></span><b>"
-        + ((str_primal) ? ("Primal ") : ((str_mega) ? "Mega " : " "))
-        + ((str_shadow) ? "<span class=shadow-text>Shadow</span> " : "")
-        + str_name
-        + ((str_mega && str_can_be_mega_y) ? ((str_mega_y)?" Y":" X") : "")
-        + "</b></a></td>";
-    row_cells[1].innerHTML = "<td><span class='move move_" + search_type
-        + "'>" + str_fm + ((str_fm_is_elite) ? "*" : "") + "</span></td>";
-    row_cells[2].innerHTML = "<td><span class='move move_" + search_type
-        + "'>" + str_cm + ((str_cm_is_elite) ? "*" : "") + "</span></td>";
-    row_cells[3].innerHTML = "<td>ER <b>" + str_er.toFixed(2)
-        + "</b></td>";
-
-    // sets icon
-    let icon_span = $(row_cells[0]).children().children(".pokemon-icon");
-    const icon_x = (str_id % 12) * -40;
-    const icon_y = Math.floor(str_id / 12) * -30;
-    $(icon_span).css("background-image", "url(" + icons_url + ")");
-    $(icon_span).css("background-position", icon_x+"px "+icon_y+"px");
+    // sets table from array
+    SetStrongestTableFromArray(str_pokemons_array);
 }
 
 /**
- * Searches for the strongest moveset ER for a specific pokemon following
- * some restrictions on the move. Once foud, returns the resulting ER and
- * the moveset.
+ * Searches the strongest pokemon of a specific type and sets the strongest
+ * pokemon table with the result.
+ * 
+ * The number of rows in the table is set to match the table with one
+ * pokemon of each type, therefore, there are as many rows as pkm types.
  */
-function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
-        shadow, search_type, search_elite) {
+function SetTableOfStrongestOfOneType(search_mega, search_shadow,
+        search_legendary, search_elite, type) {
 
-    let str_er = 0;
-    let str_fm = "-", str_fm_is_elite = false;
-    let str_cm = "-", str_cm_is_elite = false;
+    const num_rows = POKEMON_TYPES.size;
+
+    // array of strongest pokemon and moveset found so far
+    let str_pokemons = [];
+
+    /**
+     * Checks if the strongest moveset of a specific pokemon and type is
+     * stronger than any of the current strongest pokemons. If it is,
+     * updates the strongest pokemons array.
+     *
+     * The array is sorted every time so that it is always the weakest
+     * pokemon in it that gets replaced.
+     */
+    function CheckIfStrongEnough(id, form, mega, mega_y, shadow) {
+
+        const types_movesets = GetPokemonStrongestMovesets(id, form,
+                mega, mega_y, shadow, search_elite, type);
+        if (!types_movesets.has(type))
+            return;
+        const moveset = types_movesets.get(type);
+
+        let is_strong_enough = false;
+
+        if (str_pokemons.length == 0) { // if array is empty...
+
+            if (moveset.er > 0)
+                is_strong_enough = true;
+
+        } else { // if array isn't empty...
+
+            // if finds something better than worst in array...
+            if (moveset.er > str_pokemons[0].er)
+                is_strong_enough = true;
+
+        }
+
+        if (is_strong_enough) {
+
+            // adds pokemon to array of strongest
+            const str_pokemon = {
+                er: moveset.er, id: id, form: form,
+                mega: mega, mega_y: mega_y, shadow: shadow,
+                fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
+                cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
+                moves_type: moveset.moves_type
+            };
+
+            if (str_pokemons.length < num_rows)
+                str_pokemons.push(str_pokemon);
+            else
+                str_pokemons[0] = str_pokemon;
+
+
+            // sorts array
+           str_pokemons.sort(function compareFn(a , b) {
+               return (a.er > b.er);
+           });
+        }
+    }
+
+    // searches for pokemons...
+
+    for (let id = 1; id <= pogoapi_max_id; id++) {
+
+        // checks whether pokemon should be skipped
+        if (!search_legendary) {
+            const pogoapi_legendary_obj =
+                pogoapi_rarity["Legendary"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_legendary_obj)
+                continue;
+            const pogoapi_mythic_obj =
+                pogoapi_rarity["Mythic"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_mythic_obj)
+                continue;
+            const pogoapi_ultrabeast_obj =
+                pogoapi_rarity["Ultra beast"].find(entry =>
+                    entry.pokemon_id == id);
+            if (pogoapi_ultrabeast_obj)
+                continue;
+        }
+
+        const forms = GetPokemonForms(id);
+        const def_form = forms[0];
+
+        // default form
+        CheckIfStrongEnough(id, def_form, false, false, false);
+
+        // other forms
+        for (let form_i = 1; form_i < forms.length; form_i++)
+            CheckIfStrongEnough(id, forms[form_i], false, false, false);
+
+        // mega(s)
+        const can_be_mega = local_mega[id];
+        if (search_mega && can_be_mega) {
+            CheckIfStrongEnough(id, def_form, true, false, false);
+            if (id == 6 || id == 150) // charizard and mewtwo
+                CheckIfStrongEnough(id, def_form, true, true, false);
+        }
+
+        // shadow
+        const can_be_shadow = pogoapi_shadow[id];
+        if (search_shadow && can_be_shadow)
+            CheckIfStrongEnough(id, def_form, false, false, true);
+    }
+
+    // reverses strongest pokemon array
+    str_pokemons.reverse();
+
+    // sets table from array
+    SetStrongestTableFromArray(str_pokemons, num_rows);
+}
+
+/**
+ * Gets map of a specific pokemon's strongest movesets for each type.
+ * If the 'search_type' param is specified, only tries to find movesets
+ * of that type.
+ */
+function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
+        shadow, search_elite, search_type = null) {
+
+    let types_movesets = new Map();
 
     // checks whether this pokemon is actually released,
-    // and if not, returns 0
+    // and if not, returns empty
 
     let released = pogoapi_released[pokemon_id];
     if (form != GetPokemonDefaultForm(pokemon_id)) {
@@ -1606,7 +1731,7 @@ function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
     }
 
     if (!released)
-        return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
+        return types_movesets;
 
     // gets the necessary data to make the ER calculations
 
@@ -1619,7 +1744,7 @@ function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
 
     const moves = GetPokemongoMoves(pokemon_id, form);
     if (moves.length != 4)
-        return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
+        return types_movesets;
 
     const fms = moves[0];
     const cms = moves[1];
@@ -1643,9 +1768,9 @@ function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
         if (!fm_obj)
             continue;
 
-        // gets its type and checks that matches the type searched
-        const fm_type = fm_obj.type.toLowerCase();
-        if (fm_type != search_type)
+        // checks that fm type matches the type searched
+        // (is search type isn't specified, any type goes)
+        if (search_type && fm_obj.type != search_type)
             continue;
 
         for (cm of all_cms) {
@@ -1660,10 +1785,16 @@ function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
             if (!cm_obj)
                 continue;
 
-            // gets its type and checks that matches the type searched
-            const cm_type = cm_obj.type.toLowerCase();
-            if (cm_type != search_type)
+            // checks that cm type matches the type searched
+            // (is search type isn't specified, any type goes)
+            if (search_type && cm_obj.type != search_type)
                 continue;
+
+            // checks that both moves types are equal
+            if (fm_obj.type != cm_obj.type)
+                continue;
+
+            const moves_type = fm_obj.type;
 
             // calculates the data
 
@@ -1674,19 +1805,89 @@ function GetPokemonTypeStrongestMoveset(pokemon_id, form, mega, mega_y,
             // https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/
             const er = Math.pow(dps3tdo, 1/4);
 
-            // checks whether this moveset is the strongest so far and,
-            // if it is, overrides the strongest
-            if (er > str_er) {
-                str_er = er;
-                str_fm = fm;
-                str_fm_is_elite = is_elite_fm;
-                str_cm = cm;
-                str_cm_is_elite = is_elite_cm;
+            // checks whether this moveset is the strongest for this type
+            // so far and, if it is, overrides the previous strongest
+            if (!types_movesets.has(moves_type)
+                    || er > types_movesets.get(moves_type)) {
+                const type_moveset = {
+                    er: er, moves_type: moves_type,
+                    fm: fm, is_elite_fm: is_elite_fm,
+                    cm: cm, is_elite_cm: is_elite_cm
+                };
+                types_movesets.set(moves_type, type_moveset);
             }
         }
     }
 
-    return [str_er, str_fm, str_fm_is_elite, str_cm, str_cm_is_elite];
+    return types_movesets;
+}
+
+/**
+ * Adds rows to the strongest pokemon table according to an array of
+ * pokemon.
+ *
+ * If a number of rows is specified and there aren't enough pokemon, fills 
+ * the remaining rows with "-". If the number of rows isn't specified,
+ * there will be as many rows as pokemon in the array.
+ */
+function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
+
+    if (!num_rows)
+        num_rows = str_pokemons.length;
+
+    for (let row_i = 0; row_i < num_rows; row_i++) {
+
+        if (row_i < str_pokemons.length) {
+
+            const p = str_pokemons[row_i];
+
+            const name = pogoapi_names[p.id].name;
+            const icon_x = (p.id % 12) * -40;
+            const icon_y = Math.floor(p.id / 12) * -30;
+            const can_be_mega_y = p.id == 6 || p.id == 150; 
+            const primal = p.mega && (p.id == 382 || p.id == 383);
+            const form_text = GetFormText(p.id, p.form);
+
+            const tr = $("<tr></tr>");
+            const td_name = "<td>"
+                + "<a class='' onclick='LoadPokemonAndUpdateURL(" + p.id
+                + ",\"" + p.form + "\"," + p.mega + "," + p.mega_y + ")'>"
+                + "<span class=pokemon-icon style='background-image:url("
+                + icons_url + ");background-position:" + icon_x + "px "
+                + icon_y + "px'></span><b>"
+                + ((primal) ? ("Primal ") : ((p.mega) ? "Mega " : " "))
+                + ((p.shadow)
+                    ? "<span class=shadow-text>Shadow</span> " : "")
+                + name
+                + ((p.mega && can_be_mega_y)
+                    ? ((p.mega_y) ? " Y" : " X") : "")
+                + "</b></a>"
+                + ((form_text.length > 0)
+                    ? " <span class=small-text>(" + form_text + ")</span>" 
+                    : "")
+                + "</td>";
+            const td_fm =
+                "<td><span class='type-text bg-" + p.moves_type + "'>"
+                + p.fm + ((p.fm_is_elite) ? "*" : "") + "</span></td>";
+            const td_cm =
+                "<td><span class='type-text bg-" + p.moves_type + "'>"
+                + p.cm + ((p.cm_is_elite) ? "*" : "") + "</span></td>";
+            const td_er = "<td>ER <b>" + p.er.toFixed(2) + "</b></td>";
+
+            tr.append(td_name);
+            tr.append(td_fm);
+            tr.append(td_cm);
+            tr.append(td_er);
+
+            $("#strongest-table").append(tr);
+
+        } else {
+
+            const empty_row =
+                "<tr><td>-</td><td>-</td><td>-</td><td>-</td></tr>"
+            $("#strongest-table").append(empty_row);
+        }
+    }
 }
 
 /**

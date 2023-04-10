@@ -95,8 +95,16 @@
 
     <!-- strongest pokemon section -->
     <div id=strongest>
-        <p class=center id=strongest-header>
-            <b>Strongest Pokémon of each type</b><br>
+        <p class="center small-text off no-bottom-m">select what type's strongest Pokémon you want to see</p>
+        <div id=strongest-links class="small-text unselectable">
+            <ul>
+                <li><a class="type-text bg-any-type" onclick="LoadStrongestAndUpdateURL()">Each type</a></li>
+            </ul>
+            <ul id=strongest-links-types></ul>
+        </div>
+        <br>
+        <div class=center id=strongest-header>
+            <b id=strongest-title></b><br>
             <span class=small-text id=strongest-filters>
                 <input type=checkbox value=mega checked>
                     Mega and Primal
@@ -111,7 +119,7 @@
                     Elite moves
                 </input>
             </span>
-        </p>
+        </div>
         <table class=center id=strongest-table></table>
         <p class="small-text">* elite fast or charged move</p>
     </div> <!-- end of 'strongest' div -->
