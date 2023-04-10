@@ -297,6 +297,7 @@ tr:nth-child(even) {
     width: 3em;
     border: none;
     border: 1px solid var(--col-off);
+    font-size: 12.6px;
 }
 
 #ivs-form input[type="number"]:focus {
@@ -310,6 +311,7 @@ tr:nth-child(even) {
     background-color: var(--col-so-off);
     border: 1px solid var(--col-dark-main);
     border-radius: var(--border-radius);
+    font-size: 12.6px;
 }
 
 #ivs-form input[type="submit"]:focus {
