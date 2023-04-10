@@ -332,7 +332,7 @@ function OnInputBlur(e) {
 
     // sets borders
     suggestions.css("border", "none");
-    suggestions.css("border-top", "1px solid var(--col-main)");
+    suggestions.css("border-top", "1px solid var(--col-off)");
 }
 
 /**
@@ -411,17 +411,17 @@ function UpdateInputSuggestions() {
 
         // sets borders
         if (suggestions.children().length > 0) {
-            suggestions.css("border", "1px solid var(--col-main)");
+            suggestions.css("border", "1px solid var(--col-off)");
         } else {
             suggestions.css("border", "none");
-            suggestions.css("border-top", "1px solid var(--col-main)");
+            suggestions.css("border-top", "1px solid var(--col-off)");
         }
 
     } else {
 
         // sets borders
         suggestions.css("border", "none");
-        suggestions.css("border-top", "1px solid var(--col-main)");
+        suggestions.css("border-top", "1px solid var(--col-off)");
     }
 }
 
