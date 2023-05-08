@@ -1808,7 +1808,7 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
             // checks whether this moveset is the strongest for this type
             // so far and, if it is, overrides the previous strongest
             if (!types_movesets.has(moves_type)
-                    || er > types_movesets.get(moves_type)) {
+                    || er > types_movesets.get(moves_type).er) {
                 const type_moveset = {
                     er: er, moves_type: moves_type,
                     fm: fm, is_elite_fm: is_elite_fm,
