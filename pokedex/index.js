@@ -1031,7 +1031,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     function AppendFMChunk(fm_i, callback) {
 
         const fm = all_fms[fm_i];
-        const is_elite_fm = elite_fms.includes(fm);
+        const fm_is_elite = elite_fms.includes(fm);
 
         // gets the fast move object
         const fm_obj = pogoapi_fms.find(entry => entry.name == fm);
@@ -1048,7 +1048,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
         for (cm of all_cms) {
 
-            const is_elite_cm = elite_cms.includes(cm);
+            const cm_is_elite = elite_cms.includes(cm);
 
             // gets the charged move object
             const cm_obj = pogoapi_cms.find(entry => entry.name == cm);
@@ -1074,10 +1074,10 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 
             const tr = $("<tr></tr>");
             const td_fm = $("<td><span class='type-text bg-" + fm_type
-                    + "'>" + fm + ((is_elite_fm) ? "*" : "")
+                    + "'>" + fm + ((fm_is_elite) ? "*" : "")
                     + "</span></td>");
             const td_cm = $("<td><span class='type-text bg-" + cm_type
-                    + "'>" + cm + ((is_elite_cm) ? "*" : "")
+                    + "'>" + cm + ((cm_is_elite) ? "*" : "")
                     + "</span></td>");
             const td_dps = $("<td>" + dps.toFixed(3) + "</td>");
             const td_dps_sh = $("<td>"
@@ -1758,9 +1758,9 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
 
     for (fm of all_fms) {
 
-        const is_elite_fm = elite_fms.includes(fm);
+        const fm_is_elite = elite_fms.includes(fm);
 
-        if (!search_elite && is_elite_fm)
+        if (!search_elite && fm_is_elite)
             continue;
 
         // gets the fast move object
@@ -1775,9 +1775,9 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
 
         for (cm of all_cms) {
 
-            const is_elite_cm = elite_cms.includes(cm);
+            const cm_is_elite = elite_cms.includes(cm);
 
-            if (!search_elite && is_elite_cm)
+            if (!search_elite && cm_is_elite)
                 continue;
 
             // gets the charged move object
@@ -1811,8 +1811,8 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
                     || er > types_movesets.get(moves_type).er) {
                 const type_moveset = {
                     er: er, moves_type: moves_type,
-                    fm: fm, is_elite_fm: is_elite_fm,
-                    cm: cm, is_elite_cm: is_elite_cm
+                    fm: fm, fm_is_elite: fm_is_elite,
+                    cm: cm, cm_is_elite: cm_is_elite
                 };
                 types_movesets.set(moves_type, type_moveset);
             }
