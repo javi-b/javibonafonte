@@ -16,11 +16,19 @@
 <div id=loading-bar-c><div id=loading-bar></div></div>
 <div id=site>
 
+    <div id=settings-c>
+        <div id=settings class=small-text>
+            <p class=center><b>Settings</b> <span id=settings-hide class=unselectable>[show]</span></p>
+            <div id=settings-list class=invisible>
+                <ul>
+                    <li id=settings-metric>PvE metric → <span id=metric-er class=unselectable>ER</span> <span id=metric-eer class=unselectable>EER</span> <span id=metric-ter class=unselectable>TER</span></li>
+                    <li>Pkm sprites → <b>3DS</b> POGO</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <div id=header>
-        <!--
-        <p class=pokefont>Palkia's</a></p>
-        <h1 class=pokefont>Pokédex</h1>
-        -->
     </div>
 
     <!-- search bar and strongest button -->
@@ -75,18 +83,14 @@
                 <tr class=table-header>
                     <th>Fast<br>Move</th>
                     <th>Charged<br>Move</th>
-                    <th class=sortable onclick=SortPokemongoTable(2)>
-                        DPS <span class=th-triangle>▿</span>
-                    </th>
+                    <th>DPS</th>
                     <th>DPS<br>(Shadow)</th>
-                    <th class=sortable onclick=SortPokemongoTable(4)>
-                        TDO <span class=th-triangle>▿</span>
-                    </th>
+                    <th>TDO</th>
                     <th>TDO<br>(Shadow)</th>
-                    <th class=sortable onclick=SortPokemongoTable(6)>
-                        ER <span class=th-triangle>▿</span>
+                    <th id=table-metric-header class=sortable onclick=SortPokemongoTable(6)>
+                        EER <span class=th-triangle>▿</span>
                     </th>
-                    <th>ER<br>(Shadow)</th>
+                    <th id=table-metric-header-sh>EER<br>(Shadow)</th>
                 </tr>
             </table>
             <p class="small-text">* elite fast or charged move</p>
@@ -124,30 +128,43 @@
         <p class="small-text">* elite fast or charged move</p>
     </div> <!-- end of 'strongest' div -->
 
-    <!-- technical information legend and sources -->
-    <div id=legend class="row small-text">
-        <div class=column-l>
-            <p class=no-bottom-m>Legend:</p>
-            <ul class=no-top-m>
-                <li><b>DPS</b>: Damage Per Second that a Pokémon with a specific moveset deals against a <i>reference</i> Pokémon. (How fast a Pokémon deals damage).</li>
-                <li><b>TDO</b>: Total Damage Output from a Pokémon with a specific moveset against a <i>reference</i> Pokémon until the attacking Mon faints. (This metric gives more value to the <i>bulk</i>).</li>
-                <li><b>ER</b>: Equivalent Rating. Overall metric for PvE - a balance between DPS and TDO. <code>ER = (DPS^3 * TDO)^(1/4)</code></li>
-            </ul>
-        </div>
-        <div class=column-r>
-            <p class=no-bottom-m>Sources:</p>
-            <ol class="no-top-m left">
-                <li><a target=blank href=https://gamepress.gg/pokemongo/damage-mechanics>GamePress. Damage Mechanics</a></li>
-                <li><a target=blank href=https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps>GamePress. How to Calculate Comprehensive DPS</a></li>
-                <li><a target=blank href=https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/>r/TheSliphRoad. u/Elastic_Space. [Analysis] Legendary/Mythical Signature Moves: Improving the GamePress Overall Metric and a Cross-type PvE Meta Overview</a></li>
-            </ol>
-        </div>
-    </div> <!-- end of 'row' div -->
+    <!-- technical information legend and sources, and footer -->
+    <div id=legend>
 
-    <!-- footer or whatver this is -->
-    <div id=footer class="small-text center">
-        <p><a href=/>← <i>home</i></a></p>
-    </div>
+        <div class="row small-text">
+            <div class=column-l>
+                <p class=no-bottom-m>Legend:</p>
+                <ul class=no-top-m>
+                    <li><b>DPS</b>: Damage Per Second that a Pokémon with a specific moveset deals against a <i>reference</i> Pokémon. (How fast a Pokémon deals damage).</li>
+                    <li><b>TDO</b>: Total Damage Output from a Pokémon with a specific moveset against a <i>reference</i> Pokémon until the attacking Mon faints. (This metric gives more value to the <i>bulk</i>).</li>
+                    <li><b>ER</b>: Equivalent Rating. Overall metric for PvE - a balance between DPS and TDO. <span class=red><i>deprecated since the introduction of EER and TER</i></span></li>
+                    <li><b>EER</b>: Estimator Equivalent Rating. More realistic metric, for when short-manning or expecting to relobby.</li>
+                    <li><b>TER</b>: Time Equivalent Rating. More realistic metric, for when raiding in a large group and not going to relobby.</li>
+                </ul>
+            </div>
+            <div class=column-r>
+                <p class=no-bottom-m>Sources:</p>
+                <ol class="no-top-m left">
+                    <li><a target=blank href=https://gamepress.gg/pokemongo/damage-mechanics>GamePress. Damage Mechanics</a></li>
+                    <li><a target=blank href=https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps>GamePress. How to Calculate Comprehensive DPS</a></li>
+                    <li><a target=blank href=https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/>r/TheSliphRoad. u/Elastic_Space. [Analysis] Legendary/Mythical Signature Moves: Improving the GamePress Overall Metric and a Cross-type PvE Meta Overview</a></li>
+                    <li><a target=blank href=https://www.reddit.com/r/TheSilphRoad/comments/135nz6o/analysis_improving_pve_overall_theoretical_metric/>r/TheSliphRoad. u/Elastic_Space. [Analysis] Improving PvE Overall Theoretical Metric: Modification to Equivalent Rating (ER)</a></li>
+                </ol>
+                <p class=no-bottom-m>Credits:</p>
+                <ul class=no-top-m>
+                    <li>Thanks to <a target=blank href=https://pogoapi.net/>PoGo API</a> for providing most of the PoGo data.</li>
+                    <li>Thaks to <a target=blank href=https://gamepress.gg/pokemongo/>GamePress</a> and Reddit user <a target=blank href=https://www.reddit.com/user/Elastic_Space/>u/Elastic_Space</a> for their theoretical work and analyses.</li>
+                </ul>
+            </div>
+        </div> <!-- end of 'row' div -->
+
+        <!-- footer -->
+        <div id=footer class="small-text center">
+            <p><b>for comments or feedback</b><br>javibonafonte [at] gmail [dot] com<br><a target=blank href=https://twitter.com/0a211212>@0a211212</a> on twitter</p>
+            <p><b>my personal site</b><br><a target=blank href=/>javibonafonte.com</a></p>
+        </div> <!-- end of 'footer' div -->
+
+    </div> <!-- end of 'legend' div -->
 
 </div>
 </body>

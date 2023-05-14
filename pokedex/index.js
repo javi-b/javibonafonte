@@ -51,6 +51,13 @@ let pkmgo1_fm, pkmgo1_cm;
 // game master json object
 let game_master;
 
+// settings constants and variables
+const METRICS = new Set();
+METRICS.add("ER");
+METRICS.add("EER");
+METRICS.add("TER");
+let settings_metric = "EER";
+
 // whether pokemon go table moves are currenlty being loaded asyncronously,
 // so no new pokemon should be loaded for now
 // FIXME this is a workaround, what should actually be done is that,
@@ -159,6 +166,11 @@ function Main() {
     // when going back or forward in the browser history
     window.onpopstate = function() { CheckURLAndAct(); }
 
+    $("#settings-hide").click(SwapSettingsStatus);
+    $("#metric-er").click(function() { SetMetric("ER"); });
+    $("#metric-eer").click(function() { SetMetric("EER"); });
+    $("#metric-ter").click(function() { SetMetric("TER"); });
+
     $("#ivs-form").submit(function(e) {
         UpdatePokemonIVsAndURL();
         return false;
@@ -256,6 +268,57 @@ function IncreaseLoadingVal() {
         }, 100);
         CheckURLAndAct();
     }
+}
+
+/**
+ * Swaps whether the settings list is being displayed or not.
+ */
+function SwapSettingsStatus() {
+
+    const list = $("#settings-list");
+
+    if (list.css("display") == "none") {
+        list.css("display", "initial");
+        $(this).text("[hide]");
+    } else {
+        list.css("display", "none");
+        $(this).text("[show]");
+    }
+}
+
+/**
+ * Sets the metric setting and, if necessary, updates the page accordingly.
+ */
+function SetMetric(metric) {
+
+    if (!METRICS.has(metric) || metric == settings_metric)
+        return;
+
+    // sets global variable
+    settings_metric = metric;
+
+    // sets settings text weight
+    $("#metric-er").css("font-weight", "normal");
+    $("#metric-eer").css("font-weight", "normal");
+    $("#metric-ter").css("font-weight", "normal");
+    switch (settings_metric) {
+        case "ER":
+            $("#metric-er").css("font-weight", "bold");
+            break;
+        case "EER":
+            $("#metric-eer").css("font-weight", "bold");
+            break;
+        case "TER":
+            $("#metric-ter").css("font-weight", "bold");
+            break;
+    }
+
+    // sets pokemongo table header
+    $("#table-metric-header").html(settings_metric);
+    $("#table-metric-header-sh").html(settings_metric + "<br>(Shadow)");
+
+    // reload page
+    CheckURLAndAct();
 }
 
 /**
@@ -888,7 +951,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
     $("#not-released").css("display", "none");
     $("#released").css("display", "initial");
     if ($("#legend").css("display") == "none")
-        $("#legend").css("display", "flex");
+        $("#legend").css("display", "initial");
 
     const stats = GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
     LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
@@ -1063,12 +1126,21 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const dps_sh = GetDPS(types, atk_sh, def_sh, hp,fm_obj,cm_obj);
             const tdo = GetTDO(dps, hp, def);
             const tdo_sh = GetTDO(dps_sh, hp, def_sh);
-            const dps3tdo = Math.pow(dps, 3) * tdo;
-            const dps3tdo_sh = Math.pow(dps_sh, 3) * tdo_sh;
-            // Equivalent Rating from Reddit user u/Elastic_Space
-            // https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/
-            const er = Math.pow(dps3tdo, 1/4);
-            const er_sh = Math.pow(dps3tdo_sh, 1/4);
+            // metrics from Reddit user u/Elastic_Space
+            let rat = 0;
+            let rat_sh = 0;
+            if (settings_metric == "ER") {
+                const dps3tdo = Math.pow(dps, 3) * tdo;
+                const dps3tdo_sh = Math.pow(dps_sh, 3) * tdo_sh;
+                rat = Math.pow(dps3tdo, 1/4);
+                rat_sh = Math.pow(dps3tdo_sh, 1/4);
+            } else if (settings_metric == "EER") {
+                rat = Math.pow(dps, 0.775) * Math.pow(tdo, 0.225);
+                rat_sh = Math.pow(dps_sh, 0.775) * Math.pow(tdo_sh, 0.225);
+            } else if (settings_metric == "TER") {
+                rat = Math.pow(dps, 0.85) * Math.pow(tdo, 0.15);
+                rat_sh = Math.pow(dps_sh, 0.85) * Math.pow(tdo_sh, 0.15);
+            }
 
             // creates one row
 
@@ -1087,9 +1159,9 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const td_tdo_sh = $("<td>"
                     + ((can_be_shadow) ? tdo_sh.toFixed(1) : "-")
                     + "</td>");
-            const td_er = $("<td>" + er.toFixed(2) + "</td>");
-            const td_er_sh = $("<td>"
-                    + ((can_be_shadow) ? er_sh.toFixed(2) : "-")
+            const td_rat = $("<td>" + rat.toFixed(2) + "</td>");
+            const td_rat_sh = $("<td>"
+                    + ((can_be_shadow) ? rat_sh.toFixed(2) : "-")
                     + "</td>");
 
             tr.append(td_fm);
@@ -1098,8 +1170,8 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             tr.append(td_dps_sh);
             tr.append(td_tdo);
             tr.append(td_tdo_sh);
-            tr.append(td_er);
-            tr.append(td_er_sh);
+            tr.append(td_rat);
+            tr.append(td_rat_sh);
 
             $("#pokemongo-table").append(tr);
         }
@@ -1425,7 +1497,7 @@ function LoadStrongest(type = null) {
     if ($("#strongest").css("display") == "none")
         $("#strongest").css("display", "initial");
     if ($("#legend").css("display") == "none")
-        $("#legend").css("display", "flex");
+        $("#legend").css("display", "initial");
 
     // sets links
     let links_types = $("#strongest-links-types");
@@ -1498,13 +1570,13 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
 
             if (!str_pokemons.has(type)) { // if no strong pkm yet...
 
-                if (moveset.er > 0)
+                if (moveset.rat > 0)
                     is_stronger = true;
 
             } else { // if some strong pkm already...
 
                 // if finds something better than worst in array...
-                if (moveset.er > str_pokemons.get(type).er)
+                if (moveset.rat > str_pokemons.get(type).rat)
                     is_stronger = true;
             }
 
@@ -1512,7 +1584,7 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
 
                 // adds pokemon to array of strongest
                 const str_pokemon = {
-                    er: moveset.er, id: id, form: form,
+                    rat: moveset.rat, id: id, form: form,
                     mega: mega, mega_y: mega_y, shadow: shadow,
                     fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
                     cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
@@ -1616,13 +1688,13 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
         if (str_pokemons.length == 0) { // if array is empty...
 
-            if (moveset.er > 0)
+            if (moveset.rat > 0)
                 is_strong_enough = true;
 
         } else { // if array isn't empty...
 
             // if finds something better than worst in array...
-            if (moveset.er > str_pokemons[0].er)
+            if (moveset.rat > str_pokemons[0].rat)
                 is_strong_enough = true;
 
         }
@@ -1631,7 +1703,7 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
             // adds pokemon to array of strongest
             const str_pokemon = {
-                er: moveset.er, id: id, form: form,
+                rat: moveset.rat, id: id, form: form,
                 mega: mega, mega_y: mega_y, shadow: shadow,
                 fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
                 cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
@@ -1646,7 +1718,7 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
             // sorts array
            str_pokemons.sort(function compareFn(a , b) {
-               return (a.er > b.er);
+               return (a.rat > b.rat);
            });
         }
     }
@@ -1733,7 +1805,7 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
     if (!released)
         return types_movesets;
 
-    // gets the necessary data to make the ER calculations
+    // gets the necessary data to make the rating calculations
 
     const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
 
@@ -1800,17 +1872,23 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
 
             const dps = GetDPS(types, atk, def, hp, fm_obj, cm_obj);
             const tdo = GetTDO(dps, hp, def);
-            const dps3tdo = Math.pow(dps, 3) * tdo;
-            // Equivalent Rating from Reddit user u/Elastic_Space
-            // https://www.reddit.com/r/TheSilphRoad/comments/z3xuzc/analysis_legendarymythical_signature_moves/
-            const er = Math.pow(dps3tdo, 1/4);
+            // metrics from Reddit user u/Elastic_Space
+            let rat = 0;
+            if (settings_metric == "ER") {
+                const dps3tdo = Math.pow(dps, 3) * tdo;
+                rat = Math.pow(dps3tdo, 1/4);
+            } else if (settings_metric == "EER") {
+                rat = Math.pow(dps, 0.775) * Math.pow(tdo, 0.225);
+            } else if (settings_metric == "TER") {
+                rat = Math.pow(dps, 0.85) * Math.pow(tdo, 0.15);
+            }
 
             // checks whether this moveset is the strongest for this type
             // so far and, if it is, overrides the previous strongest
             if (!types_movesets.has(moves_type)
-                    || er > types_movesets.get(moves_type).er) {
+                    || rat > types_movesets.get(moves_type).rat) {
                 const type_moveset = {
-                    er: er, moves_type: moves_type,
+                    rat: rat, moves_type: moves_type,
                     fm: fm, fm_is_elite: fm_is_elite,
                     cm: cm, cm_is_elite: cm_is_elite
                 };
@@ -1872,12 +1950,13 @@ function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
             const td_cm =
                 "<td><span class='type-text bg-" + p.moves_type + "'>"
                 + p.cm + ((p.cm_is_elite) ? "*" : "") + "</span></td>";
-            const td_er = "<td>ER <b>" + p.er.toFixed(2) + "</b></td>";
+            const td_rat = "<td>" + settings_metric + " <b>"
+                + p.rat.toFixed(2) + "</b></td>";
 
             tr.append(td_name);
             tr.append(td_fm);
             tr.append(td_cm);
-            tr.append(td_er);
+            tr.append(td_rat);
 
             $("#strongest-table").append(tr);
 

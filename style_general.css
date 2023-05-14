@@ -151,6 +151,8 @@ table {
 
 .main-color { color: var(--col-main); }
 
+.red { color: red };
+
 .border {
     border: 1px solid black;
     border-radius: var(--border-radius);
