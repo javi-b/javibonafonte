@@ -1017,7 +1017,10 @@ function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
  */
 function LoadPokemongoStats(stats) {
 
-    const is_macintosh = window.navigator.userAgent.includes("Macintosh");
+    const user_agent = window.navigator.userAgent;
+    const is_apple = user_agent.includes("Macintosh")
+        || user_agent.includes("iPhone") || user_agent.includes("iPad")
+        || user_agent.includes("iPod");
 
     const atk_ceil = 345; // current top atk pkm: Deoxys - 345
     const def_ceil = 396; // current top def pkm: Shuckle - 396
@@ -1031,7 +1034,7 @@ function LoadPokemongoStats(stats) {
     let def_html = "def <abbr class=ascii-bar title=" + def + ">";
     let hp_html = "hp <abbr class=ascii-bar title=" + hp + ">";
 
-    const gray_ch = (is_macintosh) ? "▒" : "▓";
+    const gray_ch = (is_apple) ? "▒" : "▓";
 
     for (let i = 1; i <= 5; i++) {
         atk_html += (i * atk_ceil / 6 < atk)
@@ -1053,8 +1056,10 @@ function LoadPokemongoStats(stats) {
     $("#stat-def").html(def_html);
     $("#stat-hp").html(hp_html);
 
-    if (is_macintosh)
+    if (is_apple) {
         $(".ascii-bar").addClass("monospace");
+        $(".ascii-bar").css("font-size", "15px");
+    }
 }
 
 /**
