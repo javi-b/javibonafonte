@@ -116,6 +116,10 @@ table {
 }
 */
 
+abbr[title] {
+    cursor: help;
+}
+
 .unselectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
