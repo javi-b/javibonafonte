@@ -334,8 +334,19 @@ tr:nth-child(even) {
 
 #not-released { display: none; }
 
+#pokemongo-stats, #ivs-form {
+    width: 50%;
+    display: table;
+    table-layout: fixed;
+}
+
+#pokemongo-stats th, #pokemongo-stats tr {
+    background-color: initial;
+}
+
 #ivs-form > label {
-    margin: 0 0.5em;
+    padding: 0.25em 0;
+    display: table-cell;
 }
 
 #ivs-form input[type="number"] {
@@ -350,7 +361,6 @@ tr:nth-child(even) {
 }
 
 #ivs-form input[type="submit"] {
-    margin: 0 1em;
     cursor: pointer;
     font-family: inherit;
     background-color: var(--col-so-off);

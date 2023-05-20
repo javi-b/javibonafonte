@@ -60,7 +60,19 @@
             <p class="center">Not released in <b>Pokémon GO</b> yet :(</p>
         </div>
         <div id=released>
+            <table id=pokemongo-stats class="center small-text">
+                <tr>
+                    <td><abbr title="Base stats of this Pokémon species">Base</abbr> →</td>
+                    <td id=stat-atk>atk</td>
+                    <td id=stat-def>def</td>
+                    <td id=stat-hp>hp</td>
+                    <td></td>
+                </tr>
+            </table>
             <form id=ivs-form class="center small-text">
+                <label>
+                   <abbr title="Individual Values of this specific Pokémon (added to the base stats)">IVs</abbr> →
+                </label>
                 <label>atk
                     <input id=input-atk type=number min=0 max=15 value=15>
                 </label>
@@ -70,7 +82,9 @@
                 <label>hp
                     <input id=input-hp type=number min=0 max=15 value=15>
                 </label>
-                <input type=submit value=reload />
+                <label>
+                    <input type=submit value=reload />
+                </label>
             </form>
             <br>
             <p class="center no-top-m no-bottom-m">

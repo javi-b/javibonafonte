@@ -954,6 +954,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
         $("#legend").css("display", "initial");
 
     const stats = GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
+    LoadPokemongoStats(stats);
     LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
     UpdatesPokemongoMaxCPText(ivs);
     LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats);
@@ -1005,6 +1006,41 @@ function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
 
     const ivs = { atk: 15, def: 15, hp: 15 };
     return GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
+}
+
+/**
+ * Loads the section containing the base stats of the selected pokemon.
+ * 
+ * The bar indicator is based on the base stat number, with the ceiling being the
+ * base stat value from the pokemon with the strongest value for that particular
+ * base stat.
+ */
+function LoadPokemongoStats(stats) {
+
+    const atk_ceil = 345; // current top atk pkm: Deoxys - 345
+    const def_ceil = 396; // current top def pkm: Shuckle - 396
+    const hp_ceil = 496; // current top hp pkm: Blissey - 496
+
+    const atk = stats.base_attack;
+    const def = stats.base_defense;
+    const hp = stats.base_stamina;
+
+    let atk_html = "atk <abbr title=" + atk + ">";
+    let def_html = "def <abbr title=" + def + ">";
+    let hp_html = "hp <abbr title=" + hp + ">";
+
+    for (let i = 1; i <= 5; i++) {
+        atk_html += (i * atk_ceil / 6 < atk)
+            ? "█"  : ((i * atk_ceil / 6 - atk_ceil / 12 < atk) ? "▓" : "░");
+        def_html += (i * def_ceil / 6 < def)
+            ? "█"  : ((i * def_ceil / 6 - def_ceil / 12 < def) ? "▓" : "░");
+        hp_html += (i * hp_ceil / 6 < hp)
+            ? "█"  : ((i * hp_ceil / 6 - hp_ceil / 12 < hp) ? "▓" : "░");
+    }
+
+    $("#stat-atk").html(atk_html);
+    $("#stat-def").html(def_html);
+    $("#stat-hp").html(hp_html);
 }
 
 /**
