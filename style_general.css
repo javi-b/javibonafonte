@@ -129,6 +129,10 @@ abbr[title] {
     user-select: none;
 }
 
+.monospace {
+    font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
+}
+
 .invisible { display: none; }
 
 .small-text { font-size: 90%; }

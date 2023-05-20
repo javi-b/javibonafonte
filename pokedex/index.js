@@ -1017,6 +1017,8 @@ function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
  */
 function LoadPokemongoStats(stats) {
 
+    const is_macintosh = window.navigator.userAgent.includes("Macintosh");
+
     const atk_ceil = 345; // current top atk pkm: Deoxys - 345
     const def_ceil = 396; // current top def pkm: Shuckle - 396
     const hp_ceil = 496; // current top hp pkm: Blissey - 496
@@ -1025,22 +1027,34 @@ function LoadPokemongoStats(stats) {
     const def = stats.base_defense;
     const hp = stats.base_stamina;
 
-    let atk_html = "atk <abbr title=" + atk + ">";
-    let def_html = "def <abbr title=" + def + ">";
-    let hp_html = "hp <abbr title=" + hp + ">";
+    let atk_html = "atk <abbr class=ascii-bar title=" + atk + ">";
+    let def_html = "def <abbr class=ascii-bar title=" + def + ">";
+    let hp_html = "hp <abbr class=ascii-bar title=" + hp + ">";
+
+    const gray_ch = (is_macintosh) ? "▒" : "▓";
 
     for (let i = 1; i <= 5; i++) {
         atk_html += (i * atk_ceil / 6 < atk)
-            ? "█"  : ((i * atk_ceil / 6 - atk_ceil / 12 < atk) ? "▓" : "░");
+            ? "█"  : ((i * atk_ceil / 6 - atk_ceil / 12 < atk)
+                ? gray_ch : "░");
         def_html += (i * def_ceil / 6 < def)
-            ? "█"  : ((i * def_ceil / 6 - def_ceil / 12 < def) ? "▓" : "░");
+            ? "█"  : ((i * def_ceil / 6 - def_ceil / 12 < def)
+                ? gray_ch : "░");
         hp_html += (i * hp_ceil / 6 < hp)
-            ? "█"  : ((i * hp_ceil / 6 - hp_ceil / 12 < hp) ? "▓" : "░");
+            ? "█"  : ((i * hp_ceil / 6 - hp_ceil / 12 < hp)
+                ? gray_ch : "░");
     }
+
+    atk_html += "</abbr>";
+    def_html += "</abbr>";
+    hp_html += "</abbr>";
 
     $("#stat-atk").html(atk_html);
     $("#stat-def").html(def_html);
     $("#stat-hp").html(hp_html);
+
+    if (is_macintosh)
+        $(".ascii-bar").addClass("monospace");
 }
 
 /**
