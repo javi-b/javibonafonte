@@ -1718,7 +1718,7 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
             // sorts array
            str_pokemons.sort(function compareFn(a , b) {
-               return (a.rat > b.rat);
+               return ((a.rat > b.rat) || - (a.rat < b.rat));
            });
         }
     }
