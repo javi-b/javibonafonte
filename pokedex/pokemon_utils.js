@@ -474,6 +474,16 @@ function GetFormText(pokemon_id, form) {
 /**
  * Gets the x and y coordinates for a specific pokemon in the pokemon icons
  * spritesheet.
+ * 
+ * TODO:
+ * - meloetta, hoopa, keldeo, giratina, kyurem, zacian, zamazenta
+ * - thundurus, landorus, tornadus
+ * - muk, rapidash, exeggutor, raichu, golem, dugtrio, sandslash
+ * - slowbro
+ * - zapdos, moltres, articuno
+ * - avalugg, braviary, arcanine, qwilfish
+ * - genesect, florges, rotom, gourgeist
+ * - lycanroc, pyroar, gastrodon, oricorio, jellicent
  */
 function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
 
@@ -482,6 +492,7 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     col = 0, row = 0;
 
     if (mega) {
+
         switch (pokemon_id) {
         case 3: // Venusaur
             col = 0, row = 105;
@@ -626,6 +637,24 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
             break;
         case 719: // Diancie
             col = 1, row = 109;
+            break;
+        }
+
+    } else if (pokemon_id == 555) { // Darmanitan
+
+        switch (form) {
+        case "Standard":
+            col = pokemon_id % NUM_COLS;
+            row = Math.floor(pokemon_id / NUM_COLS);
+            break;
+        case "Zen":
+            col = 9, row = 89;
+            break;
+        case "Galarian_standard":
+            col = 8, row = 99;
+            break;
+        case "Galarian_zen":
+            col = 9, row = 99;
             break;
         }
 
