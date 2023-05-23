@@ -1975,8 +1975,7 @@ function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
             const p = str_pokemons[row_i];
 
             const name = pogoapi_names[p.id].name;
-            const icon_x = (p.id % 12) * -40;
-            const icon_y = Math.floor(p.id / 12) * -30;
+            const coords = GetPokemonIconCoords(p.id, p.form, p.mega, p.mega_y);
             const can_be_mega_y = p.id == 6 || p.id == 150; 
             const primal = p.mega && (p.id == 382 || p.id == 383);
             const form_text = GetFormText(p.id, p.form);
@@ -1986,8 +1985,8 @@ function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
                 + "<a class='' onclick='LoadPokemonAndUpdateURL(" + p.id
                 + ",\"" + p.form + "\"," + p.mega + "," + p.mega_y + ")'>"
                 + "<span class=pokemon-icon style='background-image:url("
-                + icons_url + ");background-position:" + icon_x + "px "
-                + icon_y + "px'></span><b>"
+                + icons_url + ");background-position:" + coords.x + "px "
+                + coords.y + "px'></span><b>"
                 + ((primal) ? ("Primal ") : ((p.mega) ? "Mega " : " "))
                 + ((p.shadow)
                     ? "<span class=shadow-text>Shadow</span> " : "")

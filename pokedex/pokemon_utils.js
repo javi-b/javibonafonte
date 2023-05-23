@@ -470,3 +470,169 @@ function GetFormText(pokemon_id, form) {
 
     return "";
 }
+
+/**
+ * Gets the x and y coordinates for a specific pokemon in the pokemon icons
+ * spritesheet.
+ */
+function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
+
+    const NUM_COLS = 12, W = 40, H = 30;
+
+    col = 0, row = 0;
+
+    if (mega) {
+        switch (pokemon_id) {
+        case 3: // Venusaur
+            col = 0, row = 105;
+            break;
+        case 6: // Charizard
+            col = (mega_y) ? 2 : 1, row = 105;
+            break;
+        case 9: // Blastoise
+            col = 3, row = 105;
+            break;
+        case 15: // Beedrill
+            col = 4, row = 105;
+            break;
+        case 18: // Pidgeot
+            col = 5, row = 105;
+            break;
+        case 65: // Alakazam
+            col = 6, row = 105;
+            break;
+        case 80: // Slowbro
+            col = 7, row = 105;
+            break;
+        case 94: // Gengar
+            col = 8, row = 105;
+            break;
+        case 115: // Kangaskhan
+            col = 9, row = 105;
+            break;
+        case 127: // Pinsir
+            col = 10, row = 105;
+            break;
+        case 130: // Gyarados
+            col = 11, row = 105;
+            break;
+        case 142: // Aerodactyl
+            col = 0, row = 106;
+            break;
+        case 150: // Mewtwo
+            col = (mega_y) ? 2 : 1, row = 106;
+            break;
+        case 181: // Ampharos
+            col = 3, row = 106;
+            break;
+        case 208: // Steelix
+            col = 4, row = 106;
+            break;
+        case 212: // Scizor
+            col = 5, row = 106;
+            break;
+        case 214: // Heracross
+            col = 6, row = 106;
+            break;
+        case 229: // Houndoom
+            col = 7, row = 106;
+            break;
+        case 248: // Tyranitar
+            col = 8, row = 106;
+            break;
+        case 254: // Sceptile
+            col = 9, row = 106;
+            break;
+        case 257: // Blaziken
+            col = 10, row = 106;
+            break;
+        case 260: // Swampert
+            col = 11, row = 106;
+            break;
+        case 282: // Gardevoir
+            col = 0, row = 107;
+            break;
+        case 302: // Sableye
+            col = 1, row = 107;
+            break;
+        case 303: // Mawile
+            col = 2, row = 107;
+            break;
+        case 306: // Aggron
+            col = 3, row = 107;
+            break;
+        case 308: // Medicham
+            col = 4, row = 107;
+            break;
+        case 310: // Manectric
+            col = 5, row = 107;
+            break;
+        case 319: // Sharpedo
+            col = 6, row = 107;
+            break;
+        case 323: // Camerupt
+            col = 7, row = 107;
+            break;
+        case 334: // Altaria
+            col = 8, row = 107;
+            break;
+        case 354: // Banette
+            col = 9, row = 107;
+            break;
+        case 359: // Absol
+            col = 10, row = 107;
+            break;
+        case 362: // Glalie
+            col = 11, row = 107;
+            break;
+        case 373: // Salamence
+            col = 0, row = 108;
+            break;
+        case 376: // Metagross
+            col = 1, row = 108;
+            break;
+        case 380: // Latias
+            col = 2, row = 108;
+            break;
+        case 381: // Latios
+            col = 3, row = 108;
+            break;
+        case 382: // Kyogre
+            col = 4, row = 108;
+            break;
+        case 383: // Groudon
+            col = 5, row = 108;
+            break;
+        case 384: // Rayquaza
+            col = 6, row = 108;
+            break;
+        case 428: // Lopunny
+            col = 7, row = 108;
+            break;
+        case 445: // Garchomp
+            col = 8, row = 108;
+            break;
+        case 448: // Lucario
+            col = 9, row = 108;
+            break;
+        case 460: // Abomasnow
+            col = 10, row = 108;
+            break;
+        case 475: // Gallade
+            col = 11, row = 108;
+            break;
+        case 531: // Audino
+            col = 0, row = 109;
+            break;
+        case 719: // Diancie
+            col = 1, row = 109;
+            break;
+        }
+
+    } else {
+        col = pokemon_id % NUM_COLS;
+        row = Math.floor(pokemon_id / NUM_COLS);
+    }
+
+    return {x: col * -W, y: row * -H};
+}
