@@ -22,18 +22,13 @@ table {
     border-collapse: collapse;
 }
 
-th {
-    background-color: var(--col-so-off);
-}
-
 th, td {
     text-align: center;
     padding: 0.25em 0;
 }
 
-tr:nth-child(even) {
-    background-color: WhiteSmoke;
-}
+.table-bg th { background-color: var(--col-so-off); }
+.table-bg tr:nth-child(even) { background-color: WhiteSmoke; }
 
 .pokefont {
     font-family: Pokemon;
@@ -240,12 +235,13 @@ tr:nth-child(even) {
     text-overflow: ellipsis;
 }
 
-#metric-er, #metric-eer, #metric-ter {
+.settings-opt {
     cursor: pointer;
-    text-decoration: underline;
 }
 
-#metric-eer { font-weight: bold; }
+.settings-opt-sel {
+    font-weight: bold;
+}
 
 #strongest-button-c {
     position: relative;
@@ -334,33 +330,39 @@ tr:nth-child(even) {
 
 #not-released { display: none; }
 
-#pokemongo-stats, #ivs-form {
-    width: 50%;
-    display: table;
-    table-layout: fixed;
-}
+#base-stats, #stats-form table { width: 100%; }
+#base-stats tr > *:nth-child(1), #stats-form tr > *:nth-child(1) { width: 2.5%; }
+#base-stats tr > *:nth-child(2), #stats-form tr > *:nth-child(2) { width: 6%; }
+#base-stats tr > *:nth-child(3), #stats-form tr > *:nth-child(3) { width: 4%; }
+#base-stats tr > *:nth-child(4), #stats-form tr > *:nth-child(4) { width: 10%; }
+#base-stats tr > *:nth-child(5), #stats-form tr > *:nth-child(5) { width: 2.5%; }
+#base-stats tr > *:nth-child(6), #stats-form tr > *:nth-child(6) { width: 6%; }
+#base-stats tr > *:nth-child(7), #stats-form tr > *:nth-child(7) { width: 4%; }
+#base-stats tr > *:nth-child(8), #stats-form tr > *:nth-child(8) { width: 10%; }
+#base-stats tr > *:nth-child(9), #stats-form tr > *:nth-child(9) { width: 10%; }
+#base-stats tr > *:nth-child(10), #stats-form tr > *:nth-child(10) { width: 10%; }
+#base-stats tr > *:nth-child(11), #stats-form tr > *:nth-child(11) { width: 10%; }
+#base-stats tr > *:nth-child(12), #stats-form tr > *:nth-child(12) { width: 25%; }
 
-#pokemongo-stats th, #pokemongo-stats tr {
-    background-color: initial;
-}
-
-#ivs-form > label {
+#stats-form > label {
     padding: 0.25em 0;
     display: table-cell;
 }
 
-#ivs-form input[type="number"] {
+#stats-form input[type="number"] {
     width: 3em;
     border: none;
     border: 1px solid var(--col-off);
     font-size: 12.6px;
 }
 
-#ivs-form input[type="number"]:focus {
+#stats-form input[type="number"]:focus {
     outline: none;
 }
 
-#ivs-form input[type="submit"] {
+#stats-form #input-lvl { width: 4em; }
+
+#stats-form input[type="submit"] {
     cursor: pointer;
     font-family: inherit;
     background-color: var(--col-so-off);
@@ -369,7 +371,7 @@ tr:nth-child(even) {
     font-size: 12.6px;
 }
 
-#ivs-form input[type="submit"]:focus {
+#stats-form input[type="submit"]:focus {
     outline: 1px solid var(--col-off);
 }
 

@@ -31,8 +31,6 @@ const pogo_pngs_url = pokemon_resources_url + "pogo-256/"
 const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
 const icons_url = pokemon_resources_url + "pokemonicons-sheet.png";
 
-const cpm_lvl40 = 0.7903; // cp multiplier at level 40
-
 const loading_max_val = 13; // mx number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
 let finished_loading = false; // whether page finished loading all files
@@ -57,6 +55,7 @@ METRICS.add("ER");
 METRICS.add("EER");
 METRICS.add("TER");
 let settings_metric = "EER";
+let settings_default_level = 40;
 
 // whether pokemon go table moves are currenlty being loaded asyncronously,
 // so no new pokemon should be loaded for now
@@ -170,9 +169,11 @@ function Main() {
     $("#metric-er").click(function() { SetMetric("ER"); });
     $("#metric-eer").click(function() { SetMetric("EER"); });
     $("#metric-ter").click(function() { SetMetric("TER"); });
+    $("#lvl-40").click(function() { SetDefaultLevel(40); });
+    $("#lvl-50").click(function() { SetDefaultLevel(50); });
 
-    $("#ivs-form").submit(function(e) {
-        UpdatePokemonIVsAndURL();
+    $("#stats-form").submit(function(e) {
+        UpdatePokemonStatsAndURL();
         return false;
     });
 
@@ -297,25 +298,52 @@ function SetMetric(metric) {
     // sets global variable
     settings_metric = metric;
 
-    // sets settings text weight
-    $("#metric-er").css("font-weight", "normal");
-    $("#metric-eer").css("font-weight", "normal");
-    $("#metric-ter").css("font-weight", "normal");
+    // sets settings options selected class
+    $("#metric-er").removeClass("settings-opt-sel");
+    $("#metric-eer").removeClass("settings-opt-sel");
+    $("#metric-ter").removeClass("settings-opt-sel");
     switch (settings_metric) {
         case "ER":
-            $("#metric-er").css("font-weight", "bold");
+            $("#metric-er").addClass("settings-opt-sel");
             break;
         case "EER":
-            $("#metric-eer").css("font-weight", "bold");
+            $("#metric-eer").addClass("settings-opt-sel");
             break;
         case "TER":
-            $("#metric-ter").css("font-weight", "bold");
+            $("#metric-ter").addClass("settings-opt-sel");
             break;
     }
 
     // sets pokemongo table header
     $("#table-metric-header").html(settings_metric);
     $("#table-metric-header-sh").html(settings_metric + "<br>(Shadow)");
+
+    // reload page
+    CheckURLAndAct();
+}
+
+/**
+ * Sets the default level setting and, if necessary, updates the page accordingly.
+ */
+function SetDefaultLevel(level) {
+
+    if (level != 40 && level != 50)
+        return;
+
+    // sets global variable
+    settings_default_level = level;
+
+    // sets settings options selected class
+    $("#lvl-40").removeClass("settings-opt-sel");
+    $("#lvl-50").removeClass("settings-opt-sel");
+    switch (level) {
+        case 40:
+            $("#lvl-40").addClass("settings-opt-sel");
+            break;
+        case 50:
+            $("#lvl-50").addClass("settings-opt-sel");
+            break;
+    }
 
     // reload page
     CheckURLAndAct();
@@ -535,6 +563,10 @@ function CheckURLAndAct() {
         if (params.has("y"))
             mega_y = true;
 
+        let level = null;
+        if (params.has("lvl"))
+            level = Number(params.get("lvl"));
+
         let ivs = null;
         if (params.has("ivs")) {
             let ivs_str = params.get("ivs");
@@ -553,7 +585,7 @@ function CheckURLAndAct() {
         }
 
         // loads pokemon
-        LoadPokemon(pkm, form, mega, mega_y, ivs);
+        LoadPokemon(pkm, form, mega, mega_y, level, ivs);
 
         return;
     }
@@ -585,12 +617,12 @@ function CheckURLAndAct() {
  * pokemon being loaded.
  */
 function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
-        mega_y = false, ivs = null) {
+        mega_y = false, level = null, ivs = null) {
 
     if (!finished_loading || loading_pogo_moves)
         return false;
 
-    LoadPokemon(clean_input, form, mega, mega_y, ivs);
+    LoadPokemon(clean_input, form, mega, mega_y, level, ivs);
 
     let url = "?p=" + clean_input;
 
@@ -600,6 +632,8 @@ function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
         url += "&m";
     if (mega_y)
         url += "&y";
+    if (level)
+        url += "&lvl=" + String(level);
     if (ivs) {
         url += "&ivs="
             + String(ivs.atk).padStart(2, "0")
@@ -616,7 +650,7 @@ function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
  * Loads a pokemon page.
  */
 function LoadPokemon(clean_input, form = "def", mega = false,
-        mega_y = false, ivs = null) {
+        mega_y = false, level = null, ivs = null) {
 
     if (!finished_loading || loading_pogo_moves)
         return;
@@ -634,6 +668,13 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     // sets the default form
     if (form == "def")
         form = GetPokemonDefaultForm(pokemon_id);
+
+    // sets the default level
+    if (level == null)
+        level = settings_default_level;
+    
+    // sets level input value
+    $("#input-lvl").val(level);
 
     // sets the default ivs
     if (ivs == null)
@@ -724,7 +765,7 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     if ($("#pokemongo").css("display") == "none")
         $("#pokemongo").css("display", "initial");
 
-    LoadPokemongo(pokemon_id, form, mega, mega_y, ivs);
+    LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs);
 }
 
 /**
@@ -923,7 +964,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
 /**
  * Loads one pokemon data for the Pokemon GO section.
  */
-function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
+function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
 
     let released = pogoapi_released[pokemon_id];
     if (form != GetPokemonDefaultForm(pokemon_id)) {
@@ -953,10 +994,10 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
     if ($("#legend").css("display") == "none")
         $("#legend").css("display", "initial");
 
-    const stats = GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
-    LoadPokemongoStats(stats);
-    LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats);
-    UpdatesPokemongoMaxCPText(ivs);
+    const stats = GetPokemonStats(pokemon_id, form, mega, mega_y, level, ivs);
+    LoadPokemongoBaseStats(stats);
+    LoadPokemongoCP(stats);
+    UpdatePokemongoCPText(level, ivs);
     LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats);
 }
 
@@ -964,7 +1005,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, ivs) {
  * Gets the Pokemon GO stats of a specific pokemon when it is level 40
  * and it has some specific IV points.
  */
-function GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs) {
+function GetPokemonStats(pokemon_id, form, mega, mega_y, level, ivs) {
 
     let stats;
 
@@ -983,7 +1024,7 @@ function GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs) {
         }
     }
 
-    let cpm = cpm_lvl40;
+    let cpm = GetCPMForLevel(level);
     if (mega) {
         const cpm_override = pogoapi_mega.find(entry =>
                 entry.pokemon_id == pokemon_id).cp_multiplier_override;
@@ -999,13 +1040,14 @@ function GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs) {
 }
 
 /**
- * Gets the Pokemon GO stats of a specific pokemon when it is level 40
- * and it has the maximum IV points.
+ * Gets the Pokemon GO stats of a specific pokemon when it is the level set by
+ * the settings and it has the maximum IV points.
  */
-function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
+function GetMaxStats(pokemon_id, form, mega, mega_y) {
 
     const ivs = { atk: 15, def: 15, hp: 15 };
-    return GetLvl40Stats(pokemon_id, form, mega, mega_y, ivs);
+    return GetPokemonStats(pokemon_id, form, mega, mega_y,
+            settings_default_level, ivs);
 }
 
 /**
@@ -1015,7 +1057,7 @@ function GetLvl40MaxStats(pokemon_id, form, mega, mega_y) {
  * base stat value from the pokemon with the strongest value for that particular
  * base stat.
  */
-function LoadPokemongoStats(stats) {
+function LoadPokemongoBaseStats(stats) {
 
     const user_agent = window.navigator.userAgent;
     const is_apple = user_agent.includes("Macintosh")
@@ -1052,9 +1094,9 @@ function LoadPokemongoStats(stats) {
     def_html += "</abbr>";
     hp_html += "</abbr>";
 
-    $("#stat-atk").html(atk_html);
-    $("#stat-def").html(def_html);
-    $("#stat-hp").html(hp_html);
+    $("#base-stat-atk").html(atk_html);
+    $("#base-stat-def").html(def_html);
+    $("#base-stat-hp").html(hp_html);
 
     if (is_apple) {
         $(".ascii-bar").addClass("monospace");
@@ -1063,43 +1105,35 @@ function LoadPokemongoStats(stats) {
 }
 
 /**
- * Loads the section containing the maximum CP of the selected pokemon when
- * it is level 40.
+ * Loads the progress bar CP of the selected pokemon with its specific stats.
  */
-function LoadPokemongoMaxCP(pokemon_id, form, mega, mega_y, stats) {
+function LoadPokemongoCP(stats) {
 
-    const max_cp_40 = GetCP(stats);
-    let prgr_pct = max_cp_40 * 100 / 5000;
+    let cp = Math.floor(stats.atk * Math.pow(stats.def, 0.5)
+                * Math.pow(stats.hp, 0.5) / 10);
+    if (cp < 10)
+        cp = 10;
+
+    let prgr_pct = cp * 100 / 5000;
     if (prgr_pct > 100)
         prgr_pct = 100;
 
     const width = 100 - prgr_pct;
     $(".prgr-val").css("width", width + "%");
     $("#max-cp").text("CP ");
-    const bold_num = $("<b>" + max_cp_40 + "</b>");
+    const bold_num = $("<b>" + cp + "</b>");
     $("#max-cp").append(bold_num);
 }
 
 /**
- * Updates the text for pokemon max cp to match the IVs being used to
+ * Updates the text for pokemon max cp to match the level and IVs being used to
  * calculate it.
  */
-function UpdatesPokemongoMaxCPText(ivs) {
+function UpdatePokemongoCPText(level, ivs) {
 
     const pct = Math.round(100 * (ivs.atk + ivs.def + ivs.hp) / 45);
     $("#cp-text").text("with IVs " + ivs.atk + "/" + ivs.def + "/" + ivs.hp
-            + " (" + pct + "%) at level 40");
-}
-
-/**
- * Gets a pokemon CP in Pokemon GO with a specific set of stats.
- */
-function GetCP(stats) {
-
-    let max_cp = Math.floor(stats.atk * Math.pow(stats.def, 0.5)
-                * Math.pow(stats.hp, 0.5) / 10);
-
-    return ((max_cp >= 10) ? max_cp : 10);
+            + " (" + pct + "%) at level " + level);
 }
 
 /**
@@ -1486,10 +1520,10 @@ function SwapShiny(element) {
 }
 
 /**
- * Callback function for when pokemon IVs are updated.
- * Reloads the pokemon page and the url with the new specified IVs.
+ * Callback function for when pokemon stats are updated (level or/and IVs).
+ * Reloads the pokemon page and the url with the new specified stats.
  */
-function UpdatePokemonIVsAndURL() {
+function UpdatePokemonStatsAndURL() {
 
     const params = new URLSearchParams(location.search);
 
@@ -1510,12 +1544,14 @@ function UpdatePokemonIVsAndURL() {
         if (params.has("y"))
             mega_y = true;
 
+        let level = Number($("#input-lvl").val());
+
         let ivs = {};
         ivs.atk = parseInt($("#input-atk").val());
         ivs.def = parseInt($("#input-def").val());
         ivs.hp = parseInt($("#input-hp").val());
 
-        LoadPokemonAndUpdateURL(pkm, form, mega, mega_y, ivs);
+        LoadPokemonAndUpdateURL(pkm, form, mega, mega_y, level, ivs);
     }
 }
 
@@ -1864,7 +1900,7 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
 
     const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
 
-    const stats = GetLvl40MaxStats(pokemon_id, form, mega, mega_y);
+    const stats = GetMaxStats(pokemon_id, form, mega, mega_y);
     const atk = (shadow) ? (stats.atk * 6 / 5) : stats.atk;
     const def = (shadow) ? (stats.def * 5 / 6) : stats.def;
     const hp = stats.hp;
