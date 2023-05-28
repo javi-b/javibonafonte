@@ -474,16 +474,6 @@ function GetFormText(pokemon_id, form) {
 /**
  * Gets the x and y coordinates for a specific pokemon in the pokemon icons
  * spritesheet.
- * 
- * TODO:
- * - meloetta, hoopa, keldeo, giratina, kyurem, zacian, zamazenta
- * - thundurus, landorus, tornadus
- * - muk, rapidash, exeggutor, raichu, golem, dugtrio, sandslash
- * - slowbro
- * - zapdos, moltres, articuno
- * - avalugg, braviary, arcanine, qwilfish
- * - genesect, florges, rotom, gourgeist
- * - lycanroc, pyroar, gastrodon, oricorio, jellicent
  */
 function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
 
@@ -640,23 +630,128 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
             break;
         }
 
-    } else if (pokemon_id == 555) { // Darmanitan
+    } else if (pokemon_id == 26 && form == "Alola") { // Raichu
+        col = 1, row = 95;
 
-        switch (form) {
-        case "Standard":
-            col = pokemon_id % NUM_COLS;
-            row = Math.floor(pokemon_id / NUM_COLS);
-            break;
-        case "Zen":
+    } else if (pokemon_id == 28 && form == "Alola") { // Sandslash
+        col = 3, row = 95;
+
+    } else if (pokemon_id == 51 && form == "Alola") { // Dugtrio
+        col = 7, row = 95;
+
+    } else if (pokemon_id == 59 && form == "Hisuian") { // Arcanine
+        col = 3, row = 102;
+
+    } else if (pokemon_id == 76 && form == "Alola") { // Golem
+        col = 0, row = 96;
+
+    } else if (pokemon_id == 78 && form == "Galarian") { // Rapidash
+        col = 0, row = 99;
+
+    } else if (pokemon_id == 80 && form == "Galarian") { // Slowbro
+        col = 5, row = 101;
+
+    } else if (pokemon_id == 89 && form == "Alola") { // Muk
+        col = 2, row = 96;
+
+    } else if (pokemon_id == 103 && form == "Alola") { // Exeggutor
+        col = 3, row = 96;
+
+    } else if (pokemon_id == 144 && form == "Galarian") { // Articuno
+        col = 8, row = 101;
+    } else if (pokemon_id == 145 && form == "Galarian") { // Zapdos
+        col = 9, row = 101;
+    } else if (pokemon_id == 146 && form == "Galarian") { // Moltres
+        col = 10, row = 101;
+
+    } else if (pokemon_id == 199 && form == "Galarian") { // Slowking
+        col = 11, row = 101;
+
+    } else if (pokemon_id == 211 && form == "Hisuian") { // Qwilfish
+        col = 7, row = 102;
+
+    } else if (pokemon_id == 423 && form == "East_sea") { // Gastrodon
+        col = 11, row = 88;
+
+    } else if (pokemon_id == 479 && form == "Heat") { // Rotom
+        col = 2, row = 89;
+    } else if (pokemon_id == 479 && form == "Wash") { // Rotom
+        col = 4, row = 89;
+    } else if (pokemon_id == 479 && form == "Frost") { // Rotom
+        col = 1, row = 89;
+    } else if (pokemon_id == 479 && form == "Fan") { // Rotom
+        col = 0, row = 89;
+    } else if (pokemon_id == 479 && form == "Mow") { // Rotom
+        col = 3, row = 89;
+
+    } else if (pokemon_id == 487 && form == "Origin") { // Giratina
+        col = 5, row = 89;
+
+    } else if (pokemon_id == 555 && form == "Zen") { // Darmanitan
             col = 9, row = 89;
-            break;
-        case "Galarian_standard":
+    } else if (pokemon_id == 555 && form == "Galarian_standard") { // Darmanitan
             col = 8, row = 99;
-            break;
-        case "Galarian_zen":
+    } else if (pokemon_id == 555 && form == "Galarian_zen") { // Darmanitan
             col = 9, row = 99;
-            break;
-        }
+
+    } else if (pokemon_id == 593 && form == "Female") { // Jellicent
+        col = 5, row = 90;
+
+    } else if (pokemon_id == 628 && form == "Hisuian") { // Braviary
+        col = 1, row = 103;
+
+    } else if (pokemon_id == 641 && form == "Therian") { // Tornadus
+        col = 6, row = 90;
+    } else if (pokemon_id == 642 && form == "Therian") { // Thundurus
+        col = 7, row = 90;
+    } else if (pokemon_id == 645 && form == "Therian") { // Landorus
+        col = 8, row = 90;
+
+    } else if (pokemon_id == 646 && form == "White") { // Kyurem
+        col = 10, row = 90;
+    } else if (pokemon_id == 646 && form == "Black") { // Kyurem
+        col = 9, row = 90;
+
+    } else if (pokemon_id == 647 && form == "Resolute") { // Keldeo
+        col = 11, row = 90;
+
+    } else if (pokemon_id == 648 && form == "Pirouette") { // Meloetta
+        col = 0, row = 91;
+
+    } else if (pokemon_id == 668 && form == "Female") { // Pyroar
+        col = 8, row = 92;
+
+    } else if (pokemon_id == 671 && form == "Yellow") { // Florges
+        col = 9, row = 93;
+    } else if (pokemon_id == 671 && form == "Orange") { // Florges
+        col = 7, row = 93;
+    } else if (pokemon_id == 671 && form == "Blue") { // Florges
+        col = 6, row = 93;
+    } else if (pokemon_id == 671 && form == "White") { // Florges
+        col = 8, row = 93;
+
+    } else if (pokemon_id == 713 && form == "Hisuian") { // Avalugg
+        col = 4, row = 103;
+
+    } else if (pokemon_id == 720 && form == "Unbound") { // Hoopa
+        col = 10, row = 94;
+
+    } else if (pokemon_id == 741 && form == "Pompom") { // Oricorio
+        col = 8, row = 96;
+    } else if (pokemon_id == 741 && form == "Pau") { // Oricorio
+        col = 9, row = 96;
+    } else if (pokemon_id == 741 && form == "Sensu") { // Oricorio
+        col = 10, row = 96;
+
+    } else if (pokemon_id == 745 && form == "Midnight") { // Lycanroc
+        col = 11, row = 96;
+    } else if (pokemon_id == 745 && form == "Dusk") { // Lycanroc
+        col = 4, row = 98;
+
+    } else if (pokemon_id == 888 && form == "Crowned_sword") { // Zacian
+        col = 2, row = 101;
+    } else if (pokemon_id == 889 && form == "Crowned_shield") { // Zamazenta
+        col = 3, row = 101;
 
     } else {
         col = pokemon_id % NUM_COLS;
