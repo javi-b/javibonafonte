@@ -1349,7 +1349,7 @@ function GetDPS(types, atk, def, hp, fm_obj, cm_obj) {
     const dps = dps0 + ((cm_dps - fm_dps) / (cm_eps + fm_eps))
             * (0.5 - x / hp) * y;
 
-    return dps;
+    return ((dps < 0) ? 0 : dps);
 }
 
 /**
