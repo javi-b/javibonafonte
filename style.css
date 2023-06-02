@@ -1,2 +1,82 @@
 /* style.css */
 
+/**
+ * General
+ */
+
+a {
+    color: var(--col-main);
+}
+
+/**
+ * Specific
+ */
+
+#header {
+    margin: 50px 0;
+}
+
+.pages-hub {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    width: 750px;
+ }
+
+.pages-hub a { text-decoration: none; }
+
+.pages-hub > div {
+    margin: 25px;
+    width: 200px;
+    height: 250px;
+}
+
+.hub-label {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    font-size: 90%;
+}
+
+.hub-box {
+    height: 200px;
+    border: 1px solid var(--col-main);
+    border-radius: var(--border-radius);
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
+}
+
+.hub-desc {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+    font-size: 90%;
+}
+
+#hub-hanyu {
+    background: linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1));
+    vertical-align: middle;
+}
+
+#hub-hanyu span {
+    font-size: 80px;
+    line-height: 200px;
+    vertical-align: middle;
+}
+
+#hub-2021 {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_2021.png);
+}
+
+#hub-pokedex {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(https://raw.githubusercontent.com/javi-b/pokemon-resources/main/ani/mewtwo.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+#hub-2023 {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_2023.png);
+}
