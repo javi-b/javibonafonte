@@ -849,6 +849,9 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     } else if (pokemon_id == 28 && form == "Alola") { // Sandslash
         col = 3, row = 95;
 
+    } else if (pokemon_id == 38 && form == "Alola") { // Ninetales
+        col = 5, row = 95;
+
     } else if (pokemon_id == 51 && form == "Alola") { // Dugtrio
         col = 7, row = 95;
 
@@ -869,6 +872,9 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
 
     } else if (pokemon_id == 103 && form == "Alola") { // Exeggutor
         col = 3, row = 96;
+
+    } else if (pokemon_id == 110 && form == "Galarian") { // Weezing
+        col = 2, row = 99;
 
     } else if (pokemon_id == 144 && form == "Galarian") { // Articuno
         col = 8, row = 101;
