@@ -1777,7 +1777,7 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
         let is_strong_enough = false;
 
-        if (str_pokemons.length == 0) { // if array is empty...
+        if (str_pokemons.length < num_rows) { // if array isn't full...
 
             if (moveset.rat > 0)
                 is_strong_enough = true;
