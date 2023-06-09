@@ -1709,28 +1709,32 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
                 continue;
         }
 
+        const can_be_shadow = pogoapi_shadow[id];
+        const can_be_mega = local_mega[id];
         const forms = GetPokemonForms(id);
         const def_form = forms[0];
 
         // default form
         CheckIfStronger(id, def_form, false, false, false);
 
-        // other forms
-        for (let form_i = 1; form_i < forms.length; form_i++)
-            CheckIfStronger(id, forms[form_i], false, false, false);
+        // shadow
+        if (search_shadow && can_be_shadow)
+            CheckIfStronger(id, def_form, false, false, true);
 
         // mega(s)
-        const can_be_mega = local_mega[id];
         if (search_mega && can_be_mega) {
             CheckIfStronger(id, def_form, true, false, false);
             if (id == 6 || id == 150) // charizard and mewtwo
                 CheckIfStronger(id, def_form, true, true, false);
         }
 
-        // shadow
-        const can_be_shadow = pogoapi_shadow[id];
-        if (search_shadow && can_be_shadow)
-            CheckIfStronger(id, def_form, false, false, true);
+        // other forms
+        for (let form_i = 1; form_i < forms.length; form_i++) {
+            CheckIfStronger(id, forms[form_i], false, false, false);
+            // other forms and shadow
+            if (search_shadow && can_be_shadow)
+                CheckIfStronger(id, forms[form_i], false, false, true);
+        }
     }
 
     // converts map into array
@@ -1837,28 +1841,32 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
                 continue;
         }
 
+        const can_be_shadow = pogoapi_shadow[id];
+        const can_be_mega = local_mega[id];
         const forms = GetPokemonForms(id);
         const def_form = forms[0];
 
         // default form
         CheckIfStrongEnough(id, def_form, false, false, false);
 
-        // other forms
-        for (let form_i = 1; form_i < forms.length; form_i++)
-            CheckIfStrongEnough(id, forms[form_i], false, false, false);
+        // shadow
+        if (search_shadow && can_be_shadow)
+            CheckIfStrongEnough(id, def_form, false, false, true);
 
         // mega(s)
-        const can_be_mega = local_mega[id];
         if (search_mega && can_be_mega) {
             CheckIfStrongEnough(id, def_form, true, false, false);
             if (id == 6 || id == 150) // charizard and mewtwo
                 CheckIfStrongEnough(id, def_form, true, true, false);
         }
 
-        // shadow
-        const can_be_shadow = pogoapi_shadow[id];
-        if (search_shadow && can_be_shadow)
-            CheckIfStrongEnough(id, def_form, false, false, true);
+        // other forms
+        for (let form_i = 1; form_i < forms.length; form_i++) {
+            CheckIfStrongEnough(id, forms[form_i], false, false, false);
+            // other forms and shadow
+            if (search_shadow && can_be_shadow)
+                CheckIfStrongEnough(id, forms[form_i], false, false, true);
+        }
     }
 
     // reverses strongest pokemon array
