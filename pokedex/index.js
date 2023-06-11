@@ -31,7 +31,7 @@ const pogo_pngs_url = pokemon_resources_url + "pogo-256/"
 const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
 const icons_url = pokemon_resources_url + "pokemonicons-sheet.png";
 
-const loading_max_val = 13; // mx number of files that need to be loaded
+const loading_max_val = 12; // mx number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
 let finished_loading = false; // whether page finished loading all files
 
@@ -40,10 +40,9 @@ let local_alolan, local_galarian, local_mega, local_dws;
 // pokeapi current pokemon
 let pokeapi_current;
 // pogoapi json objects
-let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_evolutions,
-        pogoapi_stats, pogoapi_moves, pogoapi_max_cp, pogoapi_released,
-        pogoapi_alolan, pogoapi_galarian, pogoapi_shadow, pogoapi_mega,
-        pogoapi_fms, pogoapi_cms, pogoapi_rarity;
+let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_stats,
+        pogoapi_moves, pogoapi_released, pogoapi_shadow, pogoapi_mega,
+        pogoapi_fms, pogoapi_cms,  pogoapi_rarity;
 // pokemongo1 json objects
 let pkmgo1_fm, pkmgo1_cm;
 // game master json object
@@ -112,9 +111,10 @@ function Main() {
             });
     HttpGetAsync(pogoapi_url + "pokemon_types.json",
             function(response) { pogoapi_types = JSON.parse(response); });
+    /*
     HttpGetAsync(pogoapi_url + "pokemon_evolutions.json",
-            function(response) {
-                pogoapi_evolutions = JSON.parse(response); });
+            function(response) { pogoapi_evolutions = JSON.parse(response); });
+    */
     HttpGetAsync(pogoapi_url + "pokemon_stats.json",
             function(response) { pogoapi_stats = JSON.parse(response); });
     HttpGetAsync(pogoapi_url + "current_pokemon_moves.json",
@@ -850,50 +850,6 @@ function GetPokemonTypes(pokemon_id, form, mega, mega_y) {
     }
 
     return types;
-}
-
-/**
- * Gets array of ids from pokemon that are next evolutions of the
- * specified. This function is recursive, that is why the pokemon specified
- * is also returned in the array.
- */
-function GetNextEvolutions(pokemon_id) {
-
-    evolutions_ids = [ pokemon_id ];
-
-    const evolutions_entry = pogoapi_evolutions.find(entry =>
-            entry.pokemon_id == pokemon_id);
-
-    if (evolutions_entry) {
-        for (evolution of evolutions_entry.evolutions) {
-            evolutions_ids = evolutions_ids.concat(
-                    GetNextEvolutions(evolution.pokemon_id));
-        }
-    }
-
-    return evolutions_ids;
-}
-
-/**
- * Gets array of ids from pokemon that are previous evolutions of the
- * specified. This function is recursive, that is why the pokemon specified
- * is also returned in the array.
- */
-function GetPreviousEvolutions(pokemon_id) {
-
-    evolutions_ids = [ pokemon_id ];
-
-    pogoapi_evolutions.forEach(function(entry) {
-        for (evolution of entry.evolutions) {
-            if (evolution.pokemon_id == pokemon_id) {
-                evolutions_ids = evolutions_ids.concat(
-                        GetPreviousEvolutions(entry.pokemon_id));
-                break;
-            }
-        }
-    });
-
-    return evolutions_ids;
 }
 
 /**
