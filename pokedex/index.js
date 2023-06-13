@@ -25,11 +25,11 @@ const game_master_url = "https://raw.githubusercontent.com/PokeMiners/game_maste
 
 const pokemon_resources_url =
     "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
-const gifs_url = pokemon_resources_url + "ani/";
-const shiny_gifs_url = pokemon_resources_url + "ani-shiny/";
-const pogo_pngs_url = pokemon_resources_url + "pogo-256/"
-const shiny_pogo_pngs_url = pokemon_resources_url + "pogo-shiny-256/"
-const icons_url = pokemon_resources_url + "pokemonicons-sheet.png";
+const gifs_url = pokemon_resources_url + "graphics/ani/";
+const shiny_gifs_url = pokemon_resources_url + "graphics/ani-shiny/";
+const pogo_pngs_url = pokemon_resources_url + "graphics/pogo-256/"
+const shiny_pogo_pngs_url = pokemon_resources_url + "graphics/pogo-shiny-256/"
+const icons_url = pokemon_resources_url + "graphics/pokemonicons-sheet.png";
 
 const loading_max_val = 12; // mx number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
