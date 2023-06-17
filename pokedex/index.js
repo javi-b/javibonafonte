@@ -1,15 +1,8 @@
 /**
  * Author: Javi Bonafonte
  *
- * APIs used:
- * - https://pokeapi.co/docs/v2
- * - https://rapidapi.com/chewett/api/pokemon-go1/details
- * - https://pogoapi.net/documentation/
- *
  * TODO:
- * - Hisuian forms
- * - More forms... Arceus, Silvally, Minior, Necorzma, Magearma
- * - Add pogo stats, not just CP
+ * - More forms... Minior, Necorzma, Magearma
  * - Missing shinies: Yungoos, Castform forms (pokemonshowdown)
  */
 
@@ -17,36 +10,19 @@ $(document).ready(Main);
 
 // global constants and variables
 
-const pokeapi_url = "https://pokeapi.co/api/v2/";
-const pogoapi_url = "https://pogoapi.net/api/v1/";
-const pokemongo1_url = "https://pokemon-go1.p.rapidapi.com/";
-const pokemongo1_key = "a7236470dbmsheefb2d24399d84cp118c40jsn1f6c231dcf33";
-const game_master_url = "https://raw.githubusercontent.com/PokeMiners/game_masters/master/latest/latest.json"
+const JB_URL = "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
+const GIFS_URL = JB_URL + "graphics/ani/";
+const SHINY_GIFS_URL = JB_URL + "graphics/ani-shiny/";
+const POGO_PNGS_URL = JB_URL + "graphics/pogo-256/"
+const SHINY_POGO_PNGS_URL = JB_URL + "graphics/pogo-shiny-256/"
+const ICONS_URL = JB_URL + "graphics/pokemonicons-sheet.png";
 
-const pokemon_resources_url =
-    "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
-const gifs_url = pokemon_resources_url + "graphics/ani/";
-const shiny_gifs_url = pokemon_resources_url + "graphics/ani-shiny/";
-const pogo_pngs_url = pokemon_resources_url + "graphics/pogo-256/"
-const shiny_pogo_pngs_url = pokemon_resources_url + "graphics/pogo-shiny-256/"
-const icons_url = pokemon_resources_url + "graphics/pokemonicons-sheet.png";
-
-const loading_max_val = 12; // mx number of files that need to be loaded
+const LOADING_MAX_VAL = 5; // max number of files that need to be loaded
 let loading_val = 0; // number of files loaded so far
 let finished_loading = false; // whether page finished loading all files
 
-// local files json objects
-let local_alolan, local_galarian, local_mega, local_dws;
-// pokeapi current pokemon
-let pokeapi_current;
-// pogoapi json objects
-let pogoapi_names, pogoapi_max_id, pogoapi_types, pogoapi_stats,
-        pogoapi_moves, pogoapi_released, pogoapi_shadow, pogoapi_mega,
-        pogoapi_fms, pogoapi_cms,  pogoapi_rarity;
-// pokemongo1 json objects
-let pkmgo1_fm, pkmgo1_cm;
-// game master json object
-let game_master;
+// jb json objects
+let jb_names, jb_mega, jb_pkm, jb_max_id, jb_fm, jb_cm;
 
 // settings constants and variables
 const METRICS = new Set();
@@ -78,87 +54,20 @@ function Main() {
 
     $("#input").focus();
 
-    // local
-    /*
-    LocalGetAsync("data/alolan_pokemon.json",
+    // jb
+    HttpGetAsync(JB_URL + "pokemon_names.json",
+        function(response) { jb_names = JSON.parse(response); });
+    HttpGetAsync(JB_URL + "mega_pokemon.json",
+        function(response) { jb_mega = JSON.parse(response); });
+    HttpGetAsync(JB_URL + "pogo_pkm.json",
         function(response) {
-            local_alolan = JSON.parse(response);
-            IncreaseLoadingVal();
+            jb_pkm = JSON.parse(response);
+            jb_max_id = jb_pkm.at(-1).id;
         });
-    LocalGetAsync("data/galarian_pokemon.json",
-        function(response) {
-            local_galarian = JSON.parse(response);
-            IncreaseLoadingVal();
-        });
-    */
-    LocalGetAsync("data/mega_pokemon.json",
-        function(response) {
-            local_mega = JSON.parse(response);
-            IncreaseLoadingVal();
-        });
-    LocalGetAsync("data/damage_window_starts.json",
-        function(response) {
-            local_dws = JSON.parse(response);
-            IncreaseLoadingVal();
-        });
-
-    // pogoapi
-    HttpGetAsync(pogoapi_url + "pokemon_names.json",
-            function(response) {
-                pogoapi_names = JSON.parse(response);
-                pogoapi_max_id = pogoapi_names[Object.keys(pogoapi_names)
-                    [Object.keys(pogoapi_names).length - 1]].id;
-            });
-    HttpGetAsync(pogoapi_url + "pokemon_types.json",
-            function(response) { pogoapi_types = JSON.parse(response); });
-    /*
-    HttpGetAsync(pogoapi_url + "pokemon_evolutions.json",
-            function(response) { pogoapi_evolutions = JSON.parse(response); });
-    */
-    HttpGetAsync(pogoapi_url + "pokemon_stats.json",
-            function(response) { pogoapi_stats = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "current_pokemon_moves.json",
-            function(response) { pogoapi_moves = JSON.parse(response); });
-    /*
-    HttpGetAsync(pogoapi_url + "pokemon_max_cp.json",
-            function(response) { pogoapi_max_cp = JSON.parse(response); });
-    */
-    HttpGetAsync(pogoapi_url + "released_pokemon.json",
-            function(response) {pogoapi_released = JSON.parse(response);});
-    /*
-    HttpGetAsync(pogoapi_url + "pvp_fast_moves.json",
-            function(response) { fast_moves = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "pvp_charged_moves.json",
-            function(response) { charged_moves = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "alolan_pokemon.json",
-            function(response) { pogoapi_alolan = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "galarian_pokemon.json",
-            function(response) {pogoapi_galarian = JSON.parse(response);});
-    */
-    HttpGetAsync(pogoapi_url + "shadow_pokemon.json",
-            function(response) { pogoapi_shadow = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "mega_pokemon.json",
-            function(response) { pogoapi_mega = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "fast_moves.json",
-            function(response) { pogoapi_fms = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "charged_moves.json",
-            function(response) { pogoapi_cms = JSON.parse(response); });
-    HttpGetAsync(pogoapi_url + "pokemon_rarity.json",
-            function(response) { pogoapi_rarity = JSON.parse(response); });
-
-    // pokemongo1
-    /*
-    HttpGetAsyncPokemongo1(pokemongo1_url + "fast_moves.json",
-            function(response) { pkmgo1_fm = JSON.parse(response); });
-    HttpGetAsyncPokemongo1(pokemongo1_url + "charged_moves.json",
-            function(response) { pkmgo1_cm = JSON.parse(response); });
-    */
-
-    // game master
-    /*
-    HttpGetAsync(game_master_url,
-            function(response) { game_master = JSON.parse(response); });
-    */
+    HttpGetAsync(JB_URL + "pogo_fm.json",
+        function(response) { jb_fm = JSON.parse(response); });
+    HttpGetAsync(JB_URL + "pogo_cm.json",
+        function(response) { jb_cm = JSON.parse(response); });
 
     // event handlers
 
@@ -189,7 +98,7 @@ function Main() {
 }
 
 /**
- * Local asyncronous GET request.
+ * Local asynchronous GET request.
  */
 function LocalGetAsync(url, callback) {
 
@@ -202,19 +111,7 @@ function LocalGetAsync(url, callback) {
 }
 
 /**
- * Syncronous HTTP GET request. Returns the response.
- */
-function HttpGet(url) {
-
-    let xml_http = new XMLHttpRequest();
-    xml_http.open( "GET", url, false ); // false for synchronous request
-    xml_http.send(null);
-
-    return xml_http.response;
-}
-
-/**
- * Ayncronous HTTP GET request to a specific url and with a specific
+ * Asynchronous HTTP GET request to a specific url and with a specific
  * callback function.
  */
 function HttpGetAsync(url, callback) {
@@ -231,34 +128,13 @@ function HttpGetAsync(url, callback) {
 }
 
 /**
- * Asyncronous HTTP GET request to a url from the Pokemongo1 API. It uses
- * the key.
- */
-function HttpGetAsyncPokemongo1(url, callback) {
-
-    let xml_http = new XMLHttpRequest();
-    //xml_http.withCredentials = true;
-    xml_http.onreadystatechange = function() {
-        if (xml_http.readyState == 4 && xml_http.status == 200) {
-            callback(xml_http.response);
-            IncreaseLoadingVal();
-        }
-    }
-    xml_http.open("GET", url, true); // true for asynchronous
-    xml_http.setRequestHeader("X-RapidAPI-Host",
-            "pokemon-go1.p.rapidapi.com");
-    xml_http.setRequestHeader("X-RapidAPI-Key", pokemongo1_key);
-    xml_http.send(null);
-}
-
-/**
  * Increases value that represents number of files loaded so far
  * and updates its html loading bar on the page.
  */
 function IncreaseLoadingVal() {
 
     loading_val++;
-    let pct = 100 * loading_val / loading_max_val;
+    let pct = 100 * loading_val / LOADING_MAX_VAL;
     $("#loading-bar").css("width", pct + "%");
 
     // if finished loading...
@@ -433,7 +309,7 @@ function OnInputBlur(e) {
 function UpdateInputSuggestions() {
 
     // checks whether json object is available
-    if (!pogoapi_names)
+    if (!jb_names)
         return;
 
     selected_suggestion_i = -1;
@@ -447,12 +323,12 @@ function UpdateInputSuggestions() {
 
     if (input_len > 0) {
 
-        const pogoapi_names_keys = Object.keys(pogoapi_names);
-        for (key of pogoapi_names_keys) {
+        const jb_names_key = Object.keys(jb_names);
+        for (key of jb_names_key) {
 
-            const entry = pogoapi_names[key];
+            const entry = jb_names[key];
 
-            if (entry.id > pogoapi_max_id)
+            if (entry.id > jb_max_id)
                 continue;
 
             // whether input starts with a pokemon id
@@ -661,7 +537,7 @@ function LoadPokemon(clean_input, form = "def", mega = false,
         return;
 
     // sets the page title
-    const pokemon_name = pogoapi_names[pokemon_id].name;
+    const pokemon_name = jb_names[pokemon_id].name;
     document.title = "#" + pokemon_id + " " + pokemon_name
             + " - Palkia's Pokédex";
 
@@ -684,15 +560,6 @@ function LoadPokemon(clean_input, form = "def", mega = false,
     $("#input-atk").val(ivs.atk);
     $("#input-def").val(ivs.def);
     $("#input-hp").val(ivs.hp);
-
-    // pokeapi
-    /*
-    HttpGetAsync(pokeapi_url + "pokemon/" + pokemon_id,
-            function(response) {
-                pokeapi_current = JSON.parse(response);
-                LoadPokeapiSpecificElements();
-            });
-            */
 
     // empties the input
     $("#input").val("");
@@ -719,7 +586,7 @@ function LoadPokemon(clean_input, form = "def", mega = false,
                     GetPokemonDefaultForm(prev_pokemon_id)));
         }
         const next_pokemon_id = parseInt(pokemon_id) + i;
-        if (next_pokemon_id <= pogoapi_max_id) {
+        if (next_pokemon_id <= jb_max_id) {
             $("#next-containers").append(
                 GetPokemonContainer(next_pokemon_id, false,
                     GetPokemonDefaultForm(next_pokemon_id)));
@@ -730,7 +597,7 @@ function LoadPokemon(clean_input, form = "def", mega = false,
 
     let additional_cs = $("#additional-containers");
 
-    const can_be_mega = local_mega[pokemon_id];
+    const can_be_mega = jb_mega[pokemon_id];
 
     if (can_be_mega) {
         if (pokemon_id == 6 || pokemon_id == 150) { // charizard and mewtwo
@@ -769,32 +636,22 @@ function LoadPokemon(clean_input, form = "def", mega = false,
 }
 
 /**
- * Function that is triggered after the pokeapi data has been succesfully
- * received and, then, it is possible to load the elements that depend on
- * it.
- */
-function LoadPokeapiSpecificElements() {
-
-    console.log(pokeapi_current);
-}
-
-/**
- * Gets the pokemon id from a clean input (lowerscore alphanumeric).
+ * Gets the pokemon id from a clean input (lowercase alphanumeric).
  * The input could be the id itself or the pokemon name.
  * Returns 0 if it doesn't find it.
  */
 function GetPokemonId(clean_input) {
 
-    // chekcs for an id
-    if (/^\d+$/.test(clean_input)) { // if input is an intger
-        if (clean_input >= 1 && clean_input <= pogoapi_max_id)
+    // checks for an id
+    if (/^\d+$/.test(clean_input)) { // if input is an integer
+        if (clean_input >= 1 && clean_input <= jb_max_id)
             return parseInt(clean_input);
     }
 
     // checks for a name
     let pokemon_id = 0;
-    Object.keys(pogoapi_names).forEach(function (key) {
-        if (Clean(pogoapi_names[key].name) == clean_input)
+    Object.keys(jb_names).forEach(function (key) {
+        if (Clean(jb_names[key].name) == clean_input)
             pokemon_id = key;
     });
 
@@ -808,45 +665,40 @@ function GetPokemonId(clean_input) {
             return 32;
     }
 
-    if (pokemon_id > pogoapi_max_id)
+    if (pokemon_id > jb_max_id)
         return 0;
 
     return parseInt(pokemon_id);
 }
 
 /**
- * Gets array of specific pokemon types. Take into account form and whether
+ * Gets array of specific pokemon types. Takes into account form and whether
  * is mega.
  */
-function GetPokemonTypes(pokemon_id, form, mega, mega_y) {
+function GetPokemonTypesFromId(pokemon_id, form, mega, mega_y) {
+
+    let jb_pkm_obj = jb_pkm.find(entry =>
+            entry.id == pokemon_id && entry.form == form);
+    return (jb_pkm_obj) ? GetPokemonTypes(jb_pkm_obj, mega, mega_y) : [];
+}
+
+/**
+ * Gets array of specific pokemon types.
+ * 
+ * Receives the pokemon's jb object as an argument.
+ */
+function GetPokemonTypes(jb_pkm_obj, mega, mega_y) {
 
     types = [];
 
-    if (mega) {
-        // mega
-
-        const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
-        let types_entry;
-
-        if (can_be_mega_y) {
-            const form = (mega_y) ? "Y" : "X";
-            types_entry = pogoapi_mega.find(entry =>
-                    entry.pokemon_id == pokemon_id && entry.form == form);
-        } else {
-            types_entry = pogoapi_mega.find(entry =>
-                    entry.pokemon_id == pokemon_id);
-        }
-
-        if (types_entry)
-            types = types_entry.type;
-
+    if (mega_y) {
+        if (jb_pkm_obj.mega && jb_pkm_obj.mega[1])
+            types = jb_pkm_obj.mega[1].types;
+    } else if (mega) {
+        if (jb_pkm_obj.mega && jb_pkm_obj.mega[0])
+            types = jb_pkm_obj.mega[0].types;
     } else {
-        // non mega
-
-        const types_entry = pogoapi_types.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == form);
-        if (types_entry)
-            types = types_entry.type;
+        types = jb_pkm_obj.types;
     }
 
     return types;
@@ -858,11 +710,11 @@ function GetPokemonTypes(pokemon_id, form, mega, mega_y) {
 function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
         mega = false, mega_y = false) {
 
-    const pokemon_name = pogoapi_names[pokemon_id].name;
+    const pokemon_name = jb_names[pokemon_id].name;
     const clean_name = Clean(pokemon_name);
     const img_src_name = GetPokemonImgSrcName(pokemon_id, clean_name, form,
             mega, mega_y);
-    const img_src = gifs_url + img_src_name + ".gif";
+    const img_src = GIFS_URL + img_src_name + ".gif";
     const can_be_mega_y = pokemon_id == 6 || pokemon_id == 150; 
     const primal = mega && (pokemon_id == 382 || pokemon_id == 383);
     const form_text = GetFormText(pokemon_id, form);
@@ -906,7 +758,7 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
     pokemon_container_div.append(pokemon_name_p);
 
     // pokemon types
-    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
+    const types = GetPokemonTypesFromId(pokemon_id, form, mega, mega_y);
     const pokemon_types_div = $("<div class=pokemon-types></div>");
     for (type of types) {
         pokemon_types_div.append($("<img src=imgs/types/"
@@ -922,17 +774,13 @@ function GetPokemonContainer(pokemon_id, is_selected, form = "Normal",
  */
 function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
 
-    let released = pogoapi_released[pokemon_id];
-    if (form != GetPokemonDefaultForm(pokemon_id)) {
-        const pogoapi_form_moves_obj = pogoapi_moves.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == form);
-        released = released && pogoapi_form_moves_obj;
-    }
-    if (mega) {
-        const pogoapi_mega_obj = pogoapi_mega.find(entry =>
-            entry.pokemon_id == pokemon_id);
-        released = released && pogoapi_mega_obj;
-    }
+    let jb_pkm_obj = jb_pkm.find(entry =>
+            entry.id == pokemon_id && entry.form == form);
+    let released = true && jb_pkm_obj;
+    if (mega)
+        released = released && jb_pkm_obj.mega;
+    if (mega_y)
+        released = released && jb_pkm_obj.mega.length == 2;
 
     // if this pokemon is not released in pokemon go yet...
     if (!released) {
@@ -950,47 +798,35 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
     if ($("#legend").css("display") == "none")
         $("#legend").css("display", "initial");
 
-    const stats = GetPokemonStats(pokemon_id, form, mega, mega_y, level, ivs);
+    const stats = GetPokemonStats(jb_pkm_obj, mega, mega_y, level, ivs);
     LoadPokemongoBaseStats(stats);
     LoadPokemongoCP(stats);
     UpdatePokemongoCPText(level, ivs);
-    LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats);
+    LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats);
 }
 
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is level 40
  * and it has some specific IV points.
+ * 
+ * Receives the pokemon's jb object as an argument.
  */
-function GetPokemonStats(pokemon_id, form, mega, mega_y, level, ivs) {
+function GetPokemonStats(jb_pkm_obj, mega, mega_y, level, ivs) {
 
     let stats;
 
-    if (mega && mega_y) { // mega y
-        stats = pogoapi_mega.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == "Y").stats;
-    } else if (mega) { // mega x or normal mega
-        stats = pogoapi_mega.find(entry =>
-                entry.pokemon_id == pokemon_id).stats;
-    } else { // any form non mega
-        stats = pogoapi_stats.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == form);
-        if (!stats) {
-            stats = pogoapi_stats.find(entry =>
-                entry.pokemon_id == pokemon_id);
-        }
-    }
+    if (mega && mega_y) // mega y
+        stats = jb_pkm_obj.mega[1].stats;
+    else if (mega) // mega x or normal mega
+        stats = jb_pkm_obj.mega[0].stats;
+    else // any form non mega
+        stats = jb_pkm_obj.stats;
 
     let cpm = GetCPMForLevel(level);
-    if (mega) {
-        const cpm_override = pogoapi_mega.find(entry =>
-                entry.pokemon_id == pokemon_id).cp_multiplier_override;
-        if (cpm_override)
-            cpm = cpm_override;
-    }
 
-    stats.atk = (stats.base_attack + ivs.atk) * cpm;
-    stats.def = (stats.base_defense + ivs.def) * cpm;
-    stats.hp = (stats.base_stamina + ivs.hp) * cpm;
+    stats.atk = (stats.baseAttack + ivs.atk) * cpm;
+    stats.def = (stats.baseDefense + ivs.def) * cpm;
+    stats.hp = (stats.baseStamina + ivs.hp) * cpm;
 
     return stats;
 }
@@ -998,11 +834,13 @@ function GetPokemonStats(pokemon_id, form, mega, mega_y, level, ivs) {
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is the level set by
  * the settings and it has the maximum IV points.
+ * 
+ * Receives the pokemon's jb object as an argument.
  */
-function GetMaxStats(pokemon_id, form, mega, mega_y) {
+function GetMaxStats(jb_pkm_obj, mega, mega_y) {
 
     const ivs = { atk: 15, def: 15, hp: 15 };
-    return GetPokemonStats(pokemon_id, form, mega, mega_y,
+    return GetPokemonStats(jb_pkm_obj, mega, mega_y,
             settings_default_level, ivs);
 }
 
@@ -1024,9 +862,9 @@ function LoadPokemongoBaseStats(stats) {
     const def_ceil = 396; // current top def pkm: Shuckle - 396
     const hp_ceil = 496; // current top hp pkm: Blissey - 496
 
-    const atk = stats.base_attack;
-    const def = stats.base_defense;
-    const hp = stats.base_stamina;
+    const atk = stats.baseAttack;
+    const def = stats.baseDefense;
+    const hp = stats.baseStamina;
 
     let atk_html = "atk <abbr class=ascii-bar title=" + atk + ">";
     let def_html = "def <abbr class=ascii-bar title=" + def + ">";
@@ -1094,15 +932,17 @@ function UpdatePokemongoCPText(level, ivs) {
 
 /**
  * Loads the table in the Pokemon Go section including information about
- * the possible move combinations and their stats (dps, tdo, er).
+ * the possible move combinations and their ratings.
+ * 
+ * Receives the pokemon's jb object as an argument.
  */
-function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
+function LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats) {
 
     // whether can be shadow
-    const can_be_shadow = pogoapi_shadow[pokemon_id] && !mega;
+    const can_be_shadow = jb_pkm_obj.shadow && !mega;
 
     // types
-    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
+    const types = GetPokemonTypes(jb_pkm_obj, mega, mega_y);
 
     const atk = stats.atk;
     const def = stats.def;
@@ -1115,7 +955,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     // removes previous table rows
     $("#pokemongo-table tr:not(.table-header)").remove();
 
-    const moves = GetPokemongoMoves(pokemon_id, form);
+    const moves = GetPokemongoMoves(jb_pkm_obj);
     if (moves.length != 4)
         return;
 
@@ -1127,14 +967,14 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
     const all_fms = fms.concat(elite_fms);
     const all_cms = cms.concat(elite_cms);
 
-    // appends new table rows asyncronously (so that Mew loads fast)
+    // appends new table rows asynchronously (so that Mew loads fast)
     // each chunk of moves combinations with a specific fast move
-    // is appeneded in a different frame
+    // is appended in a different frame
 
     /**
      * Appends all the rows containing a specific fast move.
-     * Receives the index of the fast move and
-     * the callback function for when all chunks have been appended.
+     * Receives the index of the fast move and the callback function
+     * for when all chunks have been appended as arguments.
      */
     function AppendFMChunk(fm_i, callback) {
 
@@ -1142,7 +982,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
         const fm_is_elite = elite_fms.includes(fm);
 
         // gets the fast move object
-        const fm_obj = pogoapi_fms.find(entry => entry.name == fm);
+        const fm_obj = jb_fm.find(entry => entry.name == fm);
         if (!fm_obj) {
             fm_i++;
             if (fm_i < all_fms.length)
@@ -1159,7 +999,7 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
             const cm_is_elite = elite_cms.includes(cm);
 
             // gets the charged move object
-            const cm_obj = pogoapi_cms.find(entry => entry.name == cm);
+            const cm_obj = jb_cm.find(entry => entry.name == cm);
             if (!cm_obj)
                 continue;
 
@@ -1238,20 +1078,18 @@ function LoadPokemongoTable(pokemon_id, form, mega, mega_y, stats) {
 }
 
 /**
- * Gets array of two arrays. The specified Pokemon's fast moves and charged
- * moves. If the pokemon is not found, returns an empty array.
+ * Gets array of four arrays. The specified Pokemon's fast moves, elite fast
+ * moves, charged moves and elite charged moves.
+ * 
+ * Receives the pokemon's jb object as an argument.
  */
-function GetPokemongoMoves(pokemon_id, form) {
+function GetPokemongoMoves(jb_pkm_obj) {
 
-    //const entries = pogoapi_moves.filter(
-            //entry => entry.pokemon_id == pokemon_id);
-    const entry = pogoapi_moves.find(entry =>
-            entry.pokemon_id == pokemon_id && entry.form == form);
-
-    return ((entry)
-            ? [entry.fast_moves, entry.charged_moves,
-                entry.elite_fast_moves, entry.elite_charged_moves]
-            : []);
+    if (!jb_pkm_obj.fm && !jb_pkm_obj.cm)
+        return [];
+    return [jb_pkm_obj.fm, jb_pkm_obj.cm,
+            (jb_pkm_obj.elite_fm) ? jb_pkm_obj.elite_fm : [],
+            (jb_pkm_obj.elite_cm) ? jb_pkm_obj.elite_cm : []];
 }
 
 /**
@@ -1287,16 +1125,9 @@ function GetDPS(types, atk, def, hp, fm_obj, cm_obj) {
     let cm_eps = -cm_obj.energy_delta / (cm_obj.duration / 1000);
     // penalty to one-bar charged moves (they use more energy (cm_eps))
     if (cm_obj.energy_delta == -100) {
-        const dws_obj = local_dws.find(entry =>
-                Clean(entry.name) == Clean(cm));
-        if (dws_obj) {
-            const dws = dws_obj.damage_window_start;
-            cm_eps = (-cm_obj.energy_delta + 0.5 * fm_obj.energy_delta
-                    + 0.5 * y * dws) / (cm_obj.duration / 1000);
-        } else {
-            console.log("Couldn't find DamageWindowStart for Charged Move "
-                    + cm);
-        }
+        const dws = cm_obj.damage_window_start / 1000; // dws in seconds
+        cm_eps = (-cm_obj.energy_delta + 0.5 * fm_obj.energy_delta
+                + 0.5 * y * dws) / (cm_obj.duration / 1000);
     }
 
     // simple cycle DPS
@@ -1425,9 +1256,9 @@ function TryNextSrc(element) {
 
     const src = $(element).attr("src");
 
-    if (src.includes(gifs_url)) {
+    if (src.includes(GIFS_URL)) {
         // loads pogo-256 image
-        let next_src = src.replace(gifs_url, pogo_pngs_url);
+        let next_src = src.replace(GIFS_URL, POGO_PNGS_URL);
         next_src = next_src.replace(".gif", ".png");
         $(element).attr("src", next_src);
         $(element).css("width", "140px");
@@ -1455,20 +1286,20 @@ function SwapShiny(element) {
 
     let src = $(element).attr("src");
 
-    if (src.includes(gifs_url)) {
-        src = src.replace(gifs_url, shiny_gifs_url);
+    if (src.includes(GIFS_URL)) {
+        src = src.replace(GIFS_URL, SHINY_GIFS_URL);
         shiny_img.css("display", "initial");
 
-    } else if (src.includes(shiny_gifs_url)) {
-        src = src.replace(shiny_gifs_url, gifs_url);
+    } else if (src.includes(SHINY_GIFS_URL)) {
+        src = src.replace(SHINY_GIFS_URL, GIFS_URL);
         shiny_img.css("display", "none");
 
-    } else if (src.includes(pogo_pngs_url)) {
-        src = src.replace(pogo_pngs_url,shiny_pogo_pngs_url);
+    } else if (src.includes(POGO_PNGS_URL)) {
+        src = src.replace(POGO_PNGS_URL, SHINY_POGO_PNGS_URL);
         shiny_img.css("display", "initial");
 
-    } else if (src.includes(shiny_pogo_pngs_url)) {
-        src = src.replace(shiny_pogo_pngs_url,pogo_pngs_url);
+    } else if (src.includes(SHINY_POGO_PNGS_URL)) {
+        src = src.replace(SHINY_POGO_PNGS_URL, POGO_PNGS_URL);
         shiny_img.css("display", "none");
     }
 
@@ -1568,6 +1399,8 @@ function LoadStrongest(type = null) {
     $("#strongest-table tr:not(.table-header)").remove();
 
     // gets checkboxes filters
+    let search_unreleased =
+        $("#strongest input[value='unreleased']:checkbox").is(":checked");
     let search_mega =
         $("#strongest input[value='mega']:checkbox").is(":checked");
     let search_shadow =
@@ -1578,11 +1411,11 @@ function LoadStrongest(type = null) {
         $("#strongest input[value='elite']:checkbox").is(":checked");
 
     if (type) {
-        SetTableOfStrongestOfOneType(search_mega, search_shadow,
-                search_legendary, search_elite, type);
+        SetTableOfStrongestOfOneType(search_unreleased, search_mega,
+                search_shadow, search_legendary, search_elite, type);
     } else {
-        SetTableOfStrongestOfEachType(search_mega, search_shadow,
-                search_legendary, search_elite);
+        SetTableOfStrongestOfEachType(search_unreleased, search_mega,
+                search_shadow, search_legendary, search_elite);
     }
 }
 
@@ -1590,8 +1423,8 @@ function LoadStrongest(type = null) {
  * Searches the strongest pokemon of each type and sets the strongest
  * pokemon table with the result.
  */
-function SetTableOfStrongestOfEachType(search_mega, search_shadow,
-        search_legendary, search_elite) {
+function SetTableOfStrongestOfEachType(search_unreleased, search_mega,
+        search_shadow, search_legendary, search_elite) {
 
     // map of strongest pokemon and moveset found so far for each type
     let str_pokemons = new Map();
@@ -1600,10 +1433,12 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
      * Checks if the any of the strongest movesets of a specific pokemon
      * is stronger than any of the current strongest pokemon of each type.
      * If it is, updates the strongest pokemon map.
+     * 
+     * Receives the pokemon's jb object as an argument.
      */
-    function CheckIfStronger(id, form, mega, mega_y, shadow) {
+    function CheckIfStronger(jb_pkm_obj, mega, mega_y, shadow) {
 
-        const types_movesets = GetPokemonStrongestMovesets(id, form,
+        const types_movesets = GetPokemonStrongestMovesets(jb_pkm_obj,
                 mega, mega_y, shadow, search_elite);
 
         for (const type of POKEMON_TYPES) {
@@ -1631,7 +1466,8 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
 
                 // adds pokemon to array of strongest
                 const str_pokemon = {
-                    rat: moveset.rat, id: id, form: form,
+                    rat: moveset.rat, id: jb_pkm_obj.id,
+                    name: jb_pkm_obj.name, form: jb_pkm_obj.form,
                     mega: mega, mega_y: mega_y, shadow: shadow,
                     fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
                     cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
@@ -1644,52 +1480,56 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
 
     // searches for pokemons...
 
-    for (let id = 1; id <= pogoapi_max_id; id++) {
+    for (let id = 1; id <= jb_max_id; id++) {
 
-        // checks whether pokemon should be skipped
-        if (!search_legendary) {
-            const pogoapi_legendary_obj =
-                pogoapi_rarity["Legendary"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_legendary_obj)
-                continue;
-            const pogoapi_mythic_obj =
-                pogoapi_rarity["Mythic"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_mythic_obj)
-                continue;
-            const pogoapi_ultrabeast_obj =
-                pogoapi_rarity["Ultra beast"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_ultrabeast_obj)
-                continue;
-        }
-
-        const can_be_shadow = pogoapi_shadow[id];
-        const can_be_mega = local_mega[id];
         const forms = GetPokemonForms(id);
         const def_form = forms[0];
 
-        // default form
-        CheckIfStronger(id, def_form, false, false, false);
+        let jb_pkm_obj = jb_pkm.find(entry =>
+                entry.id == id && entry.form == def_form);
 
-        // shadow
-        if (search_shadow && can_be_shadow)
-            CheckIfStronger(id, def_form, false, false, true);
+        // checks whether pokemon should be skipped
+        // (not released or legendary when not allowed)
+        if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released
+                || !search_legendary && jb_pkm_obj.class) {
+            continue;
+        }
+
+        const can_be_shadow = jb_pkm_obj.shadow;
+        const can_be_mega = jb_pkm_obj.mega;
+
+        // default form
+        CheckIfStronger(jb_pkm_obj, false, false, false);
+
+        // shadow (except not released when it shouldn't)
+        if (search_shadow && can_be_shadow
+                && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+            CheckIfStronger(jb_pkm_obj, false, false, true);
+        }
 
         // mega(s)
         if (search_mega && can_be_mega) {
-            CheckIfStronger(id, def_form, true, false, false);
+            CheckIfStronger(jb_pkm_obj, true, false, false);
             if (id == 6 || id == 150) // charizard and mewtwo
-                CheckIfStronger(id, def_form, true, true, false);
+                CheckIfStronger(jb_pkm_obj, true, true, false);
         }
 
         // other forms
         for (let form_i = 1; form_i < forms.length; form_i++) {
-            CheckIfStronger(id, forms[form_i], false, false, false);
-            // other forms and shadow
-            if (search_shadow && can_be_shadow)
-                CheckIfStronger(id, forms[form_i], false, false, true);
+
+            jb_pkm_obj = jb_pkm.find(entry =>
+                    entry.id == id && entry.form == forms[form_i]);
+
+            // checks whether pokemon should be skipped (form not released)
+            if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released)
+                continue;
+
+            CheckIfStronger(jb_pkm_obj, false, false, false);
+            // other forms and shadow (except not released when it shouldn't)
+            if (search_shadow && can_be_shadow
+                    && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+                CheckIfStronger(jb_pkm_obj, false, false, true);
+            }
         }
     }
 
@@ -1711,8 +1551,8 @@ function SetTableOfStrongestOfEachType(search_mega, search_shadow,
  * The number of rows in the table is set to match the table with one
  * pokemon of each type, therefore, there are as many rows as pkm types.
  */
-function SetTableOfStrongestOfOneType(search_mega, search_shadow,
-        search_legendary, search_elite, type) {
+function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
+        search_shadow, search_legendary, search_elite, type) {
 
     const num_rows = POKEMON_TYPES.size;
 
@@ -1726,10 +1566,12 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
      *
      * The array is sorted every time so that it is always the weakest
      * pokemon in it that gets replaced.
+     * 
+     * Receives the pokemon's jb object as an argument.
      */
-    function CheckIfStrongEnough(id, form, mega, mega_y, shadow) {
+    function CheckIfStrongEnough(jb_pkm_obj, mega, mega_y, shadow) {
 
-        const types_movesets = GetPokemonStrongestMovesets(id, form,
+        const types_movesets = GetPokemonStrongestMovesets(jb_pkm_obj,
                 mega, mega_y, shadow, search_elite, type);
         if (!types_movesets.has(type))
             return;
@@ -1754,7 +1596,8 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
             // adds pokemon to array of strongest
             const str_pokemon = {
-                rat: moveset.rat, id: id, form: form,
+                rat: moveset.rat, id: jb_pkm_obj.id,
+                name: jb_pkm_obj.name, form: jb_pkm_obj.form,
                 mega: mega, mega_y: mega_y, shadow: shadow,
                 fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
                 cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
@@ -1776,52 +1619,56 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
 
     // searches for pokemons...
 
-    for (let id = 1; id <= pogoapi_max_id; id++) {
+    for (let id = 1; id <= jb_max_id; id++) {
 
-        // checks whether pokemon should be skipped
-        if (!search_legendary) {
-            const pogoapi_legendary_obj =
-                pogoapi_rarity["Legendary"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_legendary_obj)
-                continue;
-            const pogoapi_mythic_obj =
-                pogoapi_rarity["Mythic"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_mythic_obj)
-                continue;
-            const pogoapi_ultrabeast_obj =
-                pogoapi_rarity["Ultra beast"].find(entry =>
-                    entry.pokemon_id == id);
-            if (pogoapi_ultrabeast_obj)
-                continue;
-        }
-
-        const can_be_shadow = pogoapi_shadow[id];
-        const can_be_mega = local_mega[id];
         const forms = GetPokemonForms(id);
         const def_form = forms[0];
 
-        // default form
-        CheckIfStrongEnough(id, def_form, false, false, false);
+        let jb_pkm_obj = jb_pkm.find(entry =>
+                entry.id == id && entry.form == def_form);
 
-        // shadow
-        if (search_shadow && can_be_shadow)
-            CheckIfStrongEnough(id, def_form, false, false, true);
+        // checks whether pokemon should be skipped
+        // (not released or legendary when not allowed)
+        if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released
+                || !search_legendary && jb_pkm_obj.class) {
+            continue;
+        }
+
+        const can_be_shadow = jb_pkm_obj.shadow;
+        const can_be_mega = jb_pkm_obj.mega;
+
+        // default form
+        CheckIfStrongEnough(jb_pkm_obj, false, false, false);
+
+        // shadow (except not released when it shouldn't)
+        if (search_shadow && can_be_shadow
+                && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+            CheckIfStrongEnough(jb_pkm_obj, false, false, true);
+        }
 
         // mega(s)
         if (search_mega && can_be_mega) {
-            CheckIfStrongEnough(id, def_form, true, false, false);
+            CheckIfStrongEnough(jb_pkm_obj, true, false, false);
             if (id == 6 || id == 150) // charizard and mewtwo
-                CheckIfStrongEnough(id, def_form, true, true, false);
+                CheckIfStrongEnough(jb_pkm_obj, true, true, false);
         }
 
         // other forms
         for (let form_i = 1; form_i < forms.length; form_i++) {
-            CheckIfStrongEnough(id, forms[form_i], false, false, false);
-            // other forms and shadow
-            if (search_shadow && can_be_shadow)
-                CheckIfStrongEnough(id, forms[form_i], false, false, true);
+
+            jb_pkm_obj = jb_pkm.find(entry =>
+                    entry.id == id && entry.form == forms[form_i]);
+
+            // checks whether pokemon should be skipped (form not released)
+            if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released)
+                continue;
+
+            CheckIfStrongEnough(jb_pkm_obj, false, false, false);
+            // other forms and shadow (except not released when it shouldn't)
+            if (search_shadow && can_be_shadow
+                    && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+                CheckIfStrongEnough(jb_pkm_obj, false, false, true);
+            }
         }
     }
 
@@ -1836,40 +1683,36 @@ function SetTableOfStrongestOfOneType(search_mega, search_shadow,
  * Gets map of a specific pokemon's strongest movesets for each type.
  * If the 'search_type' param is specified, only tries to find movesets
  * of that type.
+ * 
+ * Receives the pokemon's jb object as an argument.
  */
-function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
-        shadow, search_elite, search_type = null) {
+function GetPokemonStrongestMovesets(jb_pkm_obj, mega, mega_y, shadow,
+        search_elite, search_type = null) {
 
     let types_movesets = new Map();
 
     // checks whether this pokemon is actually released,
     // and if not, returns empty
 
-    let released = pogoapi_released[pokemon_id];
-    if (form != GetPokemonDefaultForm(pokemon_id)) {
-        const pogoapi_form_moves_obj = pogoapi_moves.find(entry =>
-                entry.pokemon_id == pokemon_id && entry.form == form);
-        released = released && pogoapi_form_moves_obj;
-    }
-    if (mega) {
-        const pogoapi_mega_obj = pogoapi_mega.find(entry =>
-            entry.pokemon_id == pokemon_id);
-        released = released && pogoapi_mega_obj;
-    }
+    let released = true && jb_pkm_obj;
+    if (mega)
+        released = released && jb_pkm_obj.mega;
+    if (mega_y)
+        released = released && jb_pkm_obj.mega.length == 2;
 
     if (!released)
         return types_movesets;
 
     // gets the necessary data to make the rating calculations
 
-    const types = GetPokemonTypes(pokemon_id, form, mega, mega_y);
+    const types = GetPokemonTypes(jb_pkm_obj, mega, mega_y);
 
-    const stats = GetMaxStats(pokemon_id, form, mega, mega_y);
+    const stats = GetMaxStats(jb_pkm_obj, mega, mega_y);
     const atk = (shadow) ? (stats.atk * 6 / 5) : stats.atk;
     const def = (shadow) ? (stats.def * 5 / 6) : stats.def;
     const hp = stats.hp;
 
-    const moves = GetPokemongoMoves(pokemon_id, form);
+    const moves = GetPokemongoMoves(jb_pkm_obj);
     if (moves.length != 4)
         return types_movesets;
 
@@ -1891,7 +1734,7 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
             continue;
 
         // gets the fast move object
-        const fm_obj = pogoapi_fms.find(entry => entry.name == fm);
+        const fm_obj = jb_fm.find(entry => entry.name == fm);
         if (!fm_obj)
             continue;
 
@@ -1908,7 +1751,7 @@ function GetPokemonStrongestMovesets(pokemon_id, form, mega, mega_y,
                 continue;
 
             // gets the charged move object
-            const cm_obj = pogoapi_cms.find(entry => entry.name == cm);
+            const cm_obj = jb_cm.find(entry => entry.name == cm);
             if (!cm_obj)
                 continue;
 
@@ -1974,7 +1817,7 @@ function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
 
             const p = str_pokemons[row_i];
 
-            const name = pogoapi_names[p.id].name;
+            const name = p.name;
             const coords = GetPokemonIconCoords(p.id, p.form, p.mega, p.mega_y);
             const can_be_mega_y = p.id == 6 || p.id == 150; 
             const primal = p.mega && (p.id == 382 || p.id == 383);
@@ -1985,7 +1828,7 @@ function SetStrongestTableFromArray(str_pokemons, num_rows = null) {
                 + "<a class='' onclick='LoadPokemonAndUpdateURL(" + p.id
                 + ",\"" + p.form + "\"," + p.mega + "," + p.mega_y + ")'>"
                 + "<span class=pokemon-icon style='background-image:url("
-                + icons_url + ");background-position:" + coords.x + "px "
+                + ICONS_URL + ");background-position:" + coords.x + "px "
                 + coords.y + "px'></span><b>"
                 + ((primal) ? ("Primal ") : ((p.mega) ? "Mega " : " "))
                 + ((p.shadow)
