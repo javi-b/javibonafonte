@@ -306,6 +306,10 @@ function GetPokemonForms(pokemon_id) {
             return [ "Altered", "Origin" ];
         case 492: // Shaymin
             return [ "Land", "Sky" ];
+        case 493: // Arceus
+            return [ "Normal", "Fire", "Water", "Grass", "Electric", "Ice",
+                "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug",
+                "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy" ];
         case 550: // Basculin
             return [ "Red_striped", "Blue_striped"];
         case 555: // Darmanitan
@@ -359,6 +363,10 @@ function GetPokemonForms(pokemon_id) {
             return [ "Midday", "Midnight", "Dusk" ];
         case 746: // Wishiwashi
             return [ "Solo", "School" ];
+        case 773: // Silvally
+            return [ "Normal", "Fire", "Water", "Grass", "Electric", "Ice",
+                "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug",
+                "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy" ];
         case 774: // Minior
             return [ "Red" ]; // TODO not added to pokmeon go yet
         case 778: // Mimikyu
@@ -485,6 +493,9 @@ function GetFormText(pokemon_id, form) {
 
     if (is_galarian_but_not_only)
         return "Galarian Form";
+
+    if (pokemon_id == 493 || pokemon_id == 773) // Arceus or Silvally
+        return form;
 
     if (pokemon_id == 774) // TODO Minior not handled yet
         return "";
@@ -687,6 +698,8 @@ function GetFormText(pokemon_id, form) {
 /**
  * Gets the x and y coordinates for a specific pokemon in the pokemon icons
  * spritesheet.
+ * TODO:
+ * - polteageist, mimikyu, urshifu
  */
 function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
 
@@ -967,10 +980,24 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     } else if (pokemon_id == 745 && form == "Dusk") { // Lycanroc
         col = 4, row = 98;
 
+    } else if (pokemon_id == 746 && form == "School") { // Wishiwashi
+        col = 0, row = 97;
+
+    } else if (pokemon_id == 849 && form == "Low_key") { // Toxtricity
+        col = 2, row = 100;
+
+    } else if (pokemon_id == 876 && form == "Female") { // Indeedee
+        col = 0, row = 101;
+
     } else if (pokemon_id == 888 && form == "Crowned_sword") { // Zacian
         col = 2, row = 101;
     } else if (pokemon_id == 889 && form == "Crowned_shield") { // Zamazenta
         col = 3, row = 101;
+
+    } else if (pokemon_id == 898 && form == "Ice_rider") { // Calyrex
+        col = 0, row = 102;
+    } else if (pokemon_id == 898 && form == "Shadow_rider") { // Calyrex
+        col = 1, row = 102;
 
     } else {
         col = pokemon_id % NUM_COLS;
