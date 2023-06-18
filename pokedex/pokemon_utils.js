@@ -994,6 +994,9 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     } else if (pokemon_id == 889 && form == "Crowned_shield") { // Zamazenta
         col = 3, row = 101;
 
+    } else if (pokemon_id == 890 && form == "Eternamax") { // Eternatus
+        col = 4, row = 111;
+
     } else if (pokemon_id == 898 && form == "Ice_rider") { // Calyrex
         col = 0, row = 102;
     } else if (pokemon_id == 898 && form == "Shadow_rider") { // Calyrex
