@@ -376,12 +376,6 @@ function GetPokemonForms(pokemon_id) {
         case 854: // Sinistea
         case 855: // Polteageist
             return [ "Phony", "Antique" ];
-        case 862: // Obstagoon
-        case 863: // Perrserker
-        case 865: // Sirfetch'd
-        case 866: // Mr. Rime
-        case 867: // Runerigus
-            return [ "Galarian" ];
         case 875: // Eiscue
             return [ "Ice", "Noice" ];
         case 876: // Indeedee
@@ -488,12 +482,6 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
  */
 function GetFormText(pokemon_id, form) {
 
-    const is_galarian_but_not_only = (form == "Galarian"
-            && GetPokemonDefaultForm(pokemon_id) != "Galarian");
-
-    if (is_galarian_but_not_only)
-        return "Galarian Form";
-
     if (pokemon_id == 493 || pokemon_id == 773) // Arceus or Silvally
         return form;
 
@@ -524,6 +512,8 @@ function GetFormText(pokemon_id, form) {
             break;
         case "Alola":
             return "Alolan Form";
+        case "Galarian":
+            return "Galarian Form";
         case "Plant":
         case "Sandy":
         case "Trash":
