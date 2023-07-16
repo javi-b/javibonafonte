@@ -425,9 +425,6 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
             case "Normal":
             case "Meadow":
                 break;
-            case "Galarian":
-                img_src_name += "-galar";
-                break;
             case "Sunny":
                 if (pokemon_id == 421) // Cherrim
                     img_src_name += "-sunshine";
@@ -436,12 +433,6 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
                 break;
             case "East_sea":
                 img_src_name += "-east";
-                break;
-            case "Galarian_standard":
-                img_src_name += "-galar";
-                break;
-            case "Galarian_zen":
-                img_src_name += "-galarzen";
                 break;
             case "Female":
                 img_src_name += "-f";
