@@ -355,6 +355,8 @@ function GetPokemonForms(pokemon_id) {
         case 710: // Pumpkaboo
         case 711: // Gourgeist
             return [ "Average", "Small", "Large", "Super" ];
+        case 718: // Zygarde
+            return [ "Fifty_percent", "Ten_percent", "Complete" ];
         case 720: // Hoopa
             return [ "Confined", "Unbound" ];
         case 741: // Oricorio
@@ -436,6 +438,9 @@ function GetPokemonImgSrcName(pokemon_id, clean_name, form, mega, mega_y) {
                 break;
             case "Female":
                 img_src_name += "-f";
+                break;
+            case "Ten_percent":
+                img_src_name += "-10";
                 break;
             case "Crowned_sword":
             case "Crowned_shield":
@@ -632,6 +637,12 @@ function GetFormText(pokemon_id, form) {
         case "Large":
         case "Super":
             return form + " Size";
+        case "Fifty_percent":
+            return "50% Forme";
+        case "Ten_percent":
+            return "10% Forme";
+        case "Complete":
+            return "Complete Forme";
         case "Confined":
         case "Unbound":
             return "Hoopa " + form;
