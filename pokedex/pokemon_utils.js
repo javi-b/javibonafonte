@@ -957,6 +957,11 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     } else if (pokemon_id == 713 && form == "Hisuian") { // Avalugg
         col = 4, row = 103;
 
+    } else if (pokemon_id == 718 && form == "Ten_percent") { // Zygarde
+        col = 6, row = 96;
+    } else if (pokemon_id == 718 && form == "Complete") { // Zygarde
+        col = 7, row = 96;
+
     } else if (pokemon_id == 720 && form == "Unbound") { // Hoopa
         col = 10, row = 94;
 
