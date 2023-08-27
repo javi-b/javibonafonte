@@ -14,6 +14,28 @@ POKEMON_TYPES.add("Rock");          POKEMON_TYPES.add("Ghost");
 POKEMON_TYPES.add("Dragon");        POKEMON_TYPES.add("Dark");
 POKEMON_TYPES.add("Steel");         POKEMON_TYPES.add("Fairy");
 
+// types effectiveness map - 0.391 -> 0.625 -> 1.60
+// note: if it isn't in this map, its effectiveness is 1x
+const POKEMON_TYPES_EFFECT = new Map();
+POKEMON_TYPES_EFFECT.set("Normal", [["Ghost"], ["Rock", "Steel"], []]);
+POKEMON_TYPES_EFFECT.set("Fire", [[], ["Dragon", "Fire", "Rock", "Water"], ["Bug", "Grass", "Ice", "Steel"]]);
+POKEMON_TYPES_EFFECT.set("Water", [[], ["Dragon", "Grass", "Water"], ["Fire", "Ground", "Rock"]]);
+POKEMON_TYPES_EFFECT.set("Grass", [[], ["Bug", "Dragon", "Fire", "Flying", "Grass", "Poison", "Steel"], ["Ground", "Rock", "Water"]]);
+POKEMON_TYPES_EFFECT.set("Electric", [["Ground"], ["Dragon", "Electric", "Grass"], ["Flying", "Water"]]);
+POKEMON_TYPES_EFFECT.set("Ice", [[], ["Fire", "Ice", "Steel", "Water"], ["Dragon", "Flying", "Grass", "Ground"]]);
+POKEMON_TYPES_EFFECT.set("Fighting", [["Ghost"], ["Bug", "Fairy", "Flying", "Poison", "Psychic"], ["Dark", "Ice", "Normal", "Rock", "Steel"]]);
+POKEMON_TYPES_EFFECT.set("Poison", [["Steel"], ["Ghost", "Ground", "Poison", "Rock"], ["Fairy", "Grass"]]);
+POKEMON_TYPES_EFFECT.set("Ground", [["Flying"], ["Bug", "Grass"], ["Electric", "Fire", "Poison", "Rock", "Steel"]]);
+POKEMON_TYPES_EFFECT.set("Flying", [[], ["Electric", "Rock", "Steel"], ["Bug", "Fighting", "Grass"]]);
+POKEMON_TYPES_EFFECT.set("Psychic", [["Dark"], ["Psychic", "Steel"], ["Fighting", "Poison"]]);
+POKEMON_TYPES_EFFECT.set("Bug", [[], ["Fairy", "Fighting", "Fire", "Flying", "Ghost", "Poison", "Steel"], ["Dark", "Grass", "Psychic"]]);
+POKEMON_TYPES_EFFECT.set("Rock", [[], ["Fighting", "Ground", "Steel"], ["Bug", "Fire", "Flying", "Ice"]]);
+POKEMON_TYPES_EFFECT.set("Ghost", [["Normal"], ["Dark"], ["Ghost", "Psychic"]]);
+POKEMON_TYPES_EFFECT.set("Dragon", [["Fairy"], ["Steel"], ["Dragon"]]);
+POKEMON_TYPES_EFFECT.set("Dark", [[], ["Dark", "Fairy", "Fighting"], ["Ghost", "Psychic"]]);
+POKEMON_TYPES_EFFECT.set("Steel", [[], ["Electric", "Fire", "Steel", "Water"], ["Fairy", "Ice", "Rock"]]);
+POKEMON_TYPES_EFFECT.set("Fairy", [[], ["Fire", "Poison", "Steel"], ["Dark", "Dragon", "Fighting"]]);
+
 /**
  * Gets the CP multiplier for a specific level.
  */

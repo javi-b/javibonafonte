@@ -802,6 +802,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
     LoadPokemongoBaseStats(stats);
     LoadPokemongoCP(stats);
     UpdatePokemongoCPText(level, ivs);
+    LoadPokemongoCounters(jb_pkm_obj, mega, mega_y);
     LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats);
 }
 
@@ -928,6 +929,98 @@ function UpdatePokemongoCPText(level, ivs) {
     const pct = Math.round(100 * (ivs.atk + ivs.def + ivs.hp) / 45);
     $("#cp-text").text("with IVs " + ivs.atk + "/" + ivs.def + "/" + ivs.hp
             + " (" + pct + "%) at level " + level);
+}
+
+/**
+ * Loads table in the Pokemon GO section sorting the pokemon types according to
+ * their effectiveness against the selected pokemon. Note that types that are
+ * neutral towards the selected pokemon aren't displayed.
+ * 
+ * Receives the pokemon's jb object as an argument.
+ */
+function LoadPokemongoCounters(jb_pkm_obj, mega, mega_y) {
+
+    let types = jb_pkm_obj.types;
+    if (mega) {
+        if (mega_y)
+            types = jb_pkm_obj.mega[1].types;
+        else
+            types = jb_pkm_obj.mega[0].types;
+    }
+
+    let counters_0391 = [];
+    let counters_0625 = [];
+    let counters_1 = [];
+    let counters_160 = [];
+    let counters_256 = [];
+
+    for (let attacker_type of POKEMON_TYPES) {
+        const type_effect = POKEMON_TYPES_EFFECT.get(attacker_type);
+        let mult = 1;
+        for (let type of types) {
+            if (type_effect[0].includes(type))
+                mult *= 0.391;
+            else if (type_effect[1].includes(type))
+                mult *= 0.625;
+            else if (type_effect[2].includes(type))
+                mult *= 1.60;
+        }
+        if (Math.abs(mult - 0.391) < 0.001)
+            counters_0391.push(attacker_type);
+        else if (Math.abs(mult - 0.625) < 0.001)
+            counters_0625.push(attacker_type);
+        else if (Math.abs(mult - 1.60) < 0.001)
+            counters_160.push(attacker_type);
+        else if (Math.abs(mult - 2.56) < 0.001)
+            counters_256.push(attacker_type);
+        else
+            counters_1.push(attacker_type);
+    }
+
+    $("#counters-title").html("Types effectiveness against<br><b>"
+            + jb_pkm_obj.name + "</b>");
+
+    let counters_0391_html = "";
+    for (let type of counters_0391) {
+        counters_0391_html += "<a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a> ";
+    }
+    $("#counters-0391").html(counters_0391_html);
+
+    let counters_0625_html = "";
+    for (let type of counters_0625) {
+        counters_0625_html += "<a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a> ";
+    }
+    $("#counters-0625").html(counters_0625_html);
+
+    /*
+    let counters_1_html = "";
+    for (let type of counters_1) {
+        counters_1_html += "<a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a> ";
+    }
+    $("#counters-1").html(counters_1_html);
+    */
+
+    let counters_160_html = "";
+    for (let type of counters_160) {
+        counters_160_html += "<a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a> ";
+    }
+    $("#counters-160").html(counters_160_html);
+
+    let counters_256_html = "";
+    for (let type of counters_256) {
+        counters_256_html += "<a class='type-text bg-" + type
+                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
+                + "\")'>" + type + "</a> ";
+    }
+    $("#counters-256").html(counters_256_html);
 }
 
 /**

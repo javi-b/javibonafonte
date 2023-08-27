@@ -401,6 +401,35 @@ th, td {
     text-decoration: underline;
 }
 
+#counters {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#counters a { cursor: pointer; }
+
+#counters table {
+    border: 1px solid var(--col-so-off);
+    border-radius: var(--border-radius);
+}
+
+#counters table td, #counters table th {
+    text-align: left;
+    padding: 2px 0.5em;
+}
+
+#counters table th:nth-child(1) {
+    width: 20%;
+    text-align: center;
+    font-weight: normal;
+}
+
+#counters table td:nth-child(1), #counters table th:nth-child(2) {
+    width: 10%;
+    text-align: center;
+    background-color: var(--col-so-off);
+}
+
 #strongest { display: none; }
 
 #strongest a {
