@@ -391,6 +391,46 @@ th, td {
     font-size: 1.25em;
 }
 
+#counters {
+    width: 85%;
+    margin-left: 15%;
+}
+
+#counters a { cursor: pointer; }
+
+#counters table td, #counters table th {
+    padding: 2px 0.5em;
+    text-align: left;
+}
+
+#counters table tr:nth-child(1) td:nth-child(1) {
+    width: 15%;
+    text-align: center;
+    border: 1px solid var(--col-off);
+}
+
+#counters table tr:nth-child(1) td:nth-child(2) {
+    border-top: 1px solid var(--col-off);
+}
+
+#counters table tr:nth-child(1) td:nth-child(2),
+#counters table tr:not(:nth-child(1)) td:nth-child(1) {
+    width: 7.5%;
+    text-align: center;
+    background-color: var(--col-so-off);
+    border-right: 1px solid var(--col-off);
+    border-left: 1px solid var(--col-off);
+}
+
+#counters table tr:nth-child(4) td:nth-child(1) {
+    border-bottom: 1px solid var(--col-off);
+}
+
+#counters table td:nth-child(4) {
+    width: 15%;
+    text-align: center;
+}
+
 #pokemongo-table {
     width: 100%;
     table-layout: fixed;
@@ -399,35 +439,6 @@ th, td {
 #pokemongo-table .sortable {
     cursor: pointer;
     text-decoration: underline;
-}
-
-#counters {
-    width: 80%;
-    margin: 0 auto;
-}
-
-#counters a { cursor: pointer; }
-
-#counters table {
-    border: 1px solid var(--col-so-off);
-    border-radius: var(--border-radius);
-}
-
-#counters table td, #counters table th {
-    text-align: left;
-    padding: 2px 0.5em;
-}
-
-#counters table th:nth-child(1) {
-    width: 20%;
-    text-align: center;
-    font-weight: normal;
-}
-
-#counters table td:nth-child(1), #counters table th:nth-child(2) {
-    width: 10%;
-    text-align: center;
-    background-color: var(--col-so-off);
 }
 
 #strongest { display: none; }
