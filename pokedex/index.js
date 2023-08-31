@@ -802,7 +802,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
     LoadPokemongoBaseStats(stats);
     LoadPokemongoCP(stats);
     UpdatePokemongoCPText(level, ivs);
-    LoadPokemongoCounters(jb_pkm_obj, mega, mega_y);
+    LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y);
     LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats);
 }
 
@@ -938,7 +938,7 @@ function UpdatePokemongoCPText(level, ivs) {
  * 
  * Receives the pokemon's jb object as an argument.
  */
-function LoadPokemongoCounters(jb_pkm_obj, mega, mega_y) {
+function LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y) {
 
     let types = jb_pkm_obj.types;
     if (mega) {
@@ -948,11 +948,10 @@ function LoadPokemongoCounters(jb_pkm_obj, mega, mega_y) {
             types = jb_pkm_obj.mega[0].types;
     }
 
-    let counters_0391 = [];
-    let counters_0625 = [];
-    let counters_1 = [];
-    let counters_160 = [];
-    let counters_256 = [];
+    let effectiveness_0391 = [];
+    let effectiveness_0625 = [];
+    let effectiveness_160 = [];
+    let effectiveness_256 = [];
 
     for (let attacker_type of POKEMON_TYPES) {
         const type_effect = POKEMON_TYPES_EFFECT.get(attacker_type);
@@ -966,61 +965,49 @@ function LoadPokemongoCounters(jb_pkm_obj, mega, mega_y) {
                 mult *= 1.60;
         }
         if (Math.abs(mult - 0.391) < 0.001)
-            counters_0391.push(attacker_type);
+            effectiveness_0391.push(attacker_type);
         else if (Math.abs(mult - 0.625) < 0.001)
-            counters_0625.push(attacker_type);
+            effectiveness_0625.push(attacker_type);
         else if (Math.abs(mult - 1.60) < 0.001)
-            counters_160.push(attacker_type);
+            effectiveness_160.push(attacker_type);
         else if (Math.abs(mult - 2.56) < 0.001)
-            counters_256.push(attacker_type);
-        else
-            counters_1.push(attacker_type);
+            effectiveness_256.push(attacker_type);
     }
 
-    $("#counters-title").html("Types effectiveness against<br><b>"
+    $("#effectiveness-title").html("Types effectiveness against<br><b>"
             + jb_pkm_obj.name + "</b>");
 
-    let counters_0391_html = "";
-    for (let type of counters_0391) {
-        counters_0391_html += "<a class='type-text bg-" + type
+    let effectiveness_0391_html = "";
+    for (let type of effectiveness_0391) {
+        effectiveness_0391_html += "<a class='type-text bg-" + type
                 + "' onclick='LoadStrongestAndUpdateURL(\"" + type
                 + "\")'>" + type + "</a> ";
     }
-    $("#counters-0391").html(counters_0391_html);
+    $("#effectiveness-0391").html(effectiveness_0391_html);
 
-    let counters_0625_html = "";
-    for (let type of counters_0625) {
-        counters_0625_html += "<a class='type-text bg-" + type
+    let effectiveness_0625_html = "";
+    for (let type of effectiveness_0625) {
+        effectiveness_0625_html += "<a class='type-text bg-" + type
                 + "' onclick='LoadStrongestAndUpdateURL(\"" + type
                 + "\")'>" + type + "</a> ";
     }
-    $("#counters-0625").html(counters_0625_html);
+    $("#effectiveness-0625").html(effectiveness_0625_html);
 
-    /*
-    let counters_1_html = "";
-    for (let type of counters_1) {
-        counters_1_html += "<a class='type-text bg-" + type
+    let effectiveness_160_html = "";
+    for (let type of effectiveness_160) {
+        effectiveness_160_html += "<a class='type-text bg-" + type
                 + "' onclick='LoadStrongestAndUpdateURL(\"" + type
                 + "\")'>" + type + "</a> ";
     }
-    $("#counters-1").html(counters_1_html);
-    */
+    $("#effectiveness-160").html(effectiveness_160_html);
 
-    let counters_160_html = "";
-    for (let type of counters_160) {
-        counters_160_html += "<a class='type-text bg-" + type
+    let effectiveness_256_html = "";
+    for (let type of effectiveness_256) {
+        effectiveness_256_html += "<a class='type-text bg-" + type
                 + "' onclick='LoadStrongestAndUpdateURL(\"" + type
                 + "\")'>" + type + "</a> ";
     }
-    $("#counters-160").html(counters_160_html);
-
-    let counters_256_html = "";
-    for (let type of counters_256) {
-        counters_256_html += "<a class='type-text bg-" + type
-                + "' onclick='LoadStrongestAndUpdateURL(\"" + type
-                + "\")'>" + type + "</a> ";
-    }
-    $("#counters-256").html(counters_256_html);
+    $("#effectiveness-256").html(effectiveness_256_html);
 }
 
 /**

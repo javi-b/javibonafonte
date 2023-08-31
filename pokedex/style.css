@@ -391,30 +391,30 @@ th, td {
     font-size: 1.25em;
 }
 
-#counters {
+#effectiveness {
     width: 85%;
     margin-left: 15%;
 }
 
-#counters a { cursor: pointer; }
+#effectiveness a { cursor: pointer; }
 
-#counters table td, #counters table th {
+#effectiveness table td, #effectiveness table th {
     padding: 2px 0.5em;
     text-align: left;
 }
 
-#counters table tr:nth-child(1) td:nth-child(1) {
+#effectiveness table tr:nth-child(1) td:nth-child(1) {
     width: 15%;
     text-align: center;
     border: 1px solid var(--col-off);
 }
 
-#counters table tr:nth-child(1) td:nth-child(2) {
+#effectiveness table tr:nth-child(1) td:nth-child(2) {
     border-top: 1px solid var(--col-off);
 }
 
-#counters table tr:nth-child(1) td:nth-child(2),
-#counters table tr:not(:nth-child(1)) td:nth-child(1) {
+#effectiveness table tr:nth-child(1) td:nth-child(2),
+#effectiveness table tr:not(:nth-child(1)) td:nth-child(1) {
     width: 7.5%;
     text-align: center;
     background-color: var(--col-so-off);
@@ -422,11 +422,11 @@ th, td {
     border-left: 1px solid var(--col-off);
 }
 
-#counters table tr:nth-child(4) td:nth-child(1) {
+#effectiveness table tr:nth-child(4) td:nth-child(1) {
     border-bottom: 1px solid var(--col-off);
 }
 
-#counters table td:nth-child(4) {
+#effectiveness table td:nth-child(4) {
     width: 15%;
     text-align: center;
 }
