@@ -933,6 +933,9 @@ function GetPokemonIconCoords(pokemon_id, form, mega, mega_y) {
     } else if (pokemon_id == 487 && form == "Origin") { // Giratina
         col = 5, row = 89;
 
+    } else if (pokemon_id == 492 && form == "Sky") { // Shaymin
+        col = 6, row = 89;
+
     } else if (pokemon_id == 555 && form == "Zen") { // Darmanitan
             col = 9, row = 89;
     } else if (pokemon_id == 555 && form == "Galarian_standard") { // Darmanitan
