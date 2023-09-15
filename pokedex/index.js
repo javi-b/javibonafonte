@@ -832,7 +832,7 @@ function GetPokemonStats(jb_pkm_obj, mega, mega_y, level, ivs) {
     stats.def = (stats.baseDefense + ivs.def) * cpm;
     stats.hp = (stats.baseStamina + ivs.hp) * cpm;
 
-    return stats;
+    return {...stats}; // returns by copy to prevent reassignment of reference
 }
 
 /**
