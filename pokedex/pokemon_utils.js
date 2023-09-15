@@ -109,6 +109,65 @@ POKEMON_TYPES_EFFECT.set("Fairy", [
     ]);
 
 /**
+ * Gets map of the effectiveness of all the pokemon types against the one or two
+ * types sent as a parameter.
+ * The keys of the map are the possible effectiveness (0.391, 0.624, 1, 1.60, 2.56)
+ * and the values are arrays with the types matching such effectiveness.
+ */
+function GetTypesEffectivenessAgainstTypes(types) {
+
+    let effectiveness = new Map();
+    effectiveness.set(0.391, []);
+    effectiveness.set(0.625, []);
+    effectiveness.set(1, []);
+    effectiveness.set(1.60, []);
+    effectiveness.set(2.56, []);
+
+    for (let attacker_type of POKEMON_TYPES) {
+        const type_effect = POKEMON_TYPES_EFFECT.get(attacker_type);
+        let mult = 1;
+        for (let type of types) {
+            if (type_effect[0].includes(type))
+                mult *= 0.391;
+            else if (type_effect[1].includes(type))
+                mult *= 0.625;
+            else if (type_effect[2].includes(type))
+                mult *= 1.60;
+        }
+        if (Math.abs(mult - 0.391) < 0.001)
+            effectiveness.get(0.391).push(attacker_type);
+        else if (Math.abs(mult - 0.625) < 0.001)
+            effectiveness.get(0.625).push(attacker_type);
+        else if (Math.abs(mult - 1.60) < 0.001)
+            effectiveness.get(1.60).push(attacker_type);
+        else if (Math.abs(mult - 2.56) < 0.001)
+            effectiveness.get(2.56).push(attacker_type);
+        else
+            effectiveness.get(1).push(attacker_type);
+    }
+
+    return effectiveness;
+}
+
+/**
+ * Gets the multiplier value of a single type against a specific map of
+ * types effectiveness.
+ */
+function GetEffectivenessMultOfType(effectiveness, type) {
+
+    if (effectiveness.get(0.391).includes(type))
+        return 0.391;
+    else if (effectiveness.get(0.625).includes(type))
+        return 0.625;
+    else if (effectiveness.get(1.60).includes(type))
+        return 1.60;
+    else if (effectiveness.get(2.56).includes(type))
+        return 2.56;
+    else
+        return 1;
+}
+
+/**
  * Gets the CP multiplier for a specific level.
  */
 function GetCPMForLevel(level) {

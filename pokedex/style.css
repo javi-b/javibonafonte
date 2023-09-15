@@ -201,6 +201,10 @@ button:focus {
  * Specific
  */
 
+ #site {
+    overflow: hidden; /* prevents unexpected scrollbars */
+ }
+
 #loading-bar-c {
     position: fixed;
     width: 0;
@@ -454,6 +458,47 @@ button:focus {
 #effectiveness table td:nth-child(4) {
     width: 15%;
     text-align: center;
+}
+
+#counters { display: none; }
+
+#counters table {
+    margin: 0 auto;
+    width: 85%;
+    table-layout: fixed;
+    white-space: nowrap;
+}
+
+#counters td {
+}
+
+#counters img {
+    transform: translateX(-50%);
+}
+
+#counters a {
+    cursor: pointer;
+}
+
+.counter-rat-pct {
+    position: relative;
+    background-color: var(--col-so-off);
+    z-index: 1;
+}
+
+#counters-popup {
+    display: none;
+    position: absolute;
+    width: 200px;
+    height: 3em;
+    padding: 0 0.25em;
+    border: 1px solid var(--col-off);
+    border-radius: var(--border-radius);
+    background-color: var(--col-so-off);
+    z-index: 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #pokemongo-table {

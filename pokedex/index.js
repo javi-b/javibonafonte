@@ -38,6 +38,8 @@ let settings_default_level = 40;
 
 // whether pokemon go table moves are currently being loaded asynchronously
 let loading_pogo_moves = false;
+// whether pokemon go counters are currently being loaded asynchronously
+let loading_counters = false;
 
 // search input selected suggestion index
 let selected_suggestion_i = -1;
@@ -495,7 +497,7 @@ function CheckURLAndAct() {
 function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
         mega_y = false, level = null, ivs = null) {
 
-    if (!finished_loading || loading_pogo_moves)
+    if (!finished_loading || loading_pogo_moves || loading_counters)
         return false;
 
     LoadPokemon(clean_input, form, mega, mega_y, level, ivs);
@@ -528,7 +530,7 @@ function LoadPokemonAndUpdateURL(clean_input, form = "def", mega = false,
 function LoadPokemon(clean_input, form = "def", mega = false,
         mega_y = false, level = null, ivs = null) {
 
-    if (!finished_loading || loading_pogo_moves)
+    if (!finished_loading || loading_pogo_moves || loading_counters)
         return;
 
     // gets the pokemon id from the input and returns if it doesn't find it
@@ -631,6 +633,10 @@ function LoadPokemon(clean_input, form = "def", mega = false,
         $("#pokedex").css("display", "block");
     if ($("#pokemongo").css("display") == "none")
         $("#pokemongo").css("display", "initial");
+    if ($("#counters").css("display") != "none")
+        $("#counters").css("display", "none");
+    if ($("#counters-popup").css("display") != "none")
+        $("#counters-popup").css("display", "none");
 
     LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs);
 }
@@ -801,6 +807,7 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
     LoadPokemongoCP(stats);
     UpdatePokemongoCPText(level, ivs);
     LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y);
+    LoadPokemongoCounters(jb_pkm_obj, mega, mega_y);
     LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats);
 }
 
@@ -1003,10 +1010,504 @@ function LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y) {
 }
 
 /**
+ * Loads best counters of selected pokemon.
+ * Searches asynchronously through all the pokemon in the game and calculates
+ * the best counters taking into account their effectiveness against the selected
+ * mon and their resistance to the average of the selected mon's movesets.
+ */
+function LoadPokemongoCounters(enemy_jb_pkm_obj, enemy_mega, enemy_mega_y) {
+
+    // sets counters title and disclaimer
+    const verb = ($("#counters").css("display") == "none") ? "show" : "hide";
+    $("#counters-button").html(verb + " <b>" + enemy_jb_pkm_obj.name + "</b>'s counters")
+    $("#counters-disclaimer").html(
+        "calculations take into account the counters effectiveness against "
+        + enemy_jb_pkm_obj.name
+        + "<br>and the counters resistance to the average of "
+        + enemy_jb_pkm_obj.name + "'s movesets");
+
+    const enemy_types = GetPokemonTypes(enemy_jb_pkm_obj, enemy_mega, enemy_mega_y);
+    const enemy_effectiveness = GetTypesEffectivenessAgainstTypes(enemy_types);
+
+    // TODO for now, filters are hardcoded, not accessible to the user
+    const search_unreleased = false;
+    const search_mega = true;
+    const search_shadow = true;
+    const search_legendary = true;
+    const search_elite = true;
+
+    const num_counters = 6;
+    const num_mega_counters = 5;
+
+    // array of counters pokemon and movesets found so far
+    let counters = [];
+    let mega_counters = [];
+
+    /**
+     * Checks if any of the movesets of a specific pokemon is stronger than any
+     * of the current counters. If it is, updates the counters arrays.
+     * 
+     * There is one array for regular pokemon and other for mega pokemon.
+     *
+     * The arrays are sorted every time so that it is always the weakest
+     * pokemon in it that gets replaced.
+     */
+    function CheckIfStronger(jb_pkm_obj, mega, mega_y, shadow) {
+
+        const movesets = GetPokemonStrongestMovesetsAgainstEnemy(jb_pkm_obj,
+                mega, mega_y, shadow, search_elite, enemy_jb_pkm_obj,
+                enemy_mega, enemy_mega_y, enemy_types, enemy_effectiveness);
+        if (movesets.length == 0)
+            return;
+
+        for (let moveset of movesets) {
+
+            let is_strong_enough = false;
+
+            let not_full = ((mega)
+                    ? mega_counters.length < num_mega_counters
+                    : counters.length < num_counters);
+            let weakest = ((mega) ? mega_counters[0] : counters[0]);
+
+            if (not_full) { // if array isn't full...
+                if (moveset.rat > 0)
+                    is_strong_enough = true;
+            } else { // if array is full...
+                // if finds something better than worst in array...
+                if (moveset.rat > weakest.rat)
+                    is_strong_enough = true;
+            }
+
+            if (is_strong_enough) {
+
+                // adds pokemon to array of counters
+                const counter = {
+                    rat: moveset.rat, id: jb_pkm_obj.id,
+                    name: jb_pkm_obj.name, form: jb_pkm_obj.form,
+                    mega: mega, mega_y: mega_y, shadow: shadow,
+                    fm: moveset.fm, fm_is_elite: moveset.fm_is_elite,
+                    fm_type: moveset.fm_type,
+                    cm: moveset.cm, cm_is_elite: moveset.cm_is_elite,
+                    cm_type: moveset.cm_type,
+                    deaths: moveset.deaths
+                };
+
+                if (mega) {
+                    if (mega_counters.length < num_mega_counters)
+                        mega_counters.push(counter);
+                    else
+                        mega_counters[0] = counter;
+                    // sorts array
+                    mega_counters.sort(function compareFn(a , b) {
+                        return ((a.rat > b.rat) || - (a.rat < b.rat));
+                    });
+                } else {
+                    if (counters.length < num_counters)
+                        counters.push(counter);
+                    else
+                        counters[0] = counter;
+                    // sorts array
+                    counters.sort(function compareFn(a , b) {
+                        return ((a.rat > b.rat) || - (a.rat < b.rat));
+                    });
+                }
+            }
+        }
+    }
+
+    // searches for pokemon asynchronously in chunks - one chunk every frame
+
+    // number of pokemon searched in each chunk
+    const chunk_size = Math.ceil(jb_max_id / 10);
+
+    /**
+     * Searches one chunk of pokemon.
+     * Receives the index of the chunk to search and the callback function
+     * for when all chunks have been searched.
+     */
+    function SearchOneChunkOfPokemon(chunk_i, callback) {
+
+        for (let id = chunk_i * chunk_size;
+                id < (chunk_i + 1) * chunk_size && id <= jb_max_id; id++) {
+
+            const forms = GetPokemonForms(id);
+            const def_form = forms[0];
+
+            let jb_pkm_obj = jb_pkm.find(entry =>
+                    entry.id == id && entry.form == def_form);
+
+            // checks whether pokemon should be skipped
+            // (not released or legendary when not allowed)
+            if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released
+                    || !search_legendary && jb_pkm_obj.class) {
+                continue;
+            }
+
+            const can_be_shadow = jb_pkm_obj.shadow;
+            const can_be_mega = jb_pkm_obj.mega;
+
+            // default form
+            CheckIfStronger(jb_pkm_obj, false, false, false);
+
+            // shadow (except not released when it shouldn't)
+            if (search_shadow && can_be_shadow
+                    && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+                CheckIfStronger(jb_pkm_obj, false, false, true);
+            }
+
+            // mega(s)
+            if (search_mega && can_be_mega) {
+                CheckIfStronger(jb_pkm_obj, true, false, false);
+                if (id == 6 || id == 150) // charizard and mewtwo
+                    CheckIfStronger(jb_pkm_obj, true, true, false);
+            }
+
+            // other forms
+            for (let form_i = 1; form_i < forms.length; form_i++) {
+
+                jb_pkm_obj = jb_pkm.find(entry =>
+                        entry.id == id && entry.form == forms[form_i]);
+
+                // checks whether pokemon should be skipped (form not released)
+                if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released)
+                    continue;
+
+                CheckIfStronger(jb_pkm_obj, false, false, false);
+                // other forms and shadow (except not released when it shouldn't)
+                if (search_shadow && can_be_shadow
+                        && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
+                    CheckIfStronger(jb_pkm_obj, false, false, true);
+                }
+            }
+        }
+
+        // searches the next chunk of pokemon, if there is more
+        chunk_i++;
+        if (chunk_i * chunk_size <= jb_max_id) {
+            setTimeout(function() { SearchOneChunkOfPokemon(chunk_i, callback); }, 0);
+            return;
+        } else {
+            callback();
+        }
+    }
+
+    loading_counters = true;
+    // searches for the first chunk of pokemon
+    SearchOneChunkOfPokemon(0, function () {
+        ProcessAndSetCountersFromArrays(counters, mega_counters);
+        loading_counters = false;
+    });
+}
+
+/**
+ * Gets array with an arbitrary number of a specific pokemon's strongest movesets
+ * against a specific enemy pokemon.
+ */
+function GetPokemonStrongestMovesetsAgainstEnemy(jb_pkm_obj, mega, mega_y, shadow,
+        search_elite, enemy_jb_pkm_obj, enemy_mega, enemy_mega_y,
+        enemy_types, enemy_effectiveness) {
+
+    const num_movesets = 6;
+    let movesets = [];
+
+    // checks whether this pokemon is actually released,
+    // and if not, returns empty
+
+    let released = true && jb_pkm_obj;
+    if (mega)
+        released = released && jb_pkm_obj.mega;
+    if (mega_y)
+        released = released && jb_pkm_obj.mega.length == 2;
+
+    if (!released)
+        return movesets;
+
+    // gets the necessary data to make the rating calculations
+
+    // subject data
+    const types = GetPokemonTypes(jb_pkm_obj, mega, mega_y);
+    const effectiveness = GetTypesEffectivenessAgainstTypes(types);
+    const stats = GetMaxStats(jb_pkm_obj, mega, mega_y);
+    const atk = (shadow) ? (stats.atk * 6 / 5) : stats.atk;
+    const def = (shadow) ? (stats.def * 5 / 6) : stats.def;
+    const hp = stats.hp;
+    const moves = GetPokemongoMoves(jb_pkm_obj);
+    if (moves.length != 4)
+        return movesets;
+    const fms = moves[0];
+    const cms = moves[1];
+    const elite_fms = moves[2];
+    const elite_cms = moves[3];
+    const all_fms = fms.concat(elite_fms);
+    const all_cms = cms.concat(elite_cms);
+
+    // enemy data
+    let avg_y = null;
+    const enemy_stats = GetMaxStats(enemy_jb_pkm_obj, enemy_mega, enemy_mega_y);
+    const enemy_moves = GetPokemongoMoves(enemy_jb_pkm_obj);
+    if (enemy_moves.length == 4) {
+        const enemy_fms = enemy_moves[0];
+        const enemy_cms = enemy_moves[1];
+        const enemy_elite_fms = enemy_moves[2];
+        const enemy_elite_cms = enemy_moves[3];
+        const enemy_all_fms = enemy_fms.concat(enemy_elite_fms);
+        const enemy_all_cms = enemy_cms.concat(enemy_elite_cms);
+        avg_y = GetMovesetsAvgY(enemy_types, enemy_stats.atk,
+                enemy_all_fms, enemy_all_cms, effectiveness, def);
+    }
+
+    // searches for the movesets
+
+    for (fm of all_fms) {
+
+        const fm_is_elite = elite_fms.includes(fm);
+
+        if (!search_elite && fm_is_elite)
+            continue;
+
+        // gets the fast move object
+        const fm_obj = jb_fm.find(entry => entry.name == fm);
+        if (!fm_obj)
+            continue;
+        const fm_mult =
+            GetEffectivenessMultOfType(enemy_effectiveness, fm_obj.type);
+
+        for (cm of all_cms) {
+
+            const cm_is_elite = elite_cms.includes(cm);
+
+            if (!search_elite && cm_is_elite)
+                continue;
+
+            // gets the charged move object
+            const cm_obj = jb_cm.find(entry => entry.name == cm);
+            if (!cm_obj)
+                continue;
+            const cm_mult =
+                GetEffectivenessMultOfType(enemy_effectiveness, cm_obj.type);
+
+            // calculates the data
+            const dps = GetDPS(types, atk, def, hp, fm_obj, cm_obj,
+                fm_mult, cm_mult, enemy_stats.def, avg_y);
+            const tdo = GetTDO(dps, hp, def, avg_y);
+            // metrics from Reddit user u/Elastic_Space
+            let rat = 0;
+            if (settings_metric == "ER") {
+                const dps3tdo = Math.pow(dps, 3) * tdo;
+                rat = Math.pow(dps3tdo, 1/4);
+            } else if (settings_metric == "EER") {
+                rat = Math.pow(dps, 0.775) * Math.pow(tdo, 0.225);
+            } else if (settings_metric == "TER") {
+                rat = Math.pow(dps, 0.85) * Math.pow(tdo, 0.15);
+            }
+
+            // if the array of movesets isn't full
+            // or the current moveset is stronger than the weakest in the array,
+            // pushes the current moveset to the array
+            if (movesets.length < num_movesets) {
+                const moveset = {
+                    rat: rat,
+                    fm: fm, fm_is_elite: fm_is_elite, fm_type: fm_obj.type,
+                    cm: cm, cm_is_elite: cm_is_elite, cm_type: cm_obj.type,
+                    deaths: 300 * avg_y / hp
+                };
+                movesets.push(moveset);
+                // sorts array
+                movesets.sort(function compareFn(a , b) {
+                    return ((a.rat > b.rat) || - (a.rat < b.rat));
+                });
+            } else if (rat > movesets[0].rat) {
+                const moveset = {
+                    rat: rat,
+                    fm: fm, fm_is_elite: fm_is_elite, fm_type: fm_obj.type,
+                    cm: cm, cm_is_elite: cm_is_elite, cm_type: cm_obj.type,
+                    deaths: 300 * avg_y / hp
+                };
+                movesets[0] = moveset;
+                // sorts array
+                movesets.sort(function compareFn(a , b) {
+                    return ((a.rat > b.rat) || - (a.rat < b.rat));
+                });
+            }
+        }
+    }
+
+    return movesets;
+}
+
+/**
+ * Gets the average y (dps) of all the movesets of a specific pokemon attacking
+ * a specific enemy.
+ */
+function GetMovesetsAvgY(types, atk, fms, cms, enemy_effectiveness, enemy_def = null) {
+
+    let avg_y = 0;
+    let num_movesets = 0;
+
+    for (let fm of fms) {
+
+        // gets the fast move object
+        const fm_obj = jb_fm.find(entry => entry.name == fm);
+        if (!fm_obj)
+            continue;
+        const fm_mult = GetEffectivenessMultOfType(enemy_effectiveness, fm_obj.type);
+
+        for (let cm of cms) {
+
+            // gets the charged move object
+            const cm_obj = jb_cm.find(entry => entry.name == cm);
+            if (!cm_obj)
+                continue;
+            const cm_mult = GetEffectivenessMultOfType(enemy_effectiveness, cm_obj.type);
+
+            avg_y += GetSpecificY(types, atk, fm_obj, cm_obj, fm_mult, cm_mult, enemy_def);
+            num_movesets++;
+        }
+    }
+
+    avg_y /= num_movesets;
+    return avg_y;
+}
+
+/**
+ * Processes the counters in the 'counters' and 'mega_counters' arrays
+ * and sets them in the page.
+ * 
+ * The arrays contain the counters sorted in ascending order.
+ */
+function ProcessAndSetCountersFromArrays(counters, mega_counters) {
+
+    // reverses counters arrays to be in descending order
+    counters.reverse();
+    mega_counters.reverse();
+
+    // simplifies counters arrays into maps where each pokemon species is a key
+    let counters_s = new Map();
+    for (let counter of counters) {
+        if (!counters_s.has(counter.id))
+            counters_s.set(counter.id, [])
+        counters_s.get(counter.id).push(counter);
+    }
+    let mega_counters_s = new Map();
+    for (let counter of mega_counters) {
+        if (!mega_counters_s.has(counter.id))
+            mega_counters_s.set(counter.id, [])
+        mega_counters_s.get(counter.id).push(counter);
+    }
+
+    // converts simplified maps into one array containing arrays of counters
+    // for each pokemon species
+    const all_counters =
+        Array.from(mega_counters_s.values()).concat(Array.from(counters_s.values()));
+
+    // gets strongest rat
+    const top_rat = ((mega_counters[0].rat > counters[0].rat)
+            ? mega_counters[0].rat : counters[0].rat);
+
+    // sets counters in the page
+
+    $("#counters-tr").empty();
+    $("#mega-counters-tr").empty();
+
+    for (let i = 0; i < all_counters.length; i++) { // for each counter...
+
+        let counter_0 = all_counters[i][0];
+
+        // sets counter's rating percentage span
+        let rat_pcts_span = $("<span class='counter-rat-pct'></span>");
+        for (let counter of all_counters[i]) {
+            let rat_pct = 100 * counter.rat / top_rat;
+            let rat_pct_a = $("<a></a>");
+            rat_pct_a.html("<b>" + rat_pct.toFixed(0) + "%</b>"
+                + ((counter.mega)?" (M)":"")
+                + ((counter.shadow)?" (Sh)":"") + "<br>");
+            rat_pct_a.click(function() {
+                LoadPokemonAndUpdateURL(counter.id, counter.form,
+                    counter.mega, counter.mega_y);
+                window.scrollTo(0, 0);
+            });
+            rat_pct_a.mouseenter(function() { ShowCountersPopup(this, true, counter); });
+            rat_pct_a.mouseleave(function() { ShowCountersPopup(this, false); });
+            rat_pcts_span.append(rat_pct_a);
+        }
+
+        // sets counter's image
+        let img = $("<img onload='HideLoading(this)' onerror='TryNextSrc(this)'></img>");
+        let img_src_name = GetPokemonImgSrcName(counter_0.id, Clean(counter_0.name),
+                counter_0.form, counter_0.mega, counter_0.mega_y);
+        let img_src = GIFS_URL + img_src_name + ".gif";
+        img.attr("src", img_src);
+        let td = $("<td></td>");
+
+        // sets table cell and appends it to the row
+        td.append(rat_pcts_span);
+        td.append($("<img class=loading src=imgs/loading.gif></img>"));
+        td.append(img);
+        $("#counters-tr").append(td);
+    }
+}
+
+/**
+ * Shows or hides the popup of the counter whose rating percentage label is
+ * currently being hovered.
+ * 
+ * Receives the object of the element being hovered, whether it should show or
+ * hide the popup, and the counter object.
+ */
+function ShowCountersPopup(hover_element, show, counter = null) {
+
+    if (show && counter) {
+
+        // sets the popup's position
+
+        let pos = $(hover_element).offset();
+        let w = $(hover_element).width();
+        let h = $(hover_element).height();
+        let x = pos.left + 0.5 * w - 100;
+        let y = pos.top + 1.5 * h;
+
+        $("#counters-popup").css("left", x);
+        $("#counters-popup").css("top", y);
+
+        // sets the popup's content
+
+        const can_be_mega_y = counter.id == 6 || counter.id == 150; 
+        const primal = counter.mega && (counter.id == 382 || counter.id == 383);
+        const form_text = GetFormText(counter.id, counter.form);
+
+        const name = "<b>"
+            + ((primal) ? ("Primal ") : ((counter.mega) ? "Mega " : ""))
+            + ((counter.shadow) ? "<span class=shadow-text>Shadow</span> " : "")
+            + counter.name
+            + ((counter.mega && can_be_mega_y) ? ((counter.mega_y) ? " Y" : " X") : "")
+            + "</b></a>"
+            + ((form_text.length > 0)
+                ? " <span class=small-text>(" + form_text + ")</span>" 
+                : "")
+
+        $("#counters-popup").html("<span>" + name
+            + "<br><span class='type-text bg-" + counter.fm_type + "'>"
+            + counter.fm
+            + "</span> <span class='type-text bg-" + counter.cm_type + "'>"
+            + counter.cm + "</span></span>");
+
+        // shows the popup
+        $("#counters-popup").css("display", "inline");
+
+    } else {
+        // hides the popup
+        $("#counters-popup").css("display", "none");
+    }
+}
+
+/**
  * Loads the table in the Pokemon Go section including information about
  * the possible move combinations and their ratings.
  */
 function LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats) {
+
+    // sets movesets title
+    $("#movesets-title").html("<b>" + jb_pkm_obj.name + "'s movesets</b>");
 
     // whether can be shadow
     const can_be_shadow = jb_pkm_obj.shadow && !mega;
@@ -1167,28 +1668,33 @@ function GetPokemongoMoves(jb_pkm_obj) {
  * Formula credit to https://gamepress.gg .
  * https://gamepress.gg/pokemongo/damage-mechanics
  * https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
+ * 
+ * Can receive multipliers for the fast move and charged move, in
+ * case of being aware of the effectiveness of the move against the enemy mon.
+ * Also can receive the enemy defense stat and the y - enemy's DPS - if known.
  */
-function GetDPS(types, atk, def, hp, fm_obj, cm_obj) {
+function GetDPS(types, atk, def, hp, fm_obj, cm_obj, fm_mult = 1, cm_mult = 1,
+        enemy_def = null, y = null) {
 
     if (!fm_obj || !cm_obj)
         return 0;
 
-    // formula constants
-    const enemy_def = 160;
+    // misc variables
+    if (!enemy_def)
+        enemy_def = 160;
     const x = 0.5 * -cm_obj.energy_delta + 0.5 * fm_obj.energy_delta;
-    const y = 900 / def;
+    if (!y)
+        y = 900 / def;
 
     // fast move variables
-    const fm_dmg_mult = (types.includes(fm_obj.type)) ? 1.2 : 1;
-    const fm_dmg = 0.5 * fm_obj.power * (atk / enemy_def) * fm_dmg_mult
-            + 0.5;
+    const fm_dmg_mult = fm_mult * ((types.includes(fm_obj.type)) ? 1.2 : 1);
+    const fm_dmg = 0.5 * fm_obj.power * (atk / enemy_def) * fm_dmg_mult + 0.5;
     const fm_dps = fm_dmg / (fm_obj.duration / 1000);
     const fm_eps = fm_obj.energy_delta / (fm_obj.duration / 1000);
 
     // charged move variables
-    const cm_dmg_mult = (types.includes(cm_obj.type)) ? 1.2 : 1;
-    const cm_dmg = 0.5 * cm_obj.power * (atk / enemy_def) * cm_dmg_mult
-            + 0.5;
+    const cm_dmg_mult = cm_mult * ((types.includes(cm_obj.type)) ? 1.2 : 1);
+    const cm_dmg = 0.5 * cm_obj.power * (atk / enemy_def) * cm_dmg_mult + 0.5;
     const cm_dps = cm_dmg / (cm_obj.duration / 1000);
     let cm_eps = -cm_obj.energy_delta / (cm_obj.duration / 1000);
     // penalty to one-bar charged moves (they use more energy (cm_eps))
@@ -1208,14 +1714,68 @@ function GetDPS(types, atk, def, hp, fm_obj, cm_obj) {
 }
 
 /**
- * Gets the TDO of a pokemon using one of its DPS and its HP and DEF.
+ * In the GamePress formula, y is the DPS of the enemy.
+ * Usually y equals 900 / def but there is a more sophisticated formula to
+ * calculate it when the enemy is known.
+ * 
+ * This function gets y from a specified enemy.
+ * 
+ * Formula credit to https://gamepress.gg .
+ * https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
+ */
+function GetSpecificY(types, atk, fm_obj, cm_obj, fm_mult = 1, cm_mult = 1,
+        enemy_def = null) {
+
+    if (!fm_obj || !cm_obj)
+        return 0;
+
+    // misc variables
+    if (!enemy_def)
+        enemy_def = 160;
+    const x = 0.5 * -cm_obj.energy_delta + 0.5 * fm_obj.energy_delta;
+
+    // fast move variables
+    const fm_dmg_mult = fm_mult * ((types.includes(fm_obj.type)) ? 1.2 : 1);
+    const fm_dmg = 0.5 * fm_obj.power * (atk / enemy_def) * fm_dmg_mult + 0.5;
+
+    // charged move variables
+    const cm_dmg_mult = cm_mult * ((types.includes(cm_obj.type)) ? 1.2 : 1);
+    const cm_dmg = 0.5 * cm_obj.power * (atk / enemy_def) * cm_dmg_mult + 0.5;
+    let lambda = 1;
+    switch (cm_obj.energy_delta) {
+        case -100:
+            lambda = 3;
+            break;
+        case -50:
+            lambda = 1.5;
+            break;
+        case -33:
+            lambda = 1;
+            break;
+    }
+
+    // this isn't part of the formula
+    // this multiplier attempts to tweak the specified y
+    // to match the default (900 / def)
+    const y_mult = 200;
+
+    // specific y
+    const y = y_mult * (lambda * fm_dmg + cm_dmg)
+        / (lambda * (fm_obj.duration + 2) + cm_obj.duration + 2);
+
+    return ((y < 0) ? 0 : y);
+}
+
+/**
+ * Gets the TDO of a pokemon using its DPS, HP, DEF and y if known.
  *
  * Formula credit to https://gamepress.gg .
  * https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
  */
-function GetTDO(dps, hp, def) {
+function GetTDO(dps, hp, def, y = null) {
 
-    const y = 900 / def;
+    if (!y)
+        y = 900 / def;
     return (dps * (hp / y));
 }
 
@@ -1407,6 +1967,26 @@ function UpdatePokemonStatsAndURL() {
         ivs.hp = parseInt($("#input-hp").val());
 
         LoadPokemonAndUpdateURL(pkm, form, mega, mega_y, level, ivs);
+    }
+}
+
+/**
+ * Callback function for when the 'show counters' or 'hide counters' button is
+ * clicked.
+ * It either shows or hides the counters, depending on whether they are visible.
+ */
+function ShowCounters() {
+
+    $("#counters-popup").css("display", "none");
+
+    const html = $("#counters-button").html();
+
+    if ($("#counters").css("display") == "none") {
+        $("#counters").css("display", "initial");
+        $("#counters-button").html(html.replace("show ", "hide "));
+    } else {
+        $("#counters").css("display", "none");
+        $("#counters-button").html(html.replace("hide ", "show "));
     }
 }
 
