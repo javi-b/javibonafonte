@@ -32,11 +32,11 @@ METRICS.add("TER");
 let settings_metric = "EER";
 let settings_default_level = 40;
 
-// whether pokemon go table moves are currenlty being loaded asyncronously,
-// so no new pokemon should be loaded for now
-// FIXME this is a workaround, what should actually be done is that,
-//       if a new pokemon is loaded, moves being added to the previous one
-//       asyncronously, should be cancelled
+// FIXME these are not ideal, would be better that, if a new pokemon is loaded,
+//        whatever asynchronous operations were being done on the previous mon
+//        should be cancelled
+
+// whether pokemon go table moves are currently being loaded asynchronously
 let loading_pogo_moves = false;
 
 // search input selected suggestion index
@@ -684,8 +684,6 @@ function GetPokemonTypesFromId(pokemon_id, form, mega, mega_y) {
 
 /**
  * Gets array of specific pokemon types.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function GetPokemonTypes(jb_pkm_obj, mega, mega_y) {
 
@@ -809,8 +807,6 @@ function LoadPokemongo(pokemon_id, form, mega, mega_y, level, ivs) {
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is level 40
  * and it has some specific IV points.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function GetPokemonStats(jb_pkm_obj, mega, mega_y, level, ivs) {
 
@@ -835,8 +831,6 @@ function GetPokemonStats(jb_pkm_obj, mega, mega_y, level, ivs) {
 /**
  * Gets the Pokemon GO stats of a specific pokemon when it is the level set by
  * the settings and it has the maximum IV points.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function GetMaxStats(jb_pkm_obj, mega, mega_y) {
 
@@ -935,8 +929,6 @@ function UpdatePokemongoCPText(level, ivs) {
  * Loads table in the Pokemon GO section sorting the pokemon types according to
  * their effectiveness against the selected pokemon. Note that types that are
  * neutral towards the selected pokemon aren't displayed.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y) {
 
@@ -1013,8 +1005,6 @@ function LoadPokemongoEffectiveness(jb_pkm_obj, mega, mega_y) {
 /**
  * Loads the table in the Pokemon Go section including information about
  * the possible move combinations and their ratings.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats) {
 
@@ -1160,8 +1150,6 @@ function LoadPokemongoTable(jb_pkm_obj, mega, mega_y, stats) {
 /**
  * Gets array of four arrays. The specified Pokemon's fast moves, elite fast
  * moves, charged moves and elite charged moves.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function GetPokemongoMoves(jb_pkm_obj) {
 
@@ -1440,7 +1428,8 @@ function LoadStrongestAndUpdateURL(type = null) {
 }
 
 /**
- * Loads the list of the strongest pokemon for each type in pokemon go.
+ * Loads the list of the strongest pokemon of a specific type in pokemon go.
+ * If the type isn't specified, loads the strongest pokemon of each type.
  */
 function LoadStrongest(type = null) {
 
@@ -1513,8 +1502,6 @@ function SetTableOfStrongestOfEachType(search_unreleased, search_mega,
      * Checks if the any of the strongest movesets of a specific pokemon
      * is stronger than any of the current strongest pokemon of each type.
      * If it is, updates the strongest pokemon map.
-     * 
-     * Receives the pokemon's jb object as an argument.
      */
     function CheckIfStronger(jb_pkm_obj, mega, mega_y, shadow) {
 
@@ -1646,8 +1633,6 @@ function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
      *
      * The array is sorted every time so that it is always the weakest
      * pokemon in it that gets replaced.
-     * 
-     * Receives the pokemon's jb object as an argument.
      */
     function CheckIfStrongEnough(jb_pkm_obj, mega, mega_y, shadow) {
 
@@ -1763,8 +1748,6 @@ function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
  * Gets map of a specific pokemon's strongest movesets for each type.
  * If the 'search_type' param is specified, only tries to find movesets
  * of that type.
- * 
- * Receives the pokemon's jb object as an argument.
  */
 function GetPokemonStrongestMovesets(jb_pkm_obj, mega, mega_y, shadow,
         search_elite, search_type = null) {
