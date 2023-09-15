@@ -1634,7 +1634,7 @@ function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
      * The array is sorted every time so that it is always the weakest
      * pokemon in it that gets replaced.
      */
-    function CheckIfStrongEnough(jb_pkm_obj, mega, mega_y, shadow) {
+    function CheckIfStronger(jb_pkm_obj, mega, mega_y, shadow) {
 
         const types_movesets = GetPokemonStrongestMovesets(jb_pkm_obj,
                 mega, mega_y, shadow, search_elite, type);
@@ -1703,19 +1703,19 @@ function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
         const can_be_mega = jb_pkm_obj.mega;
 
         // default form
-        CheckIfStrongEnough(jb_pkm_obj, false, false, false);
+        CheckIfStronger(jb_pkm_obj, false, false, false);
 
         // shadow (except not released when it shouldn't)
         if (search_shadow && can_be_shadow
                 && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
-            CheckIfStrongEnough(jb_pkm_obj, false, false, true);
+            CheckIfStronger(jb_pkm_obj, false, false, true);
         }
 
         // mega(s)
         if (search_mega && can_be_mega) {
-            CheckIfStrongEnough(jb_pkm_obj, true, false, false);
+            CheckIfStronger(jb_pkm_obj, true, false, false);
             if (id == 6 || id == 150) // charizard and mewtwo
-                CheckIfStrongEnough(jb_pkm_obj, true, true, false);
+                CheckIfStronger(jb_pkm_obj, true, true, false);
         }
 
         // other forms
@@ -1728,11 +1728,11 @@ function SetTableOfStrongestOfOneType(search_unreleased, search_mega,
             if (!jb_pkm_obj || !search_unreleased && !jb_pkm_obj.released)
                 continue;
 
-            CheckIfStrongEnough(jb_pkm_obj, false, false, false);
+            CheckIfStronger(jb_pkm_obj, false, false, false);
             // other forms and shadow (except not released when it shouldn't)
             if (search_shadow && can_be_shadow
                     && !(!search_unreleased && !jb_pkm_obj.shadow_released)) {
-                CheckIfStrongEnough(jb_pkm_obj, false, false, true);
+                CheckIfStronger(jb_pkm_obj, false, false, true);
             }
         }
     }
