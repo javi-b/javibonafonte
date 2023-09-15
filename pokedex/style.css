@@ -27,6 +27,26 @@ th, td {
     padding: 0.25em 0;
 }
 
+button {
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--col-main);
+    background-color: var(--col-so-off);
+    border: 1px solid var(--col-dark-main);
+    border-radius: var(--border-radius);
+    font-size: 12.6px;
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
+}
+
+button:hover {
+    background-color: var(--col-so-off);
+    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.5);
+}
+
+button:focus {
+    outline: 1px solid var(--col-off);
+}
+
 .table-bg th { background-color: var(--col-so-off); }
 .table-bg tr:nth-child(even) { background-color: WhiteSmoke; }
 
@@ -369,6 +389,11 @@ th, td {
     border: 1px solid var(--col-dark-main);
     border-radius: var(--border-radius);
     font-size: 12.6px;
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
+}
+
+#stats-form input[type="submit"]:hover {
+    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.5);
 }
 
 #stats-form input[type="submit"]:focus {
