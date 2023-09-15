@@ -201,10 +201,6 @@ button:focus {
  * Specific
  */
 
- #site {
-    overflow: hidden; /* prevents unexpected scrollbars */
- }
-
 #loading-bar-c {
     position: fixed;
     width: 0;
