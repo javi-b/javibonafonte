@@ -190,6 +190,10 @@ function OnDocumentClick(event)  {
         // hides the counters popup if visible
         if ($("#counter-popup").css("display") != "none")
             ShowCountersPopup(this, false);
+        // removes rat pcts borders
+        let rat_pcts = $(".counter-rat-pct > a");
+        for (rat_pct of rat_pcts)
+            $(rat_pct).css("border", "none");
     }
 }
 
@@ -1511,6 +1515,14 @@ function ProcessAndSetCountersFromArrays(counters, mega_counters) {
 function ShowCountersPopup(hover_element, show, counter = null) {
 
     if (show && counter) {
+
+        // sets hover element's border for touch screens
+        if (has_touch_screen) {
+            let rat_pcts = $(".counter-rat-pct > a");
+            for (rat_pct of rat_pcts)
+                $(rat_pct).css("border", "none");
+            $(hover_element).css("border", "1px solid var(--col-off)");
+        }
 
         // sets the popup's position
 
