@@ -10,6 +10,28 @@ $(document).ready(Main);
 
 // global constants and variables
 
+// whether user has touch screen
+let has_touch_screen = false;
+if ("maxTouchPoints" in navigator) {
+    has_touch_screen = navigator.maxTouchPoints > 0;
+} else if ("msMaxTouchPoints" in navigator) {
+    has_touch_screen = navigator.msMaxTouchPoints > 0;
+} else {
+    let mq = window.matchMedia && matchMedia("(pointer:coarse)");
+    if (mq && mq.media === "(pointer:coarse)") {
+        has_touch_screen = !!mq.matches;
+    } else if ('orientation' in window) {
+        has_touch_screen = true; // deprecated, but good fallback
+    } else {
+        // Only as a last resort, fall back to user agent sniffing
+        let UA = navigator.userAgent;
+        has_touch_screen = (
+            /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+            /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+        );
+    }
+}
+
 const JB_URL = "https://raw.githubusercontent.com/javi-b/pokemon-resources/main/";
 const GIFS_URL = JB_URL + "graphics/ani/";
 const SHINY_GIFS_URL = JB_URL + "graphics/ani-shiny/";
@@ -48,6 +70,8 @@ let selected_suggestion_i = -1;
  * Main function.
  */
 function Main() {
+
+    $(document).click(function(event) { OnDocumentClick(event); });
 
     $("#input").bind("keydown", OnInputKeyDown);
     $("#input").bind("keyup", OnInputKeyUp);
@@ -146,6 +170,26 @@ function IncreaseLoadingVal() {
             $("#loading-bar").css("display", "none");
         }, 100);
         CheckURLAndAct();
+    }
+}
+
+/**
+ * Document's general click callback.
+ */
+function OnDocumentClick(event)  {
+
+    // function only used on touch screen devices
+    if (!has_touch_screen)
+        return;
+
+    let target = $(event.target);
+
+    // if not clicking the counters rating pct or the counters popup...
+    if (!$(target).closest("#counters-popup").length
+            && !$(target).closest(".counter-rat-pct").length) {
+        // hides the counters popup if visible
+        if ($("#counter-popup").css("display") != "none")
+            ShowCountersPopup(this, false);
     }
 }
 
@@ -1421,13 +1465,23 @@ function ProcessAndSetCountersFromArrays(counters, mega_counters) {
             rat_pct_a.html("<b>" + rat_pct.toFixed(0) + "%</b>"
                 + ((counter.mega)?" (M)":"")
                 + ((counter.shadow)?" (Sh)":"") + "<br>");
-            rat_pct_a.click(function() {
-                LoadPokemonAndUpdateURL(counter.id, counter.form,
-                    counter.mega, counter.mega_y);
-                window.scrollTo(0, 0);
-            });
-            rat_pct_a.mouseenter(function() { ShowCountersPopup(this, true, counter); });
-            rat_pct_a.mouseleave(function() { ShowCountersPopup(this, false); });
+            if (has_touch_screen) {
+                rat_pct_a.click(function() {
+                    ShowCountersPopup(this, true, counter);
+                });
+            } else {
+                rat_pct_a.mouseenter(function() {
+                    ShowCountersPopup(this, true, counter);
+                });
+                rat_pct_a.mouseleave(function() {
+                    ShowCountersPopup(this, false);
+                });
+                rat_pct_a.click(function() {
+                    LoadPokemonAndUpdateURL(counter.id, counter.form,
+                        counter.mega, counter.mega_y);
+                    window.scrollTo(0, 0);
+                });
+            }
             rat_pcts_span.append(rat_pct_a);
         }
 
@@ -1490,6 +1544,16 @@ function ShowCountersPopup(hover_element, show, counter = null) {
             + counter.fm
             + "</span> <span class='type-text bg-" + counter.cm_type + "'>"
             + counter.cm + "</span></span>");
+
+        // sets popup's click callback for touch devices
+        if (has_touch_screen) {
+            $("#counters-popup").unbind("click");
+            $("#counters-popup").click( function() {
+                LoadPokemonAndUpdateURL(counter.id, counter.form,
+                    counter.mega, counter.mega_y);
+                window.scrollTo(0, 0);
+            });
+        }
 
         // shows the popup
         $("#counters-popup").css("display", "inline");
