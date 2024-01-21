@@ -166,6 +166,11 @@ abbr[title] {
     border-radius: var(--border-radius);
 }
 
+.outline-text {
+    outline: 1px dotted black;
+    outline-offset: 0.5em;
+}
+
 .shadow { box-shadow: 10px 10px 3px 0px rgba(0,0,0,0.5); }
 
 .indent { text-indent: 3em; }

@@ -1,0 +1,17 @@
+/* 2023/style.css */
+
+/*
+ * General
+ */
+
+.hr-text {
+    width: 100%;
+    height: 0.75em;
+    border-bottom: 1px solid var(--col-off);
+    text-align: center;
+}
+
+.hr-text span {
+    background-color: var(--col-bg);
+    padding: 0 0.5em;
+}
