@@ -158,7 +158,8 @@ function OnStart() {
 
     // sets html
 
-    $("#english").text(vocab_pool[vocab_i].english);
+    SetEnglish(vocab_i);
+
     $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
@@ -248,7 +249,7 @@ function OnNext() {
 
     // updates html
 
-    $("#english").text(vocab_pool[vocab_i].english);
+    SetEnglish(vocab_i);
 
     $("#correctness").css("display", "none");
     $("#input").val("");
@@ -257,6 +258,18 @@ function OnNext() {
 
     $("#good-answer").css("display", "none");
     $("#next").css("display", "none");
+}
+
+/**
+ * Sets the english text for the current vocab unit.
+ */
+function SetEnglish(vocab_i) {
+
+    let length = vocab_pool[vocab_i].hanyu.length;
+    let length_text = ((length > 1)
+        ? " <span class='off small-text'>(" + length + ")</span>"
+        : "");
+    $("#english").html(vocab_pool[vocab_i].english + length_text);
 }
 
 /**
