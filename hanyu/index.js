@@ -15,6 +15,9 @@ let num_corrects = 0, num_wrongs = 0;
 let session_started = false;
 let session_finished = false;
 
+let correct_audio = new Audio("audio/correct.wav");
+let incorrect_audio = new Audio("audio/incorrect.wav");
+
 /**
  * Main function.
  */
@@ -178,6 +181,12 @@ function OnSubmitAnswer() {
     const answer = $("#input").val();
     const correct = answer == vocab_pool[vocab_i].hanyu;
     const group_i = vocab_pool[vocab_i].group_i;
+
+    // plays audio
+    if (correct)
+        correct_audio.play();
+    else
+        incorrect_audio.play();
 
     // updates number of correct or wrong answers
     if (correct)
