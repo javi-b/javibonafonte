@@ -15,18 +15,35 @@
 <body>
 <div id=site>
 
-    <div id=header>
-        <h1>汉语</h1>
-        <p>by Javi Bonafonte</p>
+    <div id=side-boxes>
+        <div class=side-box>
+            <p><b>Other Pages</b> <span class="side-box-hide small-text unselectable">[hide]</span></p>
+            <div class="side-box-list"><ul>
+                <li><a href=/>home page</a><span></span></li>
+                <li><b>汉语</b><span></span></li>
+                <li><a href=/2021_and_2022>什么也没有 (2021 and 2022)</a><span></span></li>
+                <li><a href=/pokedex>Palkiadex</a></li>
+                <li><a href=/2023>什么也没有 Nº2</a><span></span></li>
+            </ul></div>
+        </div>
     </div>
 
+    <br>
+    <p>Welcome to 汉语. The purpose of this page is to help memorizing Chinese vocabulary.<br>Select one or more vocab groups and press 开始 to start.</p>
+
+    <p>
+        <span id=strongest-filters>
+            <form autocomplete=off onsubmit="OnStart(); return false;">
+                <input type=checkbox class=group-checkbox value=hsk1 unchecked>hsk1</input>
+                <input type=checkbox class=group-checkbox value=hsk2 unchecked>hsk2</input>
+                <input type=checkbox class=group-checkbox value=hello_grammar unchecked>hello_grammar</input>
+                &emsp;
+                <input id=start type=submit disabled value=开始>
+            </form>
+        </span>
+    </p>
+
     <div class=center id=app>
-        <div id=groups-list-div><p id=groups-list></p></div>
-        <button id=start disabled>开始</button>
-        <div id=accuracy-div><div id=accuracy>
-            <img width=100px src=imgs/snorlax.png></img>
-            <p><span id=accuracy-value>-.-%</span><br>accuracy</p>
-        </div></div>
         <p id=english></p>
         <div id=correctness-div><p id=correctness></p></div>
         <form autocomplete=off onsubmit="OnSubmitAnswer(); return false;">
@@ -39,15 +56,18 @@
         <button class=invisible id=next>下一个</button>
     </div>
 
-    <hr>
+    <div id=accuracy-div><div class="center invisible" id=accuracy>
+        <p><span id=accuracy-value>?.??%</span><br>accuracy</p>
+    </div></div>
 
     <div class=row>
         <div class=column-l>
-            <h2>欢迎你</h2>
-            <p>to 汉语. The purpose of this page is to help memorizing Chinese vocabulary. <b>Select one or more vocab groups and press 开始 to start.</b></p>
+            <img width=100% src="imgs/tiger.jpg">
         </div>
-        <div class=column-r id=vocab-controls>
-            <p class=center><b>Vocab Groups</b></p>
+        <div class=column-r>
+            <div class=invisible id=vocab-progress>
+                <p class=center><b>Vocab groups progress</b></p>
+            </div>
         </div>
     </div>
 

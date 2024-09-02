@@ -2,7 +2,7 @@ $(document).ready(Main);
 
 // global constants and variables
 
-const vocab_names = ["hsk1", "hsk2"];
+const vocab_names = ["hsk1", "hsk2", "hello_grammar"];
 
 let vocab_groups = []; // list of vocab groups
 let vocab_groups_progress; // number of correct answers for each group
@@ -23,42 +23,14 @@ let incorrect_audio = new Audio("audio/incorrect.wav");
  */
 function Main() {
 
-    LoadVocabHTML();
     LoadVocabFiles();
 
     vocab_groups_progress = new Array(vocab_names.length);
     vocab_groups_progress.fill(0);
 
-    $("#start").click(OnStart);
+    $(".side-box-hide").click(SwapSideBoxStatus);
+    $(".group-checkbox").click(SelectVocabGroup);
     $("#next").click(OnNext);
-    $(".group-title").click(SelectVocabGroup);
-}
-
-/**
- * Loads HTML elements related to every vocab group.
- */
-function LoadVocabHTML() {
-
-    let div = $("#vocab-controls");
-
-    for (let name of vocab_names) {
-
-        const p = $("<p></p>");
-        const prgr_title = $('<span class="group-title ' + name + '">'
-                + name + '</span>');
-        const prgr = $('<span class=prgr><span class="prgr-val ' + name
-                + '"></span></span>');
-        const prgr_label = $('<span class="prgr-label ' + name
-                + '">-%</span>');
-        const prgr_small_label = $('<span class="prgr-small-label ' + name
-                + '"></span>');
-
-        p.append(prgr_title);
-        p.append(prgr);
-        p.append(prgr_label);
-        p.append(prgr_small_label);
-        div.append(p);
-    }
 }
 
 /**
@@ -117,8 +89,9 @@ function GetAccentPinyin(pinyin_word) {
         "ū", "ǘ", "ǚ", "ǜ"
     ];
 
-    let word = pinyin_word.slice(0, -1);
-    let tone_i = pinyin_word.slice(-1) - 1;
+    let has_tone_number = ["0","1","2","3","4"].some(char => pinyin_word.includes(char));
+    let word = (has_tone_number) ? pinyin_word.slice(0, -1) : pinyin_word;
+    let tone_i = (has_tone_number) ? pinyin_word.slice(-1) - 1 : -1;
 
     if (tone_i == -1) // if the word has no tone, returns the word clean
         return word;
@@ -134,8 +107,42 @@ function GetAccentPinyin(pinyin_word) {
     if (vowel_i == -1) // if no vowel is found, returns the word clean
         return word;
 
-    return (word.replace(vowels[vowel_i],
-            accent_vowels[tone_i + vowel_i * 4]));
+    return (word.replace(vowels[vowel_i], accent_vowels[tone_i + vowel_i * 4]));
+}
+
+/**
+ * Swaps whether a side box list is being displayed or not.
+ */
+function SwapSideBoxStatus() {
+
+    const list = $(this).parent().parent().children(".side-box-list");
+
+    if (list.css("display") == "none") {
+        list.css("display", "initial");
+        $(this).text("[hide]");
+    } else {
+        list.css("display", "none");
+        $(this).text("[show]");
+    }
+}
+
+/**
+ * Selects vocab group.
+ */
+function SelectVocabGroup() {
+
+    // if the session already started, return immediately
+    if (session_started)
+        return;
+
+    const vocab_group_i = vocab_names.indexOf($(this).prop("value"));
+    if (enabled_vocab_groups.has(vocab_group_i))
+        enabled_vocab_groups.delete(vocab_group_i);
+    else
+        enabled_vocab_groups.add(vocab_group_i);
+
+    // updates whether start button is disabled
+    $("#start").prop("disabled", (enabled_vocab_groups.size == 0) ? true : false);
 }
 
 /**
@@ -160,18 +167,47 @@ function OnStart() {
 
     SetEnglish(vocab_i);
 
+    let group_checkboxes = $(".group-checkbox");
+    for (let group_checkbox of group_checkboxes)
+        $(group_checkbox).prop("disabled", true);
+
+    SetVocabProgressHTML();
+
+    $("#accuracy").css("display", "initial");
     $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
-    $("#accuracy").css("display", "initial");
-
-    let group_titles = $(".group-title");
-    for (let group_title of group_titles) {
-        $(group_title).css("cursor", "default");
-        $(group_title).css("text-decoration", "none");
-    }
 
     session_started = true; // session_started flag
+}
+
+/**
+ * Sets HTML elements related to the chosen vocab groups.
+ */
+function SetVocabProgressHTML() {
+
+    let div = $("#vocab-progress");
+
+    div.css("display", "initial");
+
+    for (let i = 0; i < vocab_names.length; i++) {
+        if (!enabled_vocab_groups.has(i))
+            continue;
+
+        let name = vocab_names[i];
+
+        const p = $("<p></p>");
+        const prgr_title = $('<span class=group-title>' + name + '</span>');
+        const prgr = $('<span class=prgr><span class="prgr-val ' + name + '"></span></span>');
+        const prgr_label = $('<span class="prgr-label ' + name + '">0%</span>');
+        const prgr_small_label = $('<span class="prgr-small-label off ' + name + '"></span>');
+
+        p.append(prgr_title);
+        p.append(prgr);
+        p.append(prgr_label);
+        p.append(prgr_small_label);
+        div.append(p);
+    }
 }
 
 /**
@@ -298,47 +334,4 @@ function SetVocabGroupProgress(group_i, value) {
         $(small_label).text(" ( " + left + " left )");
     else
         $(small_label).text("");
-}
-
-/**
- * Selects vocab group.
- */
-function SelectVocabGroup() {
-
-    // if the session already started, return immediatly
-    if (session_started)
-        return;
-
-    const classes = $(this).attr("class").split(/\s+/);
-    const vocab_name = classes[1];
-    const vocab_group_i = vocab_names.indexOf(vocab_name);
-
-    if (enabled_vocab_groups.has(vocab_group_i)) {
-        enabled_vocab_groups.delete(vocab_group_i);
-        $(this).css("font-weight", "normal");
-        $(".prgr-label." + vocab_name).css("font-weight", "normal");
-    } else {
-        enabled_vocab_groups.add(vocab_group_i);
-        $(this).css("font-weight", "bold");
-        $(".prgr-label." + vocab_name).css("font-weight", "bold");
-    }
-
-    // updates list of selected vocab groups
-    let str = "";
-    if (enabled_vocab_groups.size > 0) {
-        str += "( ";
-        let i = 0;
-        for (let group_i of enabled_vocab_groups) {
-            str += vocab_names[group_i];
-            if (i < enabled_vocab_groups.size - 1)
-                str += ", ";
-            i++;
-        }
-        str += " )";
-    }
-    $("#groups-list").text(str);
-
-    // updates whether start button is disabled
-    $("#start").prop("disabled",
-            (enabled_vocab_groups.size == 0) ? true : false);
 }

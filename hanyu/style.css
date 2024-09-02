@@ -3,6 +3,17 @@
 /*
  * General
  */
+:root {
+    --col-bg: whitesmoke;
+}
+
+ body {
+    /* sans-serif */
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    /* serif */
+    /*font-family: "SimSun", "STSong", "Songti SC", "PMingLiU", "Microsoft JhengHei", "MingLiU", serif;*/
+    font-size: 14px;
+}
 
 hr {
     margin: 100px 0;
@@ -19,21 +30,9 @@ hr {
     height: 250px;
 }
 
-#groups-list-div {
-    position: relative;
-    margin: 0 auto;
-    top: -2.5em;
-    left: 1em;
-    width: 0;
-    height: 0;
-}
-
-#groups-list {
-    position: absolute;
-    width: 200px;
-    text-align: left;
-    font-size: 90%;
-    color: var(--col-off);
+#side-boxes {
+    font-family: Georgia, Times, Times New Roman, serif;
+    font-size: 16px;
 }
 
 #english, #good-answer {
@@ -42,21 +41,16 @@ hr {
 
 #accuracy-div {
     position: relative;
-    margin: 0 auto;
-    left: -400px;
-    top: 200px;
+    left: 50px;
+    top: 50px;
     width: 0;
     height: 0;
 }
 
 #accuracy {
     position: absolute;
-    display: none;
     padding: 4px;
     background-color: var(--col-so-off);
-    border: 1px solid var(--col-main);
-    border-radius: var(--border-radius);
-    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
     font-weight: bold;
 }
 
@@ -84,27 +78,33 @@ hr {
     margin: 0 auto;
     font-size: 100%;
     text-align: center;
+    background-color: var(--col-bg);
+}
+
+.group-title, .prgr, .prgr-val, .prgr-label, .prgr-small-label {
+    vertical-align: middle;
 }
 
 .group-title {
-    cursor: pointer;
     display: inline-block;
     width: 100px;
     text-align: right;
-    text-decoration: underline;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 0.5em;
 }
 
 .prgr {
     display: inline-flex;
     justify-content: flex-end;
-    margin: 0 0.5em;
-    height: 1em;
+    margin: 0;
+    height: 12px;
     width: 200px;
-    background-image:
-        linear-gradient(to right, var(--col-light), GreenYellow);
+    background-image: linear-gradient(to right, var(--col-light), GreenYellow);
     border: 1px solid var(--col-dark-main);
     border-radius: var(--border-radius);
-    box-shadow: 5px 5px 3px 0px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);
 }
 
 .prgr-val {
@@ -113,7 +113,6 @@ hr {
     background: var(--col-so-off);
 }
 
-.prgr-small-label {
-    font-size: 90%;
-    color: var(--col-off);
+.prgr-label {
+    padding-left: 0.5em;
 }
