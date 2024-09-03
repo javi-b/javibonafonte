@@ -129,6 +129,10 @@ abbr[title] {
     user-select: none;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .monospace {
     font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
 }
@@ -146,6 +150,12 @@ abbr[title] {
     margin-left: auto;
     margin-right: auto;
 }
+
+.float-right { float: right; }
+.float-left { float: left; }
+
+.clear-right { clear: right; }
+.clear-left { clear: left; }
 
 .big-vertical-m { margin-top: 100px; margin-bottom: 100px; }
 
@@ -263,6 +273,7 @@ abbr[title] {
     top: 10%;
     left: 50%;
     transform: translateX(-750px);
+    z-index: 6;
 }
 
 @media screen and (max-width: 1520px) {
