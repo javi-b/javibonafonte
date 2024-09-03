@@ -81,3 +81,27 @@ a {
         linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
         url(imgs/scrot_2023.png);
 }
+
+#hub-nge {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_nge.png);
+}
+
+#hub-gentoo {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_gentoo.jpg);
+}
+
+#hub-zibuyu {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_zibuyu.jpg);
+}
+
+#hub-dadlore {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.1)),
+        url(imgs/scrot_dadlore.png);
+}
