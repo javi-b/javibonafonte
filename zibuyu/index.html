@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset=UTF-8>
+    <title>子不语</title>
+    <link rel="icon" type="image/ico" href="../favicon.ico"/>
+    <link rel="stylesheet" href="../style_general.css">
+    <link rel="stylesheet" href="style.css">
+    <script src=../live.js></script>
+    <script src=../jquery-3.6.0.min.js></script>
+    <script src=index.js></script>
+</head>
+
+<body>
+<div id=english-div><p id=english>-</p></div>
+<div id=site>
+    <div id=header></div>
+    <div id=side-boxes>
+        <div class=side-box>
+            <p><b>Other Pages</b> <span class="side-box-hide small-text unselectable">[hide]</span></p>
+            <div class="side-box-list"><ul>
+                <li><a href=/>home page</a></li>
+                <li><a href=/hanyu>汉语</a></li>
+                <li><a href=/2021_and_2022>什么也没有 (2021 and 2022)</a></li>
+                <li><a href=/pokedex>Palkiadex</a></li>
+                <li><a href=/2023>什么也没有 Nº2</a></li>
+                <li><a href=/wip.html>Neon Genesis Evangelion</a></li>
+                <li><a href=/wip.html>gentoo</a></li>
+                <li><b>子不语</b></li>
+                <li><a href=/wip.html>Dark and Darker Lore</a></li>
+            </ul></div>
+        </div>
+    </div>
+    <div class="row small-text">
+        <div class=column-l>
+            <img width=100% src="imgs/zibuyu1.jpg"></imgs>
+        </div>
+        <div class=column-r>
+            <b>what is this?</b>
+            <p>I manually copy the 子不语 story from the book into a json file, which I input into a python script that adds the generated pinyin and English translation and outputs to a different json file. Such output json is used to generate this page, which I use as aid for reading the book.</p>
+            <p>The google translation isn't the best... but it's enough to clarify doubts or learn new words.</p>
+            <p class=no-bottom-m>libraries used:</p>
+            <ul class=no-top-m>
+                <li><a target=_blank href=https://pypi.org/project/jieba/>jieba</a> → segments chinese texts into words</li>
+                <li><a target=_blank href=https://pypi.org/project/pypinyin/>pypinyin</a> → generates pinyin</li>
+                <li><a target=_blank href=https://pypi.org/project/pypinyin-dict/>pypinyin-dict</a> → improves pinyin generation</li>
+                <li><a target=_blank href=https://pypi.org/project/deep-translator/>deep-translator</a> → translates using google</li>
+            </ul>
+        </div>
+    </div>
+    <br>
+    <table id=index>
+        <tr>
+            <td>序</td>
+            <td><b>第一回 茧</b></td>
+            <td>第二回 木芙蓉</td>
+            <td>第三回 影</td>
+            <td>第四回 老木匠</td>
+            <td>番外篇 虎</td>
+        </tr>
+    </table>
+    <br>
+    <div id=zibuyu></div>
+    <div class=center id=footer>
+        <p class="small-text"><a href=#>[返回顶部]</a></p>
+    </div>
+</div>
+</body>

@@ -1,0 +1,111 @@
+/* zibuyu/style.css */
+
+/**
+ * General
+ */
+
+:root {
+    --col-bg: whitesmoke;
+}
+
+ body {
+    margin: 0;
+    /*font-family: Verdana,Geneva,sans-serif;*/
+    /* sans-serif */
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    /* serif */
+    /*font-family: "SimSun", "STSong", "Songti SC", "PMingLiU", "Microsoft JhengHei", "MingLiU", serif;*/
+    font-size: 14px;
+    text-align: left;
+}
+
+#zibuyu .column-l { margin-right: 0.5em; }
+#zibuyu .column-r { margin-left: 0.5em; }
+#zibuyu .column-l, #zibuyu .column-r {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    border: 1px dotted black;
+}
+
+#zibuyu .pageless-column {
+    border: none;
+}
+
+.page > p {
+    margin: 0;
+    margin-bottom: 1em;
+}
+
+.page-number {
+    margin: 0;
+    margin-top: auto;
+}
+
+.hanyu {
+    font-size: 16px;
+}
+
+.pinyin {
+    font-size: 90%;
+    color: var(--col-off);
+}
+
+.style-thought {
+    /*border: 1px solid var(--col-off);*/
+    /*box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.5);*/
+    /*text-shadow:
+        -1px 0px 0 #ddd,
+        0px -1px 0 #ddd,
+        1px 0px 0 #ddd,
+        0px 1px 0 #ddd;*/
+}
+
+.style-loud > .hanyu {
+    /* serif */
+    font-family: "SimSun", "STSong", "Songti SC", "PMingLiU", "Microsoft JhengHei", "MingLiU", serif;
+    font-size: 24px;
+}
+
+.highlighted {
+    outline: 1px dotted var(--col-off);
+}
+
+/**
+ * Specific
+ */
+
+#header {
+    margin: 0;
+    margin-top: 5em;
+}
+
+#side-boxes {
+    font-family: Georgia, Times, Times New Roman, serif;
+    font-size: 16px;
+    text-shadow: none;
+}
+
+ #english-div {
+    position: fixed;
+    top: 0;
+    background: linear-gradient(var(--col-bg) 75%, rgba(245,245,245,0));
+    width: 100%;
+ }
+
+ #english {
+    margin: 1em auto;
+    width: 900px;
+    font-weight: bold;
+ }
+
+ #index {
+    width: 75%;
+    margin: 0 auto;
+    font-size: 16px;
+ }
+ 
+ #index td {
+    text-align: center;
+ }
