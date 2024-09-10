@@ -30,6 +30,7 @@ function Main() {
 
     $(".side-box-hide").click(SwapSideBoxStatus);
     $(".group-checkbox").click(SelectVocabGroup);
+    $("#input").on("input", OnInputChange)
     $("#next").click(OnNext);
 }
 
@@ -166,6 +167,7 @@ function OnStart() {
     // sets html
 
     SetEnglish(vocab_i);
+    SetCharsLeft(vocab_i);
 
     let group_checkboxes = $(".group-checkbox");
     for (let group_checkbox of group_checkboxes)
@@ -174,6 +176,7 @@ function OnStart() {
     SetVocabProgressHTML();
 
     $("#accuracy").css("display", "initial");
+    $("#chars-left").css("display", "initial");
     $("#input").css("display", "block");
     $("#input").focus();
     $("#start").prop("disabled", true);
@@ -207,6 +210,25 @@ function SetVocabProgressHTML() {
         p.append(prgr_label);
         p.append(prgr_small_label);
         div.append(p);
+    }
+}
+
+/**
+ * Callback function for when input text changes.
+ */
+function OnInputChange() {
+
+    // regex for hanyu characters, including punctuation
+    const non_hanyu_pattern = /[^\u4E00-\u9FFF\u3400-\u4DBF\u3000-\u303F\uFF00-\uFFEF]+/;
+    const input_text = $(this).val();
+
+    if (!non_hanyu_pattern.test(input_text)) { // if input text contains only hanyu...
+        // updates number of characters left
+        let chars_left = vocab_pool[vocab_i].hanyu.length - $(this).val().length;
+        if (chars_left == 0)
+            $("#chars-left").text("");
+        else
+            $("#chars-left").text("(" + chars_left + ")");
     }
 }
 
@@ -251,6 +273,7 @@ function OnSubmitAnswer() {
     $("#correctness").css("color", (correct) ? "SteelBlue" : "DarkRed");
     $("#correctness").text((correct) ? "正确！" : "错误");
     $("#correctness").css("display", "initial");
+    $("#chars-left").css("display", "none");
     $("#input").prop("disabled", true);
 
     $("#good-answer").css("display", "block");
@@ -286,8 +309,10 @@ function OnNext() {
     // updates html
 
     SetEnglish(vocab_i);
+    SetCharsLeft(vocab_i);
 
     $("#correctness").css("display", "none");
+    $("#chars-left").css("display", "initial");
     $("#input").val("");
     $("#input").prop("disabled", false);
     $("#input").focus();
@@ -301,11 +326,16 @@ function OnNext() {
  */
 function SetEnglish(vocab_i) {
 
-    let length = vocab_pool[vocab_i].hanyu.length;
-    let length_text = ((length > 1)
-        ? " <span class='off small-text'>(" + length + ")</span>"
-        : "");
-    $("#english").html(vocab_pool[vocab_i].english + length_text);
+    $("#english").html(vocab_pool[vocab_i].english);
+}
+
+/**
+ * Sets the number of hanyu characters left for the current vocab unit.
+ */
+function SetCharsLeft(vocab_i) {
+
+    let chars_left = vocab_pool[vocab_i].hanyu.length;
+    $("#chars-left").text("(" + chars_left + ")");
 }
 
 /**
@@ -331,7 +361,7 @@ function SetVocabGroupProgress(group_i, value) {
     $(label).text(pct.toFixed(0) + "%");
     let small_label = $(".prgr-small-label." + vocab_names[group_i])[0];
     if (left > 0)
-        $(small_label).text(" ( " + left + " left )");
+        $(small_label).text(" (" + left + " left)");
     else
         $(small_label).text("");
 }

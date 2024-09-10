@@ -56,7 +56,7 @@ hr {
 
 #accuracy img, #accuracy p { margin: 0; }
 
-#correctness-div {
+#input-side-div {
     position: relative;
     margin: 0 auto;
     top: -2em;
@@ -70,6 +70,11 @@ hr {
     display: none;
     width: 4em;
     font-weight: bold;
+}
+
+#chars-left {
+    position: absolute;
+    display: none;
 }
 
 #input {

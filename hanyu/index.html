@@ -49,7 +49,10 @@
 
     <div class=center id=app>
         <p id=english></p>
-        <div id=correctness-div><p id=correctness></p></div>
+        <div id=input-side-div>
+            <p id=correctness></p>
+            <p id=chars-left class="off"></p>
+        </div>
         <form autocomplete=off onsubmit="OnSubmitAnswer(); return false;">
             <input id=input type=text>
         </form>
