@@ -119,12 +119,11 @@ body {
  */
 @media only screen and (max-width: 768px) and (pointer: coarse) and (hover: none) {
 
-    body { font-size: 21px; }
-    .small-text { font-size: 19.5px; }
-    .hanyu { font-size: 24px; }
-    .pinyin { font-size: 19.5px; }
-    .style-loud > .hanyu { font-size: 36px; }
-    #index { font-size: 24px; }
+    #site {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
 
     .row {
         flex-direction: column !important;
