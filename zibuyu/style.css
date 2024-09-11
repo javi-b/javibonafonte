@@ -125,6 +125,14 @@ body {
         margin: 0;
     }
 
+    /* 120% fonts increase */
+    body { font-size: 16.8px; /*21px;*/ }
+    .small-text { font-size: 15.6px; /*19.5px;*/ }
+    .hanyu { font-size: 19.2px; /*24px;*/ }
+    .pinyin { font-size: 15.6px; /*19.5px;*/ }
+    .style-loud > .hanyu { font-size: 28.8px; /*36px;*/ }
+    #index { font-size: 19.2px; /*24px;*/ }
+
     .row {
         flex-direction: column !important;
     }
