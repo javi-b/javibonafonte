@@ -121,3 +121,32 @@ hr {
 .prgr-label {
     padding-left: 0.5em;
 }
+
+/*
+ * styles for mobile
+ */
+@media only screen and (max-width: 768px) and (pointer: coarse) and (hover: none) {
+
+    #site {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    body { font-size: 16.8px; /*21px;*/ }
+
+    .group-checkbox {
+        display: flex;
+    }
+
+    .row {
+        flex-direction: column !important;
+    }
+    .column-l, .column-r {
+        margin: 0.5em;
+    }
+
+    .prgr {
+        width: 120px;
+    }
+}

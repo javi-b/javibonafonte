@@ -3,6 +3,7 @@
 
 <head>
     <meta charset=UTF-8>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汉语</title>
     <link rel="icon" type="image/ico" href="../favicon.ico"/>
     <link rel="stylesheet" href="../style_general.css">
@@ -36,12 +37,20 @@
     <p>Welcome to 汉语. The purpose of this page is to help memorizing Chinese vocabulary.<br>Select one or more vocab groups and press 开始 to start.</p>
 
     <p>
-        <span id=strongest-filters>
+        <span>
             <form autocomplete=off onsubmit="OnStart(); return false;">
-                <input type=checkbox class=group-checkbox value=hsk1 unchecked>hsk1</input>
-                <input type=checkbox class=group-checkbox value=hsk2 unchecked>hsk2</input>
-                <input type=checkbox class=group-checkbox value=hsk3 unchecked>hsk3</input>
-                <input type=checkbox class=group-checkbox value=hello_grammar unchecked>hello_grammar</input>
+                <label class=group-checkbox>
+                    <input type=checkbox class=group-checkbox value=hsk1 unchecked>hsk1</input>
+                </label>
+                <label class=group-checkbox>
+                    <input type=checkbox class=group-checkbox value=hsk2 unchecked>hsk2</input>
+                </label>
+                <label class=group-checkbox>
+                    <input type=checkbox class=group-checkbox value=hsk3 unchecked>hsk3</input>
+                </label>
+                <label class=group-checkbox>
+                    <input type=checkbox class=group-checkbox value=hello_grammar unchecked>hello_grammar</input>
+                </label>
                 &emsp;
                 <input id=start type=submit disabled value=开始>
             </form>
