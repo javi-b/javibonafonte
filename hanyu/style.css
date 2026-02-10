@@ -35,6 +35,10 @@ hr {
     font-size: 16px;
 }
 
+#hanyu-intro {
+    margin-top: 3em;
+}
+
 #english, #good-answer {
     margin: 2em;
 }
@@ -135,18 +139,9 @@ hr {
 
     body { font-size: 16.8px; /*21px;*/ }
 
-    .group-checkbox {
-        display: flex;
-    }
-
-    .row {
-        flex-direction: column !important;
-    }
-    .column-l, .column-r {
-        margin: 0.5em;
-    }
-
-    .prgr {
-        width: 120px;
-    }
+    #hanyu-intro { margin-top: 1em; }
+    .group-checkbox { display: flex; }
+    .row { flex-direction: column !important; }
+    .column-l, .column-r { margin: 0.5em; }
+    .prgr { width: 120px; }
 }
