@@ -2,7 +2,7 @@ $(document).ready(Main);
 
 // global constants and variables
 
-const vocab_names = ["hsk1", "hsk2", "hsk3", "hello_grammar"];
+const vocab_names = ["hsk1", "hsk2", "hsk3", "hsk4", "hello_grammar"];
 
 let vocab_groups = []; // list of vocab groups
 let vocab_groups_progress; // number of correct answers for each group
